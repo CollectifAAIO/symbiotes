@@ -93,17 +93,15 @@ int LastButtonValue = 0;
 
 File root;
 int NbFiles[4] = {0};
-
 // Variables calib Proxi + Micro
 
-int ProxiMin = 1023;
-int ProxiMax = 0;
-int MicroMin = 1023;
-int MicroMax = 0;
+float ProxiMin = 1023;
+float ProxiMax = 0;
+float MicroMin = 1023;
+float MicroMax = 0;
 
 int ThreshPassage = 180 ; // AUTOMATIQUE (180, par défaut)
 int ThreshPeak = 60 ;     // AUTOMATIQUE : Seuil déclenchement peak
-int TransitionTrigLoop = 0;
 
 int TempsCalib = 5000 ;   // REGLAGE  : durée calibration quand le bouton est déclenché.
 
@@ -143,8 +141,7 @@ int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
 
 // Variables Loop Tremblement
-int StagnationPersonne = 0;
-int ActiveTremblingTime = 2000; // REGLAGE (Temps après lequel on déclenche le tremblement dès qu'une personne est resté à une certaine distance du symbiote)
+
 float ProxiRange = 0;
 float ProxiValue = 0;
 float ProxiLine = 0;
@@ -223,7 +220,7 @@ void loop() {
 
   //Micro Moyenne
 
-  MicroRms = rms1.read() * 1000.0f;            // DOIT ETRE COMPRIS DE 0 à 1
+  MicroRms = rms1.read() * 100.0f;            // DOIT ETRE COMPRIS DE 0 à 1
   MicroRA.addValue(MicroRms);
   Micro_Moyenne = MicroRA.getAverage();
   //  deriveeMic = MicroRms - MemMic;
@@ -270,6 +267,21 @@ void loop() {
   }
 
   jaugePeak = JaugePeak(DetectPeak, TpsStockagePeak);
+
+//  Serial.print("Micro : ");
+//  Serial.println(Micro_Moyenne);
+//  Serial.print("Proxi Median : ");
+//  Serial.println(ProxiMedian);
+//  Serial.print("DETECT PASSAGE : ");
+//  Serial.print(DetectPassage);
+//  Serial.print("  !!  JAUGE PASSAGE : ");
+//  Serial.println(jaugePassage);
+//  Serial.print("DETECT PEAK : ");
+//  Serial.print(DetectPeak);
+//  Serial.print("  !!  JAUGE PEAK : ");
+//  Serial.println(jaugePeak);
+//  Serial.println("----------");
+
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
@@ -321,42 +333,44 @@ void loop() {
     }
   }
 
-  // AUDIO PLAYERS
+  //    Serial.print("Millis - Reset Millis : ");
+  //    Serial.println(millis() - resetMillis);
+  //    Serial.print("Temps redéclenchement sample : ");
+  //    Serial.println(threshTrig);
+  //    Serial.println();
 
-  // RANDOM RETRIG ("Screaming" sounds)
+
+  // PLAYERS AUDIO
+
+  // Random Retrig
 
   if (millis() - resetMillis > threshTrig) {
     resetMillis = millis();
+
     sample_rand = URN(corpusSampleNumber) + 1;              // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
+
     SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
     TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
     threshTrig = random(randomMin, randomMax);
   }
 
-  // TREMBLING LOOP
+  // Loop Tremblement
 
-//  if (ProxiMedian <= TransitionTrigLoop) {
-//    StagnationPersonne = millis();
-//    if (millis() - StagnationPersonne >= ActiveTremblingTime) {
-//
-//    }
-//    else {
-//
-//    }
-//  }
-
-  ProxiRange = map(ProxiMedian, ProxiMin, TransitionTrigLoop, 100, 0);
+  ProxiRange = map(ProxiMedian, ProxiMin, ProxiMax - ProxiMax / 2, 100, 0);
   ProxiValue = constrain(ProxiRange, 0, 100) / 100;
   ProxiLine = Line (ProxiValue, TempsLineTremble);
 
-  // stop processing while configuring things
-  AudioNoInterrupts();
   mixer1.gain(1, ProxiLine);
   mixer2.gain(1, ProxiLine);
   AMSine.amplitude(ProxiLine);
   AMSine.frequency(ProxiLine * AMfreqMax);
 
-  // DYNAMIC MIX (stop hearing screaming sound while trembling)
+  LoopFile("tremble.wav");  // Joue le son en boucle
+
+  //  Serial.print("ProxiLine : ");
+  //  Serial.println(ProxiLine);
+
+  // MIX DYNAMIC
 
   if (ProxiLine > 0.1 ) {
     mixer1.gain(0, 0);
@@ -366,42 +380,19 @@ void loop() {
     mixer1.gain(0, 1);
     mixer2.gain(0, 1);
   }
-  //   resume processing
-  AudioInterrupts();
-
-  LoopFile("tremble.wav");  // Call and play the looping sound of trembling.
-
-  // MONITORING
-
-  //  Serial.print("Millis - Reset Millis : ");
-  //  Serial.println(millis() - resetMillis);
-  //  Serial.print("Micro : ");
-  //  Serial.println(Micro_Moyenne);
-  //  Serial.print("Proxi Median : ");
-  //  Serial.println(ProxiMedian);
-  //  Serial.print("DETECT PASSAGE : ");
-  //  Serial.print(DetectPassage);
-  //  Serial.print("  !!  JAUGE PASSAGE : ");
-  //  Serial.println(jaugePassage);
-  //  Serial.print("DETECT PEAK : ");
-  //  Serial.print(DetectPeak);
-  //  Serial.print("  !!  JAUGE PEAK : ");
-  //  Serial.println(jaugePeak);
-  //  Serial.println("----------");
-  //    AudioProcessorUsageMaxReset();
-  //    AudioMemoryUsageMaxReset();
-  //    Serial.print("CPU =");
-  //    Serial.print(AudioProcessorUsage());
-  //    Serial.print(",");
-  //    Serial.print(AudioProcessorUsageMax());
-  //    Serial.print("    ");
-  //    Serial.print("Memory: ");
-  //    Serial.print(AudioMemoryUsage());
-  //    Serial.print(",");
-  //    Serial.print(AudioMemoryUsageMax());
-  //    Serial.println("    ");
-
-  delay(10);
+  //  AudioProcessorUsageMaxReset();
+  //  AudioMemoryUsageMaxReset();
+  //  Serial.print("CPU =");
+  //  Serial.print(AudioProcessorUsage());
+  //  Serial.print(",");
+  //  Serial.print(AudioProcessorUsageMax());
+  //  Serial.print("    ");
+  //  Serial.print("Memory: ");
+  //  Serial.print(AudioMemoryUsage());
+  //  Serial.print(",");
+  //  Serial.print(AudioMemoryUsageMax());
+  //  Serial.println("    ");
+  delay(15);
 }
 
 
@@ -426,7 +417,7 @@ void CalibProxiMic () {
   Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
   while (millis() - InitTimerCalib < TempsCalib) {
     Proxi = analogRead(ProxiPin);
-    MicroRms = rms1.read() * 1000;
+    MicroRms = rms1.read() * 100;
     MicroRA.addValue(MicroRms);
     Micro_Moyenne = MicroRA.getAverage();
 
@@ -437,8 +428,7 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
-      ThreshPassage = ProxiMax - ProxiMax * 5 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
-
+      ThreshPassage = ProxiMax - ProxiMax * 10 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
     }
 
     if (Micro_Moyenne < MicroMin) {
@@ -447,15 +437,13 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Micro_Moyenne > MicroMax) {
       MicroMax = Micro_Moyenne;
-      ThreshPeak = MicroMin * 2;                        // REGLAGE auto du seuil de détection d'un PEAK
+      ThreshPeak = MicroMax / 3;                        // REGLAGE auto du seuil de détection d'un PEAK
     }
     delay(10);
   }
   mixer3.gain(0, 1);
   mixer4.gain(0, 1);
-  if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
-  TransitionTrigLoop = (ProxiMax - ProxiMin) / 2;
-
+  if (ProxiMin > ProxiMax / 1.2) ProxiMin = ProxiMax / 2 ;
   Serial.print("ProxiMin & ProxiMax : ");
   Serial.print(ProxiMin);
   Serial.print(" & ");
@@ -499,42 +487,42 @@ int CountingFile (File DirName) {
 
 // FONCTIONS JAUGE : COMPTE NB D'EVENEMENTS DANS UN INTERVALLE DE TEMPS DONNE ET L'INTERPOLE LINEAIREMENT PAR RAPPORT A LA VALEUR PRECEDENTE ET PENDANT L'INTERVALLE DE TEMPS DETERMINE.
 
-float JaugePassage (bool DetectPass, const int TimeWindow) {
+float JaugePassage (bool DetectEvent, float TimeWindow) {
 
-  static int nbPass = 0;
-  static int arriveePass = 0;
-  static int departPass = 0;
-  static uint32_t TempsPass = 0;
-  static bool LastDetectPass = 0;
-  static bool LastStockagePass = 0;
-  static bool StockagePass = 0;
+  static float nbEvent = 0;
+  static float arrivee = 0;
+  static float depart = 0;
+  static float Temps = 0;
+  static bool LastDetectEvent = 0;
+  static bool LastStockageEvent = 0;
+  static bool StockageEvent = 0;
 
-  if (DetectPass != LastDetectPass) { //Detection d'un front montant
-    if (DetectPass) {
-      nbPass++;  // Incrémentation du nombre de passage.
-      LastDetectPass = 1;
+  if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
+    if (DetectEvent) {
+      nbEvent++;  // Incrémentation du nombre de passage.
+      LastDetectEvent = 1;
     }
     else {
-      LastDetectPass = 0;
+      LastDetectEvent = 0;
     }
   }
 
-  StockagePass = millis() - TempsPass > TimeWindow; // Condition de Temps pour retourner la future valeur de la jauge (toutes les X secondes)
+  StockageEvent = millis() - Temps > TimeWindow; // Condition de temps pour retourner la future valeur de la jauge (toutes les X secondes)
 
-  if (StockagePass != LastStockagePass) {
-    if (StockagePass) {
-      departPass = arriveePass;
-      arriveePass = nbPass; // On retourne le nombre d'évènements.
-      TempsPass = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
-      nbPass = 0; // On remet le nombre d'évènements à 0.
-      LastStockagePass = 1;
+  if (StockageEvent != LastStockageEvent) {
+    if (StockageEvent) {
+      depart = arrivee;
+      arrivee = nbEvent; // On retourne le nombre d'évènements.
+      Temps = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
+      nbEvent = 0; // On remet le nombre d'évènements à 0.
+      LastStockageEvent = 1;
     }
     else {
-      LastStockagePass = 0;
+      LastStockageEvent = 0;
     }
   }
-  float coef = (arriveePass - departPass) / TimeWindow ;
-  float Line = (coef * ((float)millis() - TempsPass) + departPass); // Interpolation linéaire (= Line pure data)
+  float coef = (arrivee - depart) / TimeWindow ;
+  float Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
   return Line;
 }
 
@@ -641,11 +629,13 @@ void TrigFile(const char *filename)
   Serial.print(filename);
   Serial.println(" <<<<<<<<<<<<<<< ");
   Serial.println("");
+
   // Start playing the file.  This sketch continues to
   // run while the file plays.
   playSdWav1.play(filename);
+
   // A brief delay for the library read WAV info
-  delay(20);
+  delay(5);
 }
 
 //-------------
@@ -656,8 +646,10 @@ void TrigFile(const char *filename)
 void LoopFile(const char *filename)
 {
   if (playSdWav2.isPlaying() == false) {
+    //    Serial.print("Start playing ");
+    //    Serial.println(filename);
     playSdWav2.play(filename);
-    delay(20); // wait for library to parse WAV info
+    delay(10); // wait for library to parse WAV info
   }
 }
 
