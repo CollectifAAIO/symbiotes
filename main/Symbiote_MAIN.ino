@@ -8,18 +8,18 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav1;     //xy=123,310
-AudioMixer4              mixer1;         //xy=416,324
-AudioMixer4              mixer2;         //xy=416,392
-AudioInputI2S            i2s2;           //xy=568,163
-AudioAnalyzeRMS          rms1;           //xy=743,157
-AudioOutputI2S           i2s1;           //xy=876,385
+AudioPlaySdWav           playSdWav1;     //xy=92,311
+AudioMixer4              mixer1;         //xy=385,325
+AudioMixer4              mixer2;         //xy=385,393
+AudioInputI2S            i2s2;           //xy=537,164
+AudioAnalyzeRMS          rms1;           //xy=712,158
+AudioOutputI2S           i2s1;           //xy=845,386
 AudioConnection          patchCord1(playSdWav1, 0, mixer1, 0);
 AudioConnection          patchCord2(playSdWav1, 1, mixer2, 0);
 AudioConnection          patchCord3(mixer1, 0, i2s1, 0);
 AudioConnection          patchCord4(mixer2, 0, i2s1, 1);
 AudioConnection          patchCord5(i2s2, 0, rms1, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=119,94
+AudioControlSGTL5000     sgtl5000_1;     //xy=88,95
 // GUItool: end automatically generated code
 
 //Use these with the audio adaptor board
@@ -84,7 +84,7 @@ int SeuilProxi;
 int Condition = 0;
 int SeuilJaugeMicro = 1;              //REGLAGE (Seuil de changement d'humeur Micro)
 
-// Variables PROXI RANGE
+// Variables PROXI Range
 
 float ProxiRangeMin = 0;
 float ProxiRangeMax = 0;
@@ -105,7 +105,7 @@ int randomMax;
 int resetMillis = 0;
 int threshTrig = 0;
 
-int corpusSampleNumber = 10;   //REGLAGE (Nombre de son dans chaque dossier)
+int corpusSampleNumber = 10;   // Nombre de son dans chaque dossier
 
 int sample_rand = 1;           // tirage au sort du numéro du sample.
 String SoundFile, SoundType;
@@ -116,12 +116,12 @@ int statechangeselecthumeur = 0;
 
 // Variables Freeze Timide
 
-int FreezeTimideTime = 60000;             // REGLAGE
+int FreezeTimideTime = 60000;           // REGLAGE (durée du mode timide)
 
 //-------------
 //-------------
 
-//                                        >>>>> SETUP <<<<<
+//                                 >>>>> SETUP <<<<<
 
 void setup() {
   Serial.begin(9600);
@@ -186,7 +186,7 @@ void loop() {
   MicroRA.addValue(MicroRms);
   Micro_Moyenne = MicroRA.getAverage();
 
-  // JAUGE PEAK
+  // JAUGES PEAK
 
   // Modif du seuil de comptabilité du nb de peaks pour éviter un retrig.
 
@@ -210,11 +210,11 @@ void loop() {
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
   // Serein
-  if (jaugePeak < SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
+  if (jaugePeak < SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
     if (Condition != 1) {
       corpusSampleNumber = NbFiles[0] ;          //Met à jour le nombre total de fichiers disponible dans le dossier serein
       RangeMin = SeuilProxi;
-      RangeMax = ProxiMin;
+      RangeMax = ProxiMax;
       BorneMinMin = 5000 ;                        // REGLAGE
       BorneMinMax = 10000;                        // REGLAGE
       BorneMaxMax = 20000;                        // REGLAGE
@@ -224,25 +224,25 @@ void loop() {
   }
 
   // Hostile
-  if (jaugePeak < SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
+  if (jaugePeak < SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
     if (Condition != 2) {
-      corpusSampleNumber = NbFiles[3];           //Met à jour le nombre total de fichiers disponible dans le dossier timide
-      RangeMin = ProxiMax;
+      corpusSampleNumber = NbFiles[3];          //Met à jour le nombre total de fichiers disponible dans le dossier timide
+      RangeMin = ProxiMin;
       RangeMax = SeuilProxi;
       BorneMinMin = 100 ;                        // REGLAGE
-      BorneMinMax = 300;                         // REGLAGE
-      BorneMaxMax = 1000;                        // REGLAGE
+      BorneMinMax = 200;                        // REGLAGE
+      BorneMaxMax = 1000;                        // REGLAGE                                // REGLAGE
       selecthumeur = 3;
       Condition = 2;
     }
   }
 
   // Hilare
-  if (jaugePeak > SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
+  if (jaugePeak > SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
     if (Condition != 3) {
-      corpusSampleNumber = NbFiles[2];          //Met à jour le nombre total de fichiers disponible dans le dossier hilare
+      corpusSampleNumber = NbFiles[2];         //Met à jour le nombre total de fichiers disponible dans le dossier hilare
       RangeMin = SeuilProxi;
-      RangeMax = ProxiMin;
+      RangeMax = ProxiMax;
       BorneMinMin = 500 ;                        // REGLAGE
       BorneMinMax = 1000;                        // REGLAGE
       BorneMaxMax = 3000;                        // REGLAGE
@@ -252,7 +252,7 @@ void loop() {
   }
 
   // Timide
-  if (jaugePeak > SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
+  if (jaugePeak > SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
     if (Condition != 4) {
       corpusSampleNumber = NbFiles[1];                     //Met à jour le nombre total de fichiers disponible dans le dossier hostile
       selecthumeur = 1;
@@ -278,7 +278,7 @@ void loop() {
   randomMin = constrain(ProxiRangeMin, BorneMinMin, BorneMinMax) ;
   randomMax = constrain(ProxiRangeMax, BorneMinMax, BorneMaxMax) ;
   threshTrig = random(randomMin, randomMax);
-  
+
   // PLAYER AUDIO
 
   // Random Retrig
@@ -289,37 +289,17 @@ void loop() {
     SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
     TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
   }
-  
-  // MONITORING
 
-  //  Serial.print("Millis - Reset Millis : ");
-  //  Serial.println(millis() - resetMillis);
+// MONITORING 
 
-  //  Serial.print("CONDITION : ");
-  //  Serial.println(Condition);
-  //
-  //  Serial.print("Proxi Median : ");
-  //  Serial.println(ProxiMedian);
-  //  Serial.println("----------");
-  //
-  //  Serial.print("RANGE MIN : ");
-  //  Serial.print(RangeMin);
-  //  Serial.print("  !!  Borne MinMin : ");
-  //  Serial.println(BorneMinMin);
-  //
-  //  Serial.print("RANDOM MIN : ");
-  //  Serial.print(randomMin);
-  //  Serial.print("  !!  RANDOM MAX : ");
-  //  Serial.println(randomMax);
-  //
-  //  Serial.print("Micro : ");
-  //  Serial.print(Micro_Moyenne);
-  //
-  //
-  //  Serial.print("DETECT PEAK : ");
-  //  Serial.print(DetectPeak);
-  //  Serial.print("  !!  JAUGE PEAK : ");
-  //  Serial.println(jaugePeak);
+Serial.print("Microphone");
+Serial.println(Micro_Moyenne);
+Serial.print(" !!  Threshpeak");
+Serial.println(ThreshPeak);
+Serial.println("-----------");
+Serial.print("Threshtrig");
+Serial.println(threshTrig);
+
   delay(10);
 }
 
@@ -354,7 +334,7 @@ void CalibProxiMic () {
     }
     delay(10);
   }
-  if (ProxiMax < ProxiMin * 4) ProxiMax = ProxiMin * 5 ;
+  if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
   SeuilProxi = ProxiMax / 2;
   ThreshPeak = MicroMin * 3;
 
@@ -410,7 +390,7 @@ float JaugePeak (bool DetectEvent, float TimeWindow) {
 
   if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
     if (DetectEvent) {
-      nbEvent++;  // Incrémentation du nombre de passage.
+      nbEvent++;  // Incrémentation du nombre de peak.
       LastDetectEvent = 1;
     }
     else {
