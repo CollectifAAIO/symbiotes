@@ -30,7 +30,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
 
 // Settings fonctions
 
-MedianFilter MedianProx(10, 0);
+MedianFilter MedianProx(5, 0);
 RunningAverage MicroRA(15);
 
 // Déclaration des fonctions
@@ -45,41 +45,17 @@ void initSampleSelecteur(int nbtotfile);
 
 // Variables données
 
-// REGLAGES
-
-const int TEMPS_CALIB = 5000 ;          
-
-const int TP_STOCKAGE_PASSAGE = 10000;     
-const int SEUILJAUGEPROXI = 1;           
-
-const int TP_STOCKAGE_PEAK = 3000;          
-const int SEUILJAUGEMICRO = 3;                    
-
-const int TIMIDEMIN = 20000;
-const int TIMIDEMAX = 40000;
-const int SEREINMIN = 12000;
-const int SEREINMAX = 20000;
-const int HILAREMIN = 800;
-const int HILAREMAX = 2500;
-const int HOSTILEMIN = 100;
-const int HOSTILEMAX = 800;
-
-const int COEF_THRESPEAK = 3;
-const int POURCENTAGE_PROXI = 50;
-
-// -------
-
-// AUTRES 
-
 int Proxi = 0;
 uint32_t ResetTimeRandProxi = 0;
+const int RANDTIMEPROXI = 1000; //  REGLAGE     Temps après lequel on lit une nouvelle valeur de random
 
-// ----
 float MicroRms = 0.0;
 float Micro_Moyenne = 0.0;
 int ProxiMedian = 0;
 
 // Variables calib Proxi + Micro
+
+const int TEMPS_CALIB = 5000 ;            // REGLAGE  : durée calibration.
 
 int ProxiMin = 1023;                      // REGLAGE
 int ProxiMax = 0;                     // REGLAGE
@@ -92,11 +68,14 @@ int NbFiles[4] = {0};
 
 // Variables JAUGES
 
-
+const int TP_STOCKAGE_PASSAGE = 5000;      // REGLAGE (Temps de stockage de la jauge passage)
+const int SEUILJAUGEPROXI = 9;            // REGLAGE (Seuil de changement d'humeur Proxi)
 int ThreshPassage = 150;
 bool DetectPassage = false;
 float jaugePassage = 0.0;
 
+const int TP_STOCKAGE_PEAK = 2000;          // REGLAGE (Temps de stockage de la jauge Micro)
+const int SEUILJAUGEMICRO = 1;                    // REGLAGE (Seuil de changement d'humeur Micro)
 float ThreshPeak = 20.0 ;                
 bool DetectPeak = false;
 float jaugePeak = 0.0;
@@ -125,4 +104,8 @@ String HumeurFolder[4]  = {"serein", "timide", "hilare", "hostile"}; // ATTENTIO
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
+
+// Variables Freeze Timide
+
+const int FREEZ_TIMIDE_TIME = 60000;           // REGLAGE (durée du mode timide)
 

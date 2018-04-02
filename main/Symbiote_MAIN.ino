@@ -9,7 +9,7 @@ void setup() {
   SoundFile = String();
   SoundType = String(".wav");
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.65);                         //REGLAGE
+  sgtl5000_1.volume(0.7);                         //REGLAGE
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
 
@@ -28,12 +28,8 @@ void setup() {
   for (int i = 0; i <= 3; i++) {
     String FileRemove = HumeurFolder[i] + "/" + "DS_STO~1";
     String FileRemove2 = HumeurFolder[i] + "/" + "ICON~1";
-    String FileRemove3 = HumeurFolder[i] + "/" + "PRINTM~1.WAV";
-    String FileRemove4 = HumeurFolder[i] + "/" + "PRINTM~2.WAV";
     SD.remove(FileRemove.c_str());
     SD.remove(FileRemove2.c_str());
-    SD.remove(FileRemove3.c_str());
-    SD.remove(FileRemove4.c_str());
     String FolderName = HumeurFolder[i] + "/";
     root = SD.open(FolderName.c_str());
     NbFiles[i] = CountingFile(root);
@@ -63,7 +59,7 @@ void loop() {
 
   // Passage toutes les x secondes
 
-  if (ProxiMedian < ThreshPassage) {
+  if (ProxiMedian > ThreshPassage) {
     DetectPassage = true;
   }
   else {
@@ -86,7 +82,7 @@ void loop() {
       resetTimeThreshpeak = millis();
     }
     if (millis() - resetTimeThreshpeak > 150) {
-      ThreshPeak = MicroMin * COEF_THRESPEAK;
+      ThreshPeak = MicroMin * 3;
     }
   }
 
@@ -106,8 +102,8 @@ void loop() {
   if (jaugePeak < SEUILJAUGEMICRO && jaugePassage < SEUILJAUGEPROXI) {
     if (Condition != 1) {
       corpusSampleNumber = NbFiles[0] ;          //Met à jour le nombre total de fichiers disponible dans le dossier serein
-      randomMin = SEREINMIN;                                   // REGLAGE
-      randomMax = SEREINMAX;                                   // REGLAGE
+      randomMin = 8000;                                   // REGLAGE
+      randomMax = 16000;                                   // REGLAGE
       selecthumeur = 0 ;
       threshTrig = random(randomMin, randomMax);
       Condition = 1;
@@ -118,8 +114,8 @@ void loop() {
   if (jaugePeak >= SEUILJAUGEMICRO && jaugePassage > SEUILJAUGEPROXI) {
     if (Condition != 2) {
       corpusSampleNumber = NbFiles[3];          //Met à jour le nombre total de fichiers disponible dans le dossier timide
-      randomMin = HOSTILEMIN;                                   // REGLAGE
-      randomMax = HOSTILEMAX;                                   // REGLAGE
+      randomMin = 80;                                   // REGLAGE
+      randomMax = 800;                                   // REGLAGE
       selecthumeur = 3;
       threshTrig = random(randomMin, randomMax);
       Condition = 2;
@@ -130,8 +126,8 @@ void loop() {
   if (jaugePeak >= SEUILJAUGEMICRO && jaugePassage < SEUILJAUGEPROXI) {
     if (Condition != 3) {
       corpusSampleNumber = NbFiles[2];         //Met à jour le nombre total de fichiers disponible dans le dossier hilare
-      randomMin = HILAREMIN;                                   // REGLAGE
-      randomMax = HILAREMAX;                                   // REGLAGE
+      randomMin = 800;                                   // REGLAGE
+      randomMax = 2000;                                   // REGLAGE
       selecthumeur = 2;
       threshTrig = random(randomMin, randomMax);
       Condition = 3;
@@ -142,8 +138,8 @@ void loop() {
   if (jaugePeak < SEUILJAUGEMICRO && jaugePassage > SEUILJAUGEPROXI) {
     if (Condition != 4) {
       corpusSampleNumber = NbFiles[1];                     //Met à jour le nombre total de fichiers disponible dans le dossier hostile
-      randomMin = TIMIDEMIN;                                   // REGLAGE
-      randomMax = TIMIDEMAX;                                   // REGLAGE
+      randomMin = 16000;                                   // REGLAGE
+      randomMax = 40000;                                   // REGLAGE
       selecthumeur = 1;
       threshTrig = random(randomMin, randomMax);
       Condition = 4;
@@ -164,20 +160,22 @@ void loop() {
 
   // MONITORING
 
-  Serial.print("Proxi : ");
-  Serial.print(Proxi);
-  Serial.print(" ! Micro : ");
-  Serial.print(Micro_Moyenne);
-  Serial.print("  !!  Détect passages : ");
-  Serial.print(DetectPassage);
-  Serial.print(" ! Détect Peak : ");
-  Serial.print(DetectPeak);
-  Serial.print(" !! Jauge passages : ");
-  Serial.print(jaugePassage);
-  Serial.print(" !! Jauge Peak : ");
-  Serial.println(jaugePeak);
-  Serial.println(" ----- ");
-  Serial.println("");
+  //  Serial.print("Détection passages : ");
+  //  Serial.print(DetectPassage);
+  //  Serial.print("  !!  Jauge passages : ");
+  //  Serial.print(jaugePassage);
+  //
+  //
+  //  Serial.print("  !!  Microphone");
+  //  Serial.print(Micro_Moyenne);
+  //  Serial.print("!! Detection de Peak : ");
+  //  Serial.print(DetectPeak);
+  //  Serial.print("!! ThreshPeak : ");
+  //  Serial.print(ThreshPeak);
+  //
+  //  Serial.print("  !!  jaugePeak : ");
+  //  Serial.println(jaugePeak);
+  //  Serial.println("");
 
   delay(10);
 }
@@ -204,10 +202,10 @@ void CalibProxiMic() {
     Proxi = analogRead(PROXI_PIN);
     MedianProx.in(Proxi);
     ProxiMedian = MedianProx.out();
-
-    // record the maximum Proxi value
-    if (ProxiMedian > ProxiMax) {
-      ProxiMax = ProxiMedian;
+    
+    // record the minimum Proxi Value
+    if (ProxiMedian < ProxiMin) {
+      ProxiMin = ProxiMedian;
     }
     // record the minimum Micro Value
     if (Micro_Moyenne < MicroMin) {
@@ -216,13 +214,14 @@ void CalibProxiMic() {
     delay(10);
   }
 
-  ThreshPassage = (int)(ProxiMax - (ProxiMax * POURCENTAGE_PROXI) / 100);
-  ThreshPeak = MicroMin * COEF_THRESPEAK;
+  ThreshPassage = (int)(ProxiMin + ProxiMin * 2);
+  ThreshPeak = MicroMin * 3;
 
   Serial.print("ProxiMax : ");
   Serial.print(ProxiMax);
   Serial.print("  !!  MicroMin : ");
   Serial.println(MicroMin);
+
   Serial.print("ThreshPassage : ");
   Serial.print(ThreshPassage);
   Serial.print("  !!  ThresPeak : ");
