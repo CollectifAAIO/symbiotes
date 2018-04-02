@@ -37,6 +37,7 @@ RunningAverage MicroRA(15);
 void CalibProxiMic();
 int CountingFile (File DirName);
 float JaugePeak (bool DetectEvent, const int TimeWindow);
+float JaugePassage (bool DetectEvent, float TimeWindow);
 int URN(int nbtotfile);
 void TrigFile(const char *filename);
 void LoopFile(const char *filename);
@@ -57,7 +58,7 @@ int ProxiMedian = 0;
 const int TEMPS_CALIB = 5000 ;            // REGLAGE  : durée calibration.
 
 const int PROXIMIN = 60;                      // REGLAGE
-const int PROXIMAX = 600;                     // REGLAGE 
+const int PROXIMAX = 600;                     // REGLAGE
 float MicroMin = 1023.0;
 
 // Variable Compteur nombre de fichiers par dossier
@@ -67,32 +68,25 @@ int NbFiles[4] = {0};
 
 // Variables JAUGES
 
-int NbPeak = 0;
-float ThreshPeak = 20.0 ;              //(10 par défaut par rapport à la dérivée)
+const int TP_STOCKAGE_PASSAGE = 5000;      // REGLAGE (Temps de stockage de la jauge passage)
+const int SEUILJAUGEPROXI = 9;            // REGLAGE (Seuil de changement d'humeur Proxi)
+int ThreshPassage = 150;
+bool DetectPassage = false;
+float jaugePassage = 0.0;
+
+const int TP_STOCKAGE_PEAK = 4000;          // REGLAGE (Temps de stockage de la jauge Micro)
+const int SEUILJAUGEMICRO = 2;                    // REGLAGE (Seuil de changement d'humeur Micro)
+float ThreshPeak = 20.0 ;                
 bool DetectPeak = false;
-const int TP_STOCKAGE_PEAK = 2000;       //REGLAGE (Temps de stockage de la jauge Micro)
 float jaugePeak = 0.0;
 
 // Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
 
-int SeuilProxi;
 int Condition = 0;
-int SeuilJaugeMicro = 1;              //REGLAGE (Seuil de changement d'humeur Micro)
 uint32_t resetTimeThreshpeak = 0;
 int conditionReset = 0;
 
 // Variables PROXI Range
-
-int ProxiRangeMin = 0;
-int ProxiRangeMax = 0;
-int ProxiValueMin = 0;
-int ProxiValueMax = 0;
-
-int RangeMin;
-int RangeMax;
-int BorneMinMin ;
-int BorneMinMax ;
-int BorneMaxMax ;
 
 int randomMin;
 int randomMax;
