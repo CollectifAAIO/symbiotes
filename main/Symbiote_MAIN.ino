@@ -3,7 +3,9 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
-#include <MedianFilter.h>
+#include <MedianFilter.h>   //https://github.com/daPhoosa/MedianFilter
+#include <RunningAverage.h> //https://playground.arduino.cc/Main/RunningAverage
+#include <Bounce.h>
 
 // GUItool: begin automatically generated code
 AudioPlaySdWav           playSdWav2;     //xy=151,351
@@ -23,25 +25,83 @@ AudioConnection          patchCord7(mixer2, 0, i2s1, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=367,405
 // GUItool: end automatically generated code
 
+// Settings filtrage
+
+MedianFilter MedianProx(15, 0);
+RunningAverage MicroRA(50);
+
+
 //Use these with the audio adaptor board
 
 #define SDCARD_CS_PIN    10
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
-//FILTRES DONNEES
+#define BUTTON 0
+#define LED 13
+#define ProxiPin A0;
 
-MedianFilter test(31, 0);
+// DECLARATION & INIT VARIABLES
 
-// DECLARATION VARIABLES
 
-String SoundFile, SoundType;
-String HumeurFolder[8]  = {"Serein", "Normal_expressif", "Timide", "Peureux", "Heureux", "Euphorique", "Enervé", "Agressif"};
-int selecthumeur = 0;
-int previoushumeur = 1000;
-int statechangeselecthumeur = 0;
+//init Entrées capteurs.
 
-// Fonction URN
+Bounce boutonCalib = Bounce(BUTTON, 15 );
+
+int Proxi;
+uint8_t MicroRms;
+
+int Proxi_Median = 0;
+int Micro_Moyenne = 0;
+int Proxi_map = 0;
+
+int ProxiMin = 1023;        // minimum sensor value
+int ProxiMax = 0;           // maximum sensor value
+int MicroMin = 1023;        // minimum sensor value
+int MicroMax = 0;           // maximum sensor value
+
+// Variables calib
+
+int TempsAvantCalibAuto = 60 ; //REGLAGE// temps avant la calibration automatique, en minutes
+int DuréeCalib = 20000;        //REGLAGE
+
+int resetTimeCalib = 0;
+int resetTimeCalibButton = 0;
+int TpsPressBouton = 500;
+
+//Valeurs de seuil de changement de dossier
+
+int Seuil1Micro = 50;         //REGLAGE
+int Seuil2Micro = 75;         //REGLAGE
+int Seuil1Proxi = 25;         //REGLAGE
+int Seuil2Proxi = 50;         //REGLAGE
+int Seuil3Proxi = 75;         //REGLAGE
+int Seuil4Proxi = 90;         //REGLAGE
+
+// Variables fonction LINE
+
+float coef = 0;               //REGLAGE
+float depart = 10.0;          //REGLAGE
+float arrivee = 0.0;          //REGLAGE
+float line = 0;               //REGLAGE
+float Ramp = 10000;           //REGLAGE
+
+// Variables fonction RANDOMTRIG
+
+int treshTrig = 0;            //REGLAGE
+int borneMinMin = 50;         //REGLAGE
+int borneMinMax = 1000;       //REGLAGE
+int borneMaxMin = 10000;      //REGLAGE
+int borneMaxMax = 20000;      //REGLAGE
+
+// Valeurs de timing.
+
+int tresh = 0;
+int TempsCamouflage = 10000;
+
+// Variables fonction URN
+
+int corpusSampleNumber = 5;   //REGLAGE
 
 int index_tab = 0; // nombre de samples deja jouées;
 int sampleDejaJoues[100]; //Défini la taille du tableau et initialise toutes les valeurs à 0
@@ -49,49 +109,24 @@ int i = 0;
 int unplayedSample = 0;
 boolean etat = true;
 int lastPlayedSample = -1;
-int corpusSampleNumber = 5;
+int
 
+// Variables play file
 
-//Valeurs de seuil de changement de dossier
+String SoundFile, SoundType;
+String HumeurFolder[8]  = {"Serein", "Normal_expressif", "Timide", "Peureux", "Heureux", "Euphorique", "Enervé", "Agressif"};
+int selecthumeur = 0;
+int previoushumeur = 1000;
+int statechangeselecthumeur = 0;
 
-int Seuil1Micro = 0.5;
-int Seuil2Micro = 0.75;
-int Seuil1Proxi = 0.25;
-int Seuil2Proxi = 0.5;
-int Seuil3Proxi = 0.75;
-int Seuil4Proxi = 0.9;
-
-// Valeurs de timing.
-
-int tresh = 0;
-int TempsCamouflage = 10000;
-
-//init capteurs.
-
-int ProxiMin = 1023;        // minimum sensor value
-int ProxiMax = 0;           // maximum sensor value
-int MicroMin = 1023;        // minimum sensor value
-int MicroMax = 0;           // maximum sensor value
-
-
-int sensorsum = 0;
-
-//char SoundFile[] = "TEST1.WAV"
-//char SoundName[] = "TEST"
-//char SoundType[] = ".WAV";
 int sample_rand = 0;  // tirage au sort du numéro du sample.
 boolean seuil = false;
 int hysteresis = 0;
 
 
-//int resetMillis = 0;
-//int tresh = 500;
-//int freq = 500;
-//int trRd = 0;
-
 //-------------
 
-// DEBUT CODE
+// MAIN CODE
 
 void setup() {
   Serial.begin(9600);
@@ -105,66 +140,116 @@ void setup() {
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.5);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
-  sgtl5000_1.micGain(36);
-
-  //CALIBRATION pendant les 10 premières secondes
-  while (millis() < 10000) {
-    int ProxiValue = analogRead(A0);
-    uint8_t MicroRms = rms1.read();
-
-    // record the maximum sensor value
-    if (ProxiValue > ProxiMax) {
-      ProxiMax = ProxiValue;
-    }
-    if (MicroRms > MicroMax) {
-      MicroMax = MicroRms;
-    }
-    // record the minimum sensor value
-    if (ProxiValue < ProxiMin) {
-      ProxiMin = ProxiValue;
-    }
-    if (MicroRms < MicroMin) {
-      MicroMin = MicroRms;
-    }
-  }
-
+  sgtl5000_1.micGain(50);
+  pinMode(BUTTON, INPUT);
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
   if (!(SD.begin(SDCARD_CS_PIN))) {
     // stop here, but print a message repetitively
     while (1) {
       Serial.println("Unable to access the SD card");
-      delay(500);
+      delay(1000);
     }
   }
 }
 
 void loop() {
-  int Lightsensortest = analogRead(A0);
-  int ProxiValue = analogRead(A1);              // DOIT ETRE COMPRIS DE 0 à 1
-  uint8_t MicroRms = rms1.read();               // DOIT ETRE COMPRIS DE 0 à 1
-  //  Serial.print("Valeur Capteur :");
-  //  Serial.println(Lightsensortest);
 
-  //FILTRAGE DONNEES.
+  Proxi = analogRead(ProxiPin);              // DOIT ETRE COMPRIS DE 0 à 1
+  MicroRms = rms1.read();               // DOIT ETRE COMPRIS DE 0 à 1
+  boutonCalib.update();
+  int boutonCal = boutonCalib.read();
 
-  //  test.in(i);
-  //  j = test.out();
+  //FILTRAGE DONNEES
+  MedianProx.in(Proxi);
+  Proxi_Median = MedianProx.out();
 
-  //MAPPING VAL MIN MAX CALIBRATION de 0 à 1
-  ProxiValue = map(ProxiValue, ProxiMin, ProxiMax, 0, 1);
-  ProxiValue = constrain(ProxiValue, 0, 1);
-  MicroRms = map(MicroRms, ProxiMin, ProxiMax, 0, 1);
-  MicroRms = constrain(MicroRms, 0, 1);
+  if (! playSdWav1.isPlaying()) {  // Coupe l'arrivée de donnée du microphone.
+    MicroRA.addValue(MicroRms);
+  }
+  Micro_Moyenne = MicroRA.getAverage();
+
+  //Sortie capteurs à utiliser dans la suite : Proxi_Median & Micro_Moyenne.
+
+  // CALIBRATION
+
+  //Recalibre les valeurs toutes les heures.
+  if (millis - resetTimeCalib > TempsAvantCalibAuto * 60 * 1000) {
+    resetTimeCalib = millis
+    while (millis - resetTimeCalib < DuréeCalib) {
+
+      if (Proxi_Median < ProxiMin) {
+        ProxiMin = Proxi_Median;
+      }
+      if (Micro_Moyenne < MicroMin) {
+        MicroMin = Micro_Moyenne;
+      }
+      // record the maximum sensor value
+      if (Proxi_Median > ProxiMax) {
+        ProxiMax = Proxi_Median;
+      }
+      if (Micro_Moyenne > MicroMax) {
+        MicroMax = Micro_Moyenne;
+      }
+    }
+  }
+
+  //Recalibre les valeurs quand on presse le bouton plus de deux secondes.
+
+  if (boutonCalib != LastButtonValue) { //Detection d'un Front
+    if (boutonCalib == 1) { //front montant
+      PressInstant = millis(); //photo du temps
+      LastButtonValue = 1; // "change"
+    }
+    else { //front descendant
+      if (millis() - PressInstant < TpsPressBouton) {//relachement court
+        Serial.println(     "Change Skin");
+        LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
+      }
+      else {
+        resetTimeCalib = millis();
+        while (millis - resetTimeCalib < DuréeCalib) {
+
+          if (Proxi_Median < ProxiMin) {
+            ProxiMin = Proxi_Median;
+          }
+          if (Micro_Moyenne < MicroMin) {
+            MicroMin = Micro_Moyenne;
+          }
+          // record the maximum sensor value
+          if (Proxi_Median > ProxiMax) {
+            ProxiMax = Proxi_Median;
+          }
+          if (Micro_Moyenne > MicroMax) {
+            MicroMax = Micro_Moyenne;
+          }
+        }
+        LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
+      }
+    }
+  }
+
+
+  //MAPPING VAL MIN MAX CALIBRATION de 0 à 100.
+
+  Proxi_map = map(ProxiValue, ProxiMin, ProxiMax, 0, 100);
+  Micro_Moyenne_map = map(Micro_Moyenne, ProxiMin, ProxiMax, 0, 100);
+
+  // CLIP
+  ProxiValue = constrain(ProxiValue, 0, 100);
+  MicroValue = constrain(Micro_Moyenne, 0, 100);
+
+
   // somme les deux capteurs pour ne faire qu'une variable qui sert à déterminer la fourchette de temps dans laquelle le nombre aléatoire va être piocher. Ce nombre déterminera après combien de temps le player rejouera un nouveau son.
   int sensorSum = ProxiValue + MicroRms ;  //on somme pour avoir qu'une seule valeur de capteur qui définie la plage de valeur dans laquelle choisir un temps aléatoire.
-  sensorSum = (2 - sensorSum) / 2;        // on divise par 2 pour garder un nombre compris entre 0 et 1. 
+  sensorSum = (2 - sensorSum) / 2;        // on divise par 2 pour garder un nombre compris entre 0 et 1.
 
   // SELECTIONNE LA BONNE  HUMEUR
 
   if (MicroRms < Seuil1Micro) {
     if (ProxiValue < Seuil1Proxi) {
       selecthumeur = 0;
+
     }
     if (ProxiValue > Seuil1Proxi && ProxiValue < Seuil2Proxi) {
       selecthumeur = 1;
@@ -199,25 +284,36 @@ void loop() {
     }
   }
 
+  // SELECTIONNE UN FICHIER ALEATOIREMENT SANS LE REPETER DANS LE DOSSIER DE LA BONNE HUMEUR.
+
   if (selecthumeur != previoushumeur) {        //State change Detection
 
-    // SELECTIONNE LE BON FICHIER
-
-    playSdWav1.stop();
-
-    sample_rand = random(1, 5);                // URN A IMPLEMENTER ICI
-
-    SoundFile = '/' + HumeurFolder[selecthumeur] + '/' + SelectUnplayedSample(corpusSampleNumber) + SoundType;  //inttochar
+    sample_rand = URN(corpusSampleNumber);                // URN A IMPLEMENTER ICI
+    SoundFile = '/' + HumeurFolder[selecthumeur] + '/' + sample_rand + SoundType;  //inttochar
     Serial.println(SoundFile);
-    //    playFile(SoundFile.c_str());            //JOUE LE SON .c_str() passe un string en char (en gros...)
     previoushumeur = selecthumeur;            //State change Detection
   }
 
-  //JOUE LE FICHIER APRES UN TEMPS TIRE ALEATOIREMENT DANS UNE FOURCHETTE QUI VARIE SELON CAPTEUR
-  randomTrig(sensorSum, 50, 200, 2950, 19800);
+  sensor = (ProxiValue + MicroValue) / 2 ;
+  borneMin = map(sensor, 0, 100, borneMinMin, borneMinMax);
+  borneMax = map(sensor, 0, 100, borneMaxMin, borneMaxMax);
 
-  delay(5);
+  // RANDOM TRIG
+
+  if (millis() - resetMillis > treshTrig) {
+    resetMillis = millis();
+    playFile(SoundFile.c_str()); //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
+    treshTrig = random(borneMin, borneMax);
+  }
 }
+
+
+delay(5);
+}
+
+//End LOOP
+
+
 
 //-------------
 //-------------
@@ -242,8 +338,10 @@ void playFile(const char *filename)
 
 //-------------
 
+//-------------
+
 // FONCTION URN Thomas (tire aléatoirement un son qui n'a pas encore été joué)
-int SelectUnplayedSample(int nbtotfile) {
+int URN(int nbtotfile) {
   boolean etat = true;
 
   while (etat) {
@@ -273,11 +371,50 @@ int SelectUnplayedSample(int nbtotfile) {
   return unplayedSample;
 }
 
+void initSampleSelecteur(int nbtotfile) {
+  for (int i = 0; i < nbtotfile; i++) {
+    sampleDejaJoues[i] = -1;
+  }
+}
+
 //Init Sample
 
 void initSampleSelecteur(int nbtotfile) {
   for (int i = 0; i < nbtotfile; i++) {
     sampleDejaJoues[i] = -1;
   }
+}
+
+//-------------
+
+// FONCTION RANDOM TRIG (déclenche un sample après un temps aléatoire tiré dans un plage de valeur variable.
+
+void RandomTrig (int sensor, borneMinMin, borneMinMax, borneMaxMin, borneMaxMin) {
+
+  borneMin = map(sensor, 0, 100, borneMinMin, borneMinMax);
+  borneMax = map(sensor, 0, 100, borneMaxMin, borneMaxMax);
+
+  if (millis() - resetMillis > treshTrig) {
+    resetMillis = millis();
+    playFile(SoundFile.c_str()); //JOUE LE SON .c_str() passe un string en char (en gros...)
+    treshTrig = random(borneMin, borneMax);
+  }
+}
+
+// ------------
+
+// FONCTION LINE : Le temps est à initialiser dans la condition avant le line qui le déclenche.
+
+float Line(bool Trig, float depart, float arrivee, float Ramp) {
+  coef = (arrivee - depart) / Ramp ;
+  if (Trig) {
+    if ((float)millis() - Temps <= Ramp) {
+      line = (coef * ((float)millis() - Temps) + depart);
+    }
+    else {
+      Trig = 0; // remet la condition à 0 pour que le line s'arrête.
+    }
+  }
+  return line;
 }
 
