@@ -1,11 +1,3 @@
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-#include <MedianFilter.h>   // https://github.com/daPhoosa/MedianFilter
-#include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
-
 #include "Symbiote.h" //
 
 void setup() {
@@ -39,8 +31,7 @@ void setup() {
     String FolderName = HumeurFolder[i] + "/";
     root = SD.open(FolderName.c_str());
     NbFiles[i] = CountingFile(root);
-
-    Serial.printf("Le nombre de fichiers dans le dossier %s est de : %d\n", HumeurFolder[i], NbFiles[i]);
+    //    Serial.printf("Le nombre de fichiers dans le dossier %s est de : %d\n", HumeurFolder[i], NbFiles[i]);
   }
 
   // Calibration Proximètre et Microphone
@@ -67,7 +58,7 @@ void loop() {
   // Modif du seuil de comptabilité du nb de peaks pour éviter un retrig.
 
   if (playSdWav1.isPlaying()) {
-    ThreshPeak =  Micro_Moyenne + 1;
+    ThreshPeak =  1023;
     conditionReset = 0;
   }
   else {
@@ -76,7 +67,7 @@ void loop() {
       resetTimeThreshpeak = millis();
     }
     if (millis() - resetTimeThreshpeak > 150) {
-      ThreshPeak = MicroMin * 2;
+      ThreshPeak = MicroMin * 3;
     }
   }
 
@@ -142,13 +133,13 @@ void loop() {
       Condition = 4;
       randomMin = 15000;                                   // REGLAGE
       randomMax = 45000;                                   // REGLAGE
-      int ResetMillisTimide = millis();
+      uint32_t ResetMillisTimide = millis();
       while (millis() - ResetMillisTimide < FREEZ_TIMIDE_TIME) {
         if (millis() - resetMillis > threshTrig) {
           resetMillis = millis();
           sample_rand = URN(corpusSampleNumber);                  // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
           SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
-          TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
+          TrigFile(SoundFile.c_str());                            //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
           threshTrig = random(randomMin, randomMax);
         }
         delay(10);
@@ -178,6 +169,9 @@ void loop() {
   Serial.print(Micro_Moyenne);
   Serial.print("  !!  ThreshPeak : ");
   Serial.println(ThreshPeak);
+  
+  Serial.print("Proxi");
+  Serial.println(ProxiMedian);
 
   delay(10);
 }
