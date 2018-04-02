@@ -45,9 +45,34 @@ void initSampleSelecteur(int nbtotfile);
 
 // Variables données
 
+// REGLAGES 
+
+const int TEMPS_CALIB = 5000 ;             // REGLAGE  : durée calibration.
+
+const int PROXIMIN = 60;                   // REGLAGE Random RangeMin
+const int PROXIMAX = 600;                  // REGLAGE Random RangeMax
+
+const int TP_STOCKAGE_PASSAGE = 10000;      // REGLAGE (Temps de stockage de la jauge passage)
+const int SEUILJAUGEPROXI = 20;             // REGLAGE (Seuil de changement d'humeur Proxi)
+
+const int TP_STOCKAGE_PEAK = 2000;         // REGLAGE (Temps de stockage de la jauge Micro)
+const int SEUILJAUGEMICRO = 2;             // REGLAGE (Seuil de changement d'humeur Micro)
+
+const int TIMIDEMIN = 20000;
+const int TIMIDEMAX = 40000;
+const int SEREINMIN = 12000;
+const int SEREINMAX = 20000;
+const int HILAREMIN = 1000;
+const int HILAREMAX = 2500;
+const int HOSTILEMIN = 100;
+const int HOSTILEMAX = 1000;
+
+const int COEF_THRESPEAK = 3;
+
+// AUTRES
+
 int Proxi = 600;
 uint32_t ResetTimeRandProxi = 0;
-const int RANDTIMEPROXI = 1000; //  REGLAGE     Temps après lequel on lit une nouvelle valeur de random
 
 float MicroRms = 0.0;
 float Micro_Moyenne = 0.0;
@@ -55,10 +80,6 @@ int ProxiMedian = 0;
 
 // Variables calib Proxi + Micro
 
-const int TEMPS_CALIB = 5000 ;            // REGLAGE  : durée calibration.
-
-const int PROXIMIN = 60;                      // REGLAGE
-const int PROXIMAX = 600;                     // REGLAGE
 float MicroMin = 1023.0;
 
 // Variable Compteur nombre de fichiers par dossier
@@ -68,14 +89,11 @@ int NbFiles[4] = {0};
 
 // Variables JAUGES
 
-const int TP_STOCKAGE_PASSAGE = 5000;      // REGLAGE (Temps de stockage de la jauge passage)
-const int SEUILJAUGEPROXI = 9;            // REGLAGE (Seuil de changement d'humeur Proxi)
+
 int ThreshPassage = 150;
 bool DetectPassage = false;
 float jaugePassage = 0.0;
 
-const int TP_STOCKAGE_PEAK = 4000;          // REGLAGE (Temps de stockage de la jauge Micro)
-const int SEUILJAUGEMICRO = 2;                    // REGLAGE (Seuil de changement d'humeur Micro)
 float ThreshPeak = 20.0 ;                
 bool DetectPeak = false;
 float jaugePeak = 0.0;
@@ -100,12 +118,7 @@ int corpusSampleNumber = 10;   // Nombre de son dans chaque dossier
 
 int sample_rand = 1;           // tirage au sort du numéro du sample.
 String SoundFile, SoundType;
-String HumeurFolder[4]  = {"serein", "timide", "hilare", "hostile"};
+String HumeurFolder[4]  = {"serein", "timide", "hilare", "hostile"}; // ATTENTION !!! CHANGER LES ARRAYS DANS FONCTION URN SI ON AUGMENTE LE NOMBRE DE DOSSIERS D HUMEUR
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
-
-// Variables Freeze Timide
-
-const int FREEZ_TIMIDE_TIME = 60000;           // REGLAGE (durée du mode timide)
-
