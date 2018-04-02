@@ -1,3 +1,5 @@
+// Symbiote MAIN : Sans compensation de délai. Mesure des peaks sur le signal moyenné du microphone.
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -8,37 +10,33 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav1;     //xy=143,276
-AudioPlaySdWav           playSdWav2;     //xy=143,307
-AudioSynthNoiseWhite     noise1;         //xy=159,201
-AudioMixer4              mixer2;         //xy=293,291
-AudioMixer4              mixer1;         //xy=295,220
-AudioMixer4              mixer3;         //xy=435,259
-AudioInputI2S            i2s2;           //xy=482,107
-AudioEffectDelay         delay1;         //xy=592,259
-AudioAnalyzeRMS          rms1;           //xy=631,101
-AudioAnalyzePeak         peak1;          //xy=631,132
-AudioAnalyzeRMS          rms2;           //xy=749,205
-AudioAnalyzePeak         peak2;          //xy=750,237
-AudioOutputI2S           i2s1;           //xy=751,269
-AudioConnection          patchCord1(playSdWav1, 0, mixer2, 0);
-AudioConnection          patchCord2(playSdWav1, 1, mixer2, 1);
-AudioConnection          patchCord3(playSdWav2, 0, mixer2, 2);
-AudioConnection          patchCord4(playSdWav2, 1, mixer2, 3);
-AudioConnection          patchCord5(noise1, 0, mixer1, 0);
-AudioConnection          patchCord6(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord7(mixer1, 0, mixer3, 0);
-AudioConnection          patchCord8(mixer3, delay1);
-AudioConnection          patchCord9(i2s2, 0, rms1, 0);
-AudioConnection          patchCord10(i2s2, 0, peak1, 0);
-AudioConnection          patchCord11(delay1, 0, rms2, 0);
-AudioConnection          patchCord12(delay1, 0, peak2, 0);
-AudioConnection          patchCord13(delay1, 0, i2s1, 0);
-AudioConnection          patchCord14(delay1, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=376,425
+AudioPlaySdWav           playSdWav2;     //xy=96,371
+AudioPlaySdWav           playSdWav1;     //xy=98,256
+AudioSynthWaveformSine   AMSine;         //xy=161,436
+AudioEffectMultiply      multiply2;      //xy=302,423
+AudioEffectMultiply      multiply1;      //xy=306,317
+AudioMixer4              mixer1;         //xy=463,270
+AudioMixer4              mixer2;         //xy=463,384
+AudioInputI2S            i2s2;           //xy=531,155
+AudioMixer4              mixer3;         //xy=657.77783203125,284.4444580078125
+AudioMixer4              mixer4;         //xy=661.1111450195312,387.77777099609375
+AudioAnalyzeRMS          rms1;           //xy=706,149
+AudioOutputI2S           i2s1;           //xy=790.77783203125,316.7778015136719
+AudioConnection          patchCord1(playSdWav2, 0, multiply1, 0);
+AudioConnection          patchCord2(playSdWav2, 1, multiply2, 0);
+AudioConnection          patchCord3(playSdWav1, 0, mixer1, 0);
+AudioConnection          patchCord4(playSdWav1, 1, mixer2, 0);
+AudioConnection          patchCord5(AMSine, 0, multiply2, 1);
+AudioConnection          patchCord6(AMSine, 0, multiply1, 1);
+AudioConnection          patchCord7(multiply2, 0, mixer2, 1);
+AudioConnection          patchCord8(multiply1, 0, mixer1, 1);
+AudioConnection          patchCord9(mixer1, 0, mixer3, 0);
+AudioConnection          patchCord10(mixer2, 0, mixer4, 0);
+AudioConnection          patchCord11(i2s2, 0, rms1, 0);
+AudioConnection          patchCord12(mixer3, 0, i2s1, 0);
+AudioConnection          patchCord13(mixer4, 0, i2s1, 1);
+AudioControlSGTL5000     sgtl5000_1;     //xy=82,86
 // GUItool: end automatically generated code
-
-
 
 
 //Use these with the audio adaptor board
@@ -49,50 +47,67 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=376,425
 
 #define BUTTON 0
 #define LED 13
-#define ProxiPin A0
+#define ProxiPin A3
 
 // DECLARATION & INIT VARIABLES
 
 // Settings fonctions
 
 MedianFilter MedianProx(15, 0);
-RunningAverage MicroRA(10);
+RunningAverage MicroRA(15);
 Bounce boutonCalib = Bounce(BUTTON, 15 );
-elapsedMillis msecs;
+
+// Déclaration des fonctions
+
+void CalibProxiMic();
+int CountingFile (File DirName);
+float JaugePassage (bool DetectEvent, float TimeWindow);
+float JaugePeak (bool DetectEvent, float TimeWindow);
+int URN(int nbtotfile);
+void TrigFile(const char *filename);
+void LoopFile(const char *filename);
+void initSampleSelecteur(int nbtotfile);
+float Line(float arrivee, float TimeInterpol);
+
 
 // Variables données
 
 int Proxi;
-int MicroRms;
-uint8_t MicroValue;
-uint8_t SignalInterneRms;
-uint8_t deriveeNoise;
-uint8_t deriveeMic;
-uint8_t MemNoise;
-uint8_t MemMic;
-uint8_t MicroSig;
-uint8_t InternalSig;
-int   conditionRms = 0;
-int resetmillisrms = 0;
-int freqRms = 50;              //REGLAGE
-int LastConditionRms = 0;
+float MicroRms;
 
-int Proxi_Median = 0;
-int ProxiRange = 0;
-int ProxiValue = 0;
+int deriveeNoise;
+int deriveeMic;
+int MemNoise = 0;
+int MemMic = 0;
+
+int ProxiMedian = 0;
 int Micro_Moyenne = 0;
 
-// Variables calib
+// Variables bouton calib
 
-int InitTimerCalib = 0 ;
-int TempsCalib = 5000 ; // REGLAGE  : durée calibration quand le bouton est déclenché.
-int ProxiMin = 1023;        // minimum sensor value
-int ProxiMax = 0;           // maximum sensor value
-int MicroMin = 1023;        // minimum sensor value
-int MicroMax = 0;           // maximum sensor value
+int BoutonCal;
+int PressInstant = 0;
+int LastButtonValue = 0;
 
+// Variable Compteur nombre de fichiers par dossier
 
-// Variables Comptage Passages
+File root;
+int NbFiles[4] = {0};
+
+// Variables calib Proxi + Micro
+
+int ProxiMin = 1023;
+int ProxiMax = 0;
+int MicroMin = 1023;
+int MicroMax = 0;
+
+int ThreshPassage = 180 ; // AUTOMATIQUE (180, par défaut)
+int ThreshPeak = 60 ;     // AUTOMATIQUE : Seuil déclenchement peak
+int TransitionTrigLoop = 0;
+
+int TempsCalib = 5000 ;   // REGLAGE  : durée calibration quand le bouton est déclenché.
+
+// Variables JAUGES
 
 int NbPassage = 0;
 int NbPeak = 0;
@@ -100,61 +115,48 @@ int NbPeak = 0;
 bool DetectPassage = 0;
 bool DetectPeak = 0;
 
-int ThreshPassage = 100;          //REGLAGE
-int ThreshPeak = 20 ;             //REGLAGE
+int TpsStockagePassage = 10000 ;  //REGLAGE (Temps de stockage de la jauge Proxi)
+int TpsStockagePeak = 2000;       //REGLAGE (Temps de stockage de la jauge Micro)
 
-int TpsStockagePassage = 10000 ;  //REGLAGE
-int TpsStockagePeak = 3000;       //REGLAGE
-
-float JaugePassage = 0;
-float JaugePeak = 0;
+float jaugePassage = 0;
+float jaugePeak = 0;
 
 // Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
 
-int SeuilMicro = 50;          //REGLAGE (entre 0 et 100)
-int SeuilProxi = 50;          //REGLAGE (entre 0 et 100)
+int Condition = 1;
+int SeuilJaugeMicro = 1;              //REGLAGE (Seuil de changement d'humeur Micro)
+int SeuilJaugePassage = 2.5;          //REGLAGE (Seuil de changement d'humeur Proxi)
 
-// Variables fonction RANDOMTRIG
+// Variables fonction TRIGFILE
 
-int treshTrig = 0;            //REGLAGE
-int randomMin = 50;         //REGLAGE
-int randomMax = 34000;       //REGLAGE
+int resetMillis = 0;
+int threshTrig = 0;
+int randomMin = 50;
+int randomMax = 34000;
+int corpusSampleNumber = 10;   // AUTOMATIQUE : 10 par défaut.
 
-// Valeurs de timing.
-
-int tresh = 0;
-int TempsCamouflage = 10000;
-
-// Variables fonction URN
-
-int corpusSampleNumber = 5;   //REGLAGE
-
-int index_tab = 0; // nombre de samples deja jouées;
-int sampleDejaJoues[100]; //Défini la taille du tableau et initialise toutes les valeurs à 0
-int i = 0;
-int unplayedSample = 0;
-boolean etat = true;
-int lastPlayedSample = -1;
-int
-
-// Variables play file
-
+int sample_rand = 1;           // tirage au sort du numéro du sample.
 String SoundFile, SoundType;
-String HumeurFolder[4]  = {"Serein", "Timide", "Euphorique", "Agressif"};
+String HumeurFolder[4]  = {"serein", "timide", "hilare", "hostile"};
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
 
-// -----
+// Variables Loop Tremblement
+int StagnationPersonne = 0;
+int ActiveTremblingTime = 2000; // REGLAGE (Temps après lequel on déclenche le tremblement dès qu'une personne est resté à une certaine distance du symbiote)
+float ProxiRange = 0;
+float ProxiValue = 0;
+float ProxiLine = 0;
 
-int sample_rand = 0;  // tirage au sort du numéro du sample.
-boolean seuil = false;
-int hysteresis = 0;
-
+int TempsLineTremble = 500 ;   // REGLAGE (Temps du line)
+int AMfreqMax = 15;           // REGLAGE (fréquence max de la modulation d'amplitude)
 
 //-------------
 
 // MAIN CODE
+
+// >>>>> SETUP <<<<<
 
 void setup() {
   Serial.begin(9600);
@@ -162,22 +164,19 @@ void setup() {
 
   //AUDIO
 
-  AudioMemory(15);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
+  AudioMemory(64);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
+  // setup audio board
   SoundFile = String();
-  SoundType = String(".WAV");
+  SoundType = String(".wav");
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.7);
+  sgtl5000_1.volume(0.8);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
 
   //Setup Bouton Calibration en input mode
   pinMode(BUTTON, INPUT);
-  
-  //Calibration Micro / Signal interne.
-  MicroRms = rms1.read();
-  SignalInterneRms = rms2.read();
 
- //Setup SD Card
+  //Setup SD Card
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
   if (!(SD.begin(SDCARD_CS_PIN))) {
@@ -187,244 +186,371 @@ void setup() {
       delay(1000);
     }
   }
+  //Compte le nombre de fichiers dans chacun des dossiers d'humeur.
+
+  for (int i = 0; i <= 3; i++) {
+    String FileRemove = HumeurFolder[i] + "/" + "DS_STO~1";
+    SD.remove(FileRemove.c_str());
+    String FolderName = HumeurFolder[i] + "/";
+    root = SD.open(FolderName.c_str());
+    NbFiles[i] = CountingFile(root);
+  }
+  Serial.print("Le nombre de fichiers dans le dossier serein est de : ");
+  Serial.println(NbFiles[0]);
+  Serial.print("Le nombre de fichiers dans le dossier timide est de : ");
+  Serial.println(NbFiles[1]);
+  Serial.print("Le nombre de fichiers dans le dossier hilare est de : ");
+  Serial.println(NbFiles[2]);
+  Serial.print("Le nombre de fichiers dans le dossier hostile est de : ");
+  Serial.println(NbFiles[3]);
+  Serial.println();
+
+  // Calibration Proximètre et Microphone
+  CalibProxiMic();
 }
 
-void loop() {
+// >>>>> MAIN LOOP <<<<<
 
+void loop() {
   // LECTURE DES DONNEES
 
-  //Proxi
+  boutonCalib.update();
+  BoutonCal = boutonCalib.read();
+
   Proxi = analogRead(ProxiPin);              // DOIT ETRE COMPRIS DE 0 à 1
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
 
-  //Micro
-  MicroRms = rms1.read() * 1000;              // DOIT ETRE COMPRIS DE 0 à 1
-  boutonCalib.update();
-  int boutonCal = boutonCalib.read();
+  //Micro Moyenne
 
-  // CALIBRATION MICRO / SIGNAL INTERNE
+  MicroRms = rms1.read() * 1000.0f;            // DOIT ETRE COMPRIS DE 0 à 1
+  MicroRA.addValue(MicroRms);
+  Micro_Moyenne = MicroRA.getAverage();
+  //  deriveeMic = MicroRms - MemMic;
+  //  MemMic = MicroRms;&
 
-  // A faire avant dans un autre programme et rentrer les valeur de compensation à la main ???
+  // RECALIBRATION AVEC BOUTON
 
-  // TRAITEMENT DONNEES
-
-  //Signal interne
-
-  //  conditionRms = millis() - resetmillisrms  < freqRms;
-  //
-  //  if (conditionRms) {
-  //    if (conditionRms != LastConditionRms) {
-  //      InternalSig = rms2.read() * 10;
-  //      LastConditionRms = 1;
-  //    }
-  //  }
-  //  else {
-  //    LastConditionRms = 0;
-  //    resetmillisrms = millis();
-  //  }
-
-  // Micro
-
-  //Tester si la dérivée est suffisamment réactive avec le Micro_Moyenne à la place du MicroRms.
-  //  MicroRA.addValue(MicroRms);
-  //  Micro_Moyenne = MicroRA.getAverage();
-
-  //  if (InternalSig > 50) {  // Check si il y a un signal qui sort du mixer Master  >>>> A REGLER <<<<
-  //    MicroSig = MicroCompens - InternalSig; // Soustraction signal micro avec compensation de gain - signal interne avec compensation de delay à réaliser ici.
-  //  }
-  //  else {
-  //    MicroSig = MicroRms;
-  //  }
-  //
-  //  deriveeMic = MicroSig - MemMic;
-  //  MemMic = MicroSig;
-
-  // CALIBRATION MAPPING VALEURS
-
-  // Proxi
-
-  if (boutonCal != LastButtonValue) { //Detection d'un Front
-    if (boutonCal == 1) { //front montant
-      LastButtonValue = 1; // "change"
-      InitTimerCalib = millis();
-      while (millis() - InitTimerCalib < TempsCalib) {
-        // record the minimum Proxi Value
-        if (ProxiMedian < ProxiMin) {
-          ProxiMin = ProxiMedian;
-        }
-        // record the maximum Proxi value
-        if (ProxiMedian > ProxiMax) {
-          ProxiMax = ProxiMedian;
-        }
-
-        //        // record the minimum Micro Value
-        //        if (deriveeMic < MicMin) {
-        //          MicroMin = deriveeMic;
-        //        }
-        //        // record the maximum sensor value
-        //        if (deriveeMic > MicMax) {
-        //          MicroMax = deriveeMic;
-        //        }
-      }
+  if (BoutonCal != LastButtonValue) { // Detection d'un front montant
+    if (BoutonCal == 1) {
+      ProxiMin = 1023;
+      ProxiMax = 0;
+      MicroMin = 1023;
+      MicroMax = 0;
+      ThreshPassage = 0;
+      ThreshPeak = 0;
+      CalibProxiMic();
+      LastButtonValue = 1;
     }
   }
   else {
-    LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
+    LastButtonValue = 0;
   }
 
-  //MAPPING VAL MIN-MAX de 0 à 100.
-
-  ProxiRange = map(ProxiMedian, ProxiMin, ProxiMax, 0, 100);
-  MicroRange = map(deriveeMic, MicroMin, MicroMax, 0, 100);
-
-  // CLIP
-  ProxiValue = constrain(ProxiRange, 0, 100);
-  MicroValue = constrain(MicroRange, 0, 100);
-  -
-  // --------------
-
-  // JAUGES / COMPTAGE
+  // JAUGES
 
   // Jauge du nombre de passage toutes les x secondes
 
-  if (ProxiValue < ThreshPassage) {
+  if (ProxiMedian < ThreshPassage) {
     DetectPassage = 1;
   }
   else {
     DetectPassage = 0;
   }
 
-  jaugePassage = Jauge(DetectPassage, TpsStockagePassage);
+  jaugePassage = JaugePassage(DetectPassage, TpsStockagePassage);
 
-  Serial.print("La valeur de la jauge est de : ");
-  Serial.print(jaugePassage);
+  // Jauge du nombre de peak toutes les x secondes
 
-  // Jauge de Peak detection micro toutes les x secondes
-  
-//  if (MicroValue > ThreshPeak) {
-//    DetectPeak = 1;
-//  }
-//  else {
-//    DetectPeak = 0;
-//  }
-//
-//  JaugePeak = Jauge(DetectPeak, TpsStockagePeak);
-//
-//  Serial.print("La valeur de la jauge est de : ");
-//  Serial.print(JaugePeak);
+  if (Micro_Moyenne > ThreshPeak) {
+    DetectPeak = 1;
+  }
+  else {
+    DetectPeak = 0;
+  }
 
+  jaugePeak = JaugePeak(DetectPeak, TpsStockagePeak);
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
-
   // Serein
-  if (JaugePeak < SeuilMicro && JaugePassage < SeuilProxi) {
-    if (Condition != 1) {                                 // Détection de changement d'état
+  if (jaugePeak < SeuilJaugeMicro && jaugePassage < SeuilJaugePassage) {
+    if (Condition != 1) {
+      corpusSampleNumber = NbFiles[0];          //Met à jour le nombre total de fichiers disponible dans le dossier serein
+      randomMin = 2000 ;                        // REGLAGE
+      randomMax = 14000 ;                       // REGLAGE
+      selecthumeur = 0;
+      threshTrig = random(randomMin, randomMax);
       Condition = 1;
     }
   }
+
   // Timide
-  if (JaugePeak < SeuilMicro && JaugePassage > SeuilProxi) {
+  if (jaugePeak < SeuilJaugeMicro && jaugePassage > SeuilJaugePassage) {
     if (Condition != 2) {
+      corpusSampleNumber = NbFiles[1];          //Met à jour le nombre total de fichiers disponible dans le dossier timide
+      randomMin = 14000 ;                       // REGLAGE
+      randomMax = 34000 ;                       // REGLAGE
+      selecthumeur = 1;
+      threshTrig = random(randomMin, randomMax);
       Condition = 2;
     }
   }
+
   // Hilare
-  if (JaugePeak > SeuilMicro && JaugePassage < SeuilProxi) {
+  if (jaugePeak > SeuilJaugeMicro && jaugePassage < SeuilJaugePassage) {
     if (Condition != 3) {
+      corpusSampleNumber = NbFiles[2];         //Met à jour le nombre total de fichiers disponible dans le dossier hilare
+      randomMin = 500 ;                        // REGLAGE Hilare
+      randomMax = 2000 ;                       // REGLAGE
+      selecthumeur = 2;
+      threshTrig = random(randomMin, randomMax);
       Condition = 3;
     }
   }
+
   // Agressif
-  if (JaugePeak > SeuilMicro && JaugePassage > SeuilProxi) {
+  if (jaugePeak > SeuilJaugeMicro && jaugePassage > SeuilJaugePassage) {
     if (Condition != 4) {
+      corpusSampleNumber = NbFiles[3];        //Met à jour le nombre total de fichiers disponible dans le dossier hostile
+      randomMin = 100 ;                       // REGLAGE Agressif
+      randomMax = 500 ;                       // REGLAGE
+      selecthumeur = 3;
+      threshTrig = random(randomMin, randomMax);
       Condition = 4;
     }
   }
 
-  switch (Condition) {
-    case 1 :
-      randomMin = 2000 ;                        // REGLAGE Serein
-      randomMax = 14000 ;                       // REGLAGE
-      selecthumeur = 1;
-      treshTrig = random(randomMin, randomMax);
-      break
-    case 2 :
-      randomMin = 14000 ;                       // REGLAGE Timide
-      randomMax = 34000 ;                       // REGLAGE
-      selecthumeur = 2;
-      treshTrig = random(randomMin, randomMax);
-      break
-    case 3 :
-      randomMin = 500 ;                        // REGLAGE Hilare
-      randomMax = 2000 ;                       // REGLAGE
-      selecthumeur = 3;
-      treshTrig = random(randomMin, randomMax);
-      break
-    case 4 :
-      randomMin = 100 ;                       // REGLAGE Agressif
-      randomMax = 500 ;                       // REGLAGE
-      selecthumeur = 4;
-      treshTrig = random(randomMin, randomMax);
-      break
-  }
+  // AUDIO PLAYERS
 
-  // BOUCLE TREMBLEMENT
-  //
-  //  while (ProxiValue > Seuil4Proxi) {
-  //    playSdWav1.stop();
-  //    delay(TempsCamouflage);
-  //  }
+  // RANDOM RETRIG ("Screaming" sounds)
 
-  // SELECTIONNE UN FICHIER ALEATOIREMENT DANS LE DOSSIER DE LA BONNE HUMEUR, SANS LE REPETER .
-
-  sample_rand = URN(corpusSampleNumber);                // URN A IMPLEMENTER ICI
-  SoundFile = '/' + HumeurFolder[selecthumeur] + '/' + sample_rand + SoundType;  //inttochar
-  Serial.println(SoundFile);
-  //  sensor = (ProxiValue + MicroValue) / 2 ;
-
-  // RANDOM RETRIG
-
-  if (millis() - resetMillis > treshTrig) {
+  if (millis() - resetMillis > threshTrig) {
     resetMillis = millis();
-    playFile(SoundFile.c_str()); //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
-    treshTrig = random(randomMin, randomMax);
+    sample_rand = URN(corpusSampleNumber) + 1;              // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
+    SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
+    TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
+    threshTrig = random(randomMin, randomMax);
   }
+
+  // TREMBLING LOOP
+
+//  if (ProxiMedian <= TransitionTrigLoop) {
+//    StagnationPersonne = millis();
+//    if (millis() - StagnationPersonne >= ActiveTremblingTime) {
+//
+//    }
+//    else {
+//
+//    }
+//  }
+
+  ProxiRange = map(ProxiMedian, ProxiMin, TransitionTrigLoop, 100, 0);
+  ProxiValue = constrain(ProxiRange, 0, 100) / 100;
+  ProxiLine = Line (ProxiValue, TempsLineTremble);
+
+  // stop processing while configuring things
+  AudioNoInterrupts();
+  mixer1.gain(1, ProxiLine);
+  mixer2.gain(1, ProxiLine);
+  AMSine.amplitude(ProxiLine);
+  AMSine.frequency(ProxiLine * AMfreqMax);
+
+  // DYNAMIC MIX (stop hearing screaming sound while trembling)
+
+  if (ProxiLine > 0.1 ) {
+    mixer1.gain(0, 0);
+    mixer2.gain(0, 0);
+  }
+  else {
+    mixer1.gain(0, 1);
+    mixer2.gain(0, 1);
+  }
+  //   resume processing
+  AudioInterrupts();
+
+  LoopFile("tremble.wav");  // Call and play the looping sound of trembling.
+
+  // MONITORING
+
+  //  Serial.print("Millis - Reset Millis : ");
+  //  Serial.println(millis() - resetMillis);
+  //  Serial.print("Micro : ");
+  //  Serial.println(Micro_Moyenne);
+  //  Serial.print("Proxi Median : ");
+  //  Serial.println(ProxiMedian);
+  //  Serial.print("DETECT PASSAGE : ");
+  //  Serial.print(DetectPassage);
+  //  Serial.print("  !!  JAUGE PASSAGE : ");
+  //  Serial.println(jaugePassage);
+  //  Serial.print("DETECT PEAK : ");
+  //  Serial.print(DetectPeak);
+  //  Serial.print("  !!  JAUGE PEAK : ");
+  //  Serial.println(jaugePeak);
+  //  Serial.println("----------");
+  //    AudioProcessorUsageMaxReset();
+  //    AudioMemoryUsageMaxReset();
+  //    Serial.print("CPU =");
+  //    Serial.print(AudioProcessorUsage());
+  //    Serial.print(",");
+  //    Serial.print(AudioProcessorUsageMax());
+  //    Serial.print("    ");
+  //    Serial.print("Memory: ");
+  //    Serial.print(AudioMemoryUsage());
+  //    Serial.print(",");
+  //    Serial.print(AudioMemoryUsageMax());
+  //    Serial.println("    ");
+
+  delay(10);
 }
 
-delay(5);
-}
 
-//End LOOP
-
-
-
-//-------------
 //-------------
 
 //FONCTIONS
 
 //-------------
+
+// CALIBRATION PROXI ET MICRO
+
+void CalibProxiMic () {
+  ProxiMin = 1023;
+  ProxiMax = 0;
+  MicroMin = 1023;
+  MicroMax = 0;
+  ThreshPassage = 180 ;
+  ThreshPeak = 60 ;
+  mixer3.gain(0, 0);
+  mixer4.gain(0, 0);
+  int InitTimerCalib = millis();
+  Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
+  while (millis() - InitTimerCalib < TempsCalib) {
+    Proxi = analogRead(ProxiPin);
+    MicroRms = rms1.read() * 1000;
+    MicroRA.addValue(MicroRms);
+    Micro_Moyenne = MicroRA.getAverage();
+
+    // record the minimum Proxi Value
+    if (Proxi < ProxiMin) {
+      ProxiMin = Proxi;
+    }
+    // record the maximum Proxi value
+    if (Proxi > ProxiMax) {
+      ProxiMax = Proxi;
+      ThreshPassage = ProxiMax - ProxiMax * 5 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
+
+    }
+
+    if (Micro_Moyenne < MicroMin) {
+      MicroMin = Micro_Moyenne;
+    }
+    // record the maximum Proxi value
+    if (Micro_Moyenne > MicroMax) {
+      MicroMax = Micro_Moyenne;
+      ThreshPeak = MicroMin * 2;                        // REGLAGE auto du seuil de détection d'un PEAK
+    }
+    delay(10);
+  }
+  mixer3.gain(0, 1);
+  mixer4.gain(0, 1);
+  if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
+  TransitionTrigLoop = (ProxiMax - ProxiMin) / 2;
+
+  Serial.print("ProxiMin & ProxiMax : ");
+  Serial.print(ProxiMin);
+  Serial.print(" & ");
+  Serial.println(ProxiMax);
+  Serial.print("MicroMin & MicroMax : ");
+  Serial.print(MicroMin);
+  Serial.print(" & ");
+  Serial.println(MicroMax);
+  Serial.print("ThresPassage : ");
+  Serial.print(ThreshPassage);
+  Serial.print("  !!  ThresPeak : ");
+  Serial.println(ThreshPeak);
+  Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
+}
+
 //-------------
 
-// ------------
+// COMPTAGE DU NOMBRE DE FICHIERS PAR DOSSIER
+
+int CountingFile (File DirName) {
+  int FileNumber = 0;
+  while (true) {
+    File entry =  DirName.openNextFile();
+    Serial.println(entry.name());
+
+    if (! entry) {
+      // no more files to scan
+      break;
+    }
+    FileNumber++;
+    //    if (!entry.isHidden()) {
+    //      FileNumber++;
+    //    }
+    entry.close();
+  }
+  return FileNumber;
+}
+
+
+//-------------
 
 // FONCTIONS JAUGE : COMPTE NB D'EVENEMENTS DANS UN INTERVALLE DE TEMPS DONNE ET L'INTERPOLE LINEAIREMENT PAR RAPPORT A LA VALEUR PRECEDENTE ET PENDANT L'INTERVALLE DE TEMPS DETERMINE.
 
-bool DetectEvent;
-bool LastDetectEvent = 0;
-bool StockageEvent = 0;
-bool LastStockageEvent = 0;
-float nbEvent = 0;
-float arrivee = 0;
-float depart;
-float Line = 0;
-float Temps = 0;
-float coef = 0;
-float jaugePassage = 0;
+float JaugePassage (bool DetectPass, const int TimeWindow) {
 
-float Jauge (bool DetectEvent, float TimeWindow) {
+  static int nbPass = 0;
+  static int arriveePass = 0;
+  static int departPass = 0;
+  static uint32_t TempsPass = 0;
+  static bool LastDetectPass = 0;
+  static bool LastStockagePass = 0;
+  static bool StockagePass = 0;
+
+  if (DetectPass != LastDetectPass) { //Detection d'un front montant
+    if (DetectPass) {
+      nbPass++;  // Incrémentation du nombre de passage.
+      LastDetectPass = 1;
+    }
+    else {
+      LastDetectPass = 0;
+    }
+  }
+
+  StockagePass = millis() - TempsPass > TimeWindow; // Condition de Temps pour retourner la future valeur de la jauge (toutes les X secondes)
+
+  if (StockagePass != LastStockagePass) {
+    if (StockagePass) {
+      departPass = arriveePass;
+      arriveePass = nbPass; // On retourne le nombre d'évènements.
+      TempsPass = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
+      nbPass = 0; // On remet le nombre d'évènements à 0.
+      LastStockagePass = 1;
+    }
+    else {
+      LastStockagePass = 0;
+    }
+  }
+  float coef = (arriveePass - departPass) / TimeWindow ;
+  float Line = (coef * ((float)millis() - TempsPass) + departPass); // Interpolation linéaire (= Line pure data)
+  return Line;
+}
+
+//-------------
+//-------------
+
+float JaugePeak (bool DetectEvent, float TimeWindow) {
+
+  static float nbEvent = 0;
+  static float arrivee = 0;
+  static float depart = 0;
+  static float Temps = 0;
+  static bool LastDetectEvent = 0;
+  static bool LastStockageEvent = 0;
+  static bool StockageEvent = 0;
+
   if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
     if (DetectEvent) {
       nbEvent++;  // Incrémentation du nombre de passage.
@@ -449,18 +575,21 @@ float Jauge (bool DetectEvent, float TimeWindow) {
       LastStockageEvent = 0;
     }
   }
-  coef = (arrivee - depart) / TimeWindow ;
-  Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
+
+  float coef = (arrivee - depart) / TimeWindow ;
+  float Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
   return Line;
 }
 
-
-
+//-------------
 //-------------
 
-//JOUER UN FICHIER SON (dans le premier player depuis la carte SD)
-
 // FONCTION URN Thomas (tire aléatoirement un son qui n'a pas encore été joué)
+
+int index_tab = 0; // nombre de samples deja jouées;
+int sampleDejaJoues[100]; //Défini la taille du tableau et initialise toutes les valeurs à 0
+int unplayedSample = 0;
+int lastPlayedSample = -1;
 
 int URN(int nbtotfile) {
   boolean etat = true;
@@ -492,12 +621,6 @@ int URN(int nbtotfile) {
   return unplayedSample;
 }
 
-void initSampleSelecteur(int nbtotfile) {
-  for (int i = 0; i < nbtotfile; i++) {
-    sampleDejaJoues[i] = -1;
-  }
-}
-
 //Init Sample
 
 void initSampleSelecteur(int nbtotfile) {
@@ -507,31 +630,57 @@ void initSampleSelecteur(int nbtotfile) {
 }
 
 //-------------
+//-------------
 
-// FONCTION RANDOM TRIG (déclenche un sample après un temps aléatoire tiré dans un plage de valeur variable.
+// TRIG UN FICHIER SON EN COUPANT LE PRECEDENT
 
-void RandomTrig (int sensor, randomMin, randomMax) {
+void TrigFile(const char *filename)
+{
+  Serial.println("");
+  Serial.print(" >>>>>>>>>>>>>>> Playing file : ");
+  Serial.print(filename);
+  Serial.println(" <<<<<<<<<<<<<<< ");
+  Serial.println("");
+  // Start playing the file.  This sketch continues to
+  // run while the file plays.
+  playSdWav1.play(filename);
+  // A brief delay for the library read WAV info
+  delay(20);
+}
 
-  if (millis() - resetMillis > treshTrig) {
-    resetMillis = millis();
-    playFile(SoundFile.c_str()); //JOUE LE SON .c_str() passe un string en char (en gros...)
-    treshTrig = random(randomMin, randomMax);
+//-------------
+//-------------
+
+// LOOP UN FICHIER SON
+
+void LoopFile(const char *filename)
+{
+  if (playSdWav2.isPlaying() == false) {
+    playSdWav2.play(filename);
+    delay(20); // wait for library to parse WAV info
   }
 }
 
 //-------------
+//-------------
 
-//JOUER UN FICHIER SON (dans le premier player depuis la carte SD)
+// INTERPOLATION LINEAIRE EN UN TEMPS DONNE (=LINE dans Pure Data)
 
-void playFile(const char *filename)
-{
-  Serial.print("Playing file: ");
-  Serial.println(filename);
-  if (playSdWav1.isPlaying() == false) {
-    Serial.println("Start playing");
-    playSdWav1.play(filename);
-    delay(5); // wait for library to parse WAV info
+float Line(float arrivee, float TimeInterpol) {
+  static float Temps = 0;
+  static float depart = 0;
+  static float coef = 0;
+  static float line = 0;
+  static float PreviousArrivee = 0;
+
+  if (arrivee != PreviousArrivee) {
+    PreviousArrivee = arrivee ;
+    depart = line;
+    Temps = (float)millis();
   }
+  coef = (ProxiValue - depart) / TimeInterpol ;
+  if ((float)millis() - Temps <= TimeInterpol) {
+    line = (coef * ((float)millis() - Temps) + depart);
+  }
+  return line;
 }
-
-
