@@ -1,5 +1,4 @@
-// Symbiote MAIN : mesure des peaks sur la dérivée du microphone avec compensation de gain et de délai. 
-
+// Symbiote MAIN : mesure des peaks sur la dérivée du microphone avec compensation de gain et de délai.
 
 #include <Audio.h>
 #include <Wire.h>
@@ -52,7 +51,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=135.7777862548828,132.222244262695
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
-#define BUTTON 0
 #define LED 13
 #define ProxiPin A3
 
@@ -62,7 +60,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=135.7777862548828,132.222244262695
 
 MedianFilter MedianProx(15, 0);
 RunningAverage MicroRA(15);
-Bounce boutonCalib = Bounce(BUTTON, 15 );
 
 // Déclaration des fonctions
 
@@ -82,36 +79,29 @@ float Line(float arrivee, float TimeInterpol);
 int Proxi;
 float MicroRms;
 
-int deriveeNoise;
-int deriveeMic;
-int MemNoise = 0;
-int MemMic = 0;
+float deriveeNoise;
+float deriveeMic;
+float MemNoise = 0;
+float MemMic = 0;
 
 int ProxiMedian = 0;
-int Micro_Moyenne = 0;
+float Micro_Moyenne = 0;
 
 // Variables calib Proxi + Micro
 
 int ProxiMin = 1023;
 int ProxiMax = 0;
-int MicroMin = 1023;
-int MicroMax = 0;
+float MicroMin = 1023;
+float MicroMax = 0;
 
-int TempsCalib = 5000 ;            // REGLAGE  : durée calibration quand le bouton est déclenché.
-
-// Variables bouton calib
-
-int TpsPressBouton = 800;      // REGLAGE : Temps d'appui nécessaire avant d'appeler une autre fonction
-int PressInstant = 0;
-int LastButtonValue = 0;
-int BoutonCal;
+int TempsCalib = 5000 ;            // REGLAGE  : durée calibration.
 
 // Variables Calibration compensation Delay + Gain
 
 float MicroCorrec;
 float InternalSig;
-float AttenuationFactor = 0.56;    // REGLAGE entrer une valeur par défaut
-float delayCompens = 0.25;         // REGLAGE entrer une valeur par défaut
+float AttenuationFactor = 0.40;    // REGLAGE entrer une valeur par défaut
+float delayCompens = 8.70;         // REGLAGE entrer une valeur par défaut
 float DetectSignal = 0;
 
 // Variable Compteur nombre de fichiers par dossier
@@ -124,8 +114,8 @@ int NbFiles[4] = {0};
 int NbPassage = 0;
 int NbPeak = 0;
 
-int ThreshPassage = 180 ;          //(180 par défaut mais réglage auto à -10% de la valeur Max)
-int ThreshPeak = 5 ;              //(60 par défaut par rapport à la dérivée)
+int ThreshPassage = 180 ;         //(180 par défaut mais réglage auto à -10% de la valeur Max)
+int ThreshPeak = 20 ;              //(10 par défaut par rapport à la dérivée)
 
 bool DetectPassage = 0;
 bool DetectPeak = 0;
@@ -163,7 +153,7 @@ float ProxiRange = 0;
 float ProxiValue = 0;
 float ProxiLine = 0;
 
-int TempsLineTremble = 3000 ; // REGLAGE (Temps du line)
+int TempsLineTremble = 1500 ; // REGLAGE (Temps du line)
 int AMfreqMax = 15;           // REGLAGE (fréquence max de la modulation d'amplitude)
 
 //-------------
@@ -189,8 +179,6 @@ void setup() {
   //setup delay compensation
   for (int ii = 1; ii < 8; ii++) delay1.disable(ii);
   delay1.delay(0, delayCompens);
-  //Setup Bouton Calibration en input mode
-  pinMode(BUTTON, INPUT);
 
   //Setup SD Card
   SPI.setMOSI(SDCARD_MOSI_PIN);
@@ -230,47 +218,23 @@ void setup() {
 void loop() {
   // LECTURE DES DONNEES
 
-  boutonCalib.update();
-  BoutonCal = boutonCalib.read();
-
   Proxi = analogRead(ProxiPin);              // DOIT ETRE COMPRIS DE 0 à 1
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
 
   //Micro Moyenne
 
-  MicroRms = rms1.read() * 1000.0f;            // DOIT ETRE COMPRIS DE 0 à 1
-  InternalSig = rms2.read();
+  MicroRms = rms1.read() * 1000;          // DOIT ETRE COMPRIS DE 0 à 1
+  //  InternalSig = rms2.read() * 1000;
   //  DetectSignal = rms3.read();
 
-  MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
+  //  MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
 
-  //  MicroRA.addValue(MicroRms);
-  //  Micro_Moyenne = MicroRA.getAverage();
+  MicroRA.addValue(MicroRms);
+  Micro_Moyenne = MicroRA.getAverage();
 
-  deriveeMic = MicroCorrec - MemMic;
-  MemMic = MicroCorrec;
-
-  Serial.print("Derivée Micro : ");
-  Serial.println(deriveeMic);
-
-  // RECALIBRATION AVEC BOUTON
-
-  if (BoutonCal != LastButtonValue) { // Detection d'un front montant
-    if (BoutonCal == 1) {
-      ProxiMin = 1023;
-      ProxiMax = 0;
-      MicroMin = 1023;
-      MicroMax = 0;
-      ThreshPassage = 0;
-      ThreshPeak = 0;
-      CalibProxiMic();
-      LastButtonValue = 1;
-    }
-  }
-  else {
-    LastButtonValue = 0;
-  }
+  //  deriveeMic = MicroCorrec - MemMic;
+  //  MemMic = MicroCorrec;
 
   // JAUGES
 
@@ -286,8 +250,14 @@ void loop() {
   jaugePassage = JaugePassage(DetectPassage, TpsStockagePassage);
 
   // Jauge du nombre de peak toutes les x secondes
+  if (playSdWav1.isPlaying()) {
+    ThreshPeak = Micro_Moyenne + 1;
+  }
+  else {
+    ThreshPeak = MicroMin * 2
+  }
 
-  if (deriveeMic > ThreshPeak) {
+  if (Micro_Moyenne > ThreshPeak) {
     DetectPeak = 1;
   }
   else {
@@ -352,9 +322,7 @@ void loop() {
 
   if (millis() - resetMillis > threshTrig) {
     resetMillis = millis();
-
     sample_rand = URN(corpusSampleNumber) + 1;              // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
-
     SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
     TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
     threshTrig = random(randomMin, randomMax);
@@ -371,7 +339,7 @@ void loop() {
   AMSine.amplitude(ProxiLine);
   AMSine.frequency(ProxiLine * AMfreqMax);
 
-  LoopFile("tremble.wav");  // Joue le son en boucle
+  //  LoopFile("tremble.wav");  // Joue le son en boucle
 
   // Dynamic mix
 
@@ -383,23 +351,28 @@ void loop() {
     mixer1.gain(0, 1);
     mixer2.gain(0, 1);
   }
-  
-// MONITORING
+
+  // MONITORING
 
   //  Serial.print("Millis - Reset Millis : ");
   //  Serial.println(millis() - resetMillis);
-  //  Serial.print("Micro : ");
-  //  Serial.println(Micro_Moyenne);
+
   //  Serial.print("Proxi Median : ");
   //  Serial.println(ProxiMedian);
   //  Serial.print("DETECT PASSAGE : ");
   //  Serial.print(DetectPassage);
   //  Serial.print("  !!  JAUGE PASSAGE : ");
   //  Serial.println(jaugePassage);
-  //  Serial.print("DETECT PEAK : ");
-  //  Serial.print(DetectPeak);
-  //  Serial.print("  !!  JAUGE PEAK : ");
-  //  Serial.println(jaugePeak);
+
+  //    Serial.print("Micro : ");
+  //    Serial.println(Micro_Moyenne);
+  //  Serial.print("Dérivée Micro : ");
+  //  Serial.println(deriveeMic);
+  //    Serial.print("DETECT PEAK : ");
+  //    Serial.print(DetectPeak);
+  //    Serial.print("  !!  JAUGE PEAK : ");
+  //    Serial.println(jaugePeak);
+
   //  Serial.println("----------");
   //    AudioProcessorUsageMaxReset();
   //    AudioMemoryUsageMaxReset();
@@ -416,14 +389,13 @@ void loop() {
   delay(10);
 }
 
-
 //-------------
 
 //FONCTIONS
 
 //-------------
 
-// CALIBRATION PROXI ET MICRO
+// CALIBRATION PROXI & MICRO
 
 void CalibProxiMic () {
   mixer3.gain(0, 0);
@@ -431,11 +403,14 @@ void CalibProxiMic () {
   int InitTimerCalib = millis();
   Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
   while (millis() - InitTimerCalib < TempsCalib) {
+    MicroRms = rms1.read() * 1000;
     Proxi = analogRead(ProxiPin);
-    MicroRms = rms1.read() * 100;
-    MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
-    deriveeMic = MicroCorrec - MemMic;
-    MemMic = MicroCorrec;
+    MicroRA.addValue(MicroRms);
+    Micro_Moyenne = MicroRA.getAverage();
+    //    MicroRms = rms1.read();
+    //    MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
+    //    deriveeMic = MicroCorrec - MemMic;
+    //    MemMic = MicroCorrec;
     // record the minimum Proxi Value
     if (Proxi < ProxiMin) {
       ProxiMin = Proxi;
@@ -443,20 +418,18 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
-      ThreshPassage = ProxiMax - ProxiMax * 10 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
+      ThreshPassage = ProxiMax - ProxiMax * 5 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
     }
-    if (deriveeMic < MicroMin) {
-      MicroMin = deriveeMic;
-    }
-    // record the maximum Proxi value
-    if (deriveeMic > MicroMax) {
-      MicroMax = deriveeMic;
-      //      ThreshPeak = MicroMax / 2 ;                        // REGLAGE auto du seuil de détection d'un PEAK
+    if (Micro_Moyenne < MicroMin) {
+      MicroMin = Micro_Moyenne;
     }
     delay(10);
   }
   mixer3.gain(0, 1);
   mixer4.gain(0, 1);
+  if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
+  ThreshPeak = MicroMin * 2;
+
   Serial.print("ProxiMin & ProxiMax : ");
   Serial.print(ProxiMin);
   Serial.print(" & ");
