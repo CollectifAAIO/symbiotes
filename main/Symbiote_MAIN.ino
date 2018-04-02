@@ -8,21 +8,23 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav2;     //xy=151,351
-AudioPlaySdWav           playSdWav1;     //xy=156,265
-AudioInputI2S            i2s2;           //xy=238,178
-AudioMixer4              mixer1;         //xy=390,262
-AudioMixer4              mixer2;         //xy=390,329
-AudioAnalyzeRMS          rms1;           //xy=403,172
-AudioOutputI2S           i2s1;           //xy=674,266
+AudioPlaySdWav           playSdWav2;     //xy=922,383
+AudioPlaySdWav           playSdWav1;     //xy=927,297
+AudioInputI2S            i2s2;           //xy=1003,156
+AudioMixer4              mixer1;         //xy=1161,294
+AudioMixer4              mixer2;         //xy=1161,361
+AudioAnalyzeRMS          rms1;           //xy=1181,149
+AudioAnalyzePeak         peak1;          //xy=1181,191
+AudioOutputI2S           i2s1;           //xy=1445,298
 AudioConnection          patchCord1(playSdWav2, 0, mixer1, 1);
 AudioConnection          patchCord2(playSdWav2, 1, mixer2, 1);
 AudioConnection          patchCord3(playSdWav1, 0, mixer1, 0);
 AudioConnection          patchCord4(playSdWav1, 1, mixer2, 0);
 AudioConnection          patchCord5(i2s2, 0, rms1, 0);
-AudioConnection          patchCord6(mixer1, 0, i2s1, 0);
-AudioConnection          patchCord7(mixer2, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=367,405
+AudioConnection          patchCord6(i2s2, 1, peak1, 0);
+AudioConnection          patchCord7(mixer1, 0, i2s1, 0);
+AudioConnection          patchCord8(mixer2, 0, i2s1, 1);
+AudioControlSGTL5000     sgtl5000_1;     //xy=1138,437
 // GUItool: end automatically generated code
 
 // Settings filtrage
@@ -156,7 +158,7 @@ void setup() {
 void loop() {
 
   Proxi = analogRead(ProxiPin);              // DOIT ETRE COMPRIS DE 0 à 1
-  MicroRms = rms1.read();               // DOIT ETRE COMPRIS DE 0 à 1
+  MicroRms = rms1.read() * 1000;              // DOIT ETRE COMPRIS DE 0 à 1
   boutonCalib.update();
   int boutonCal = boutonCalib.read();
 
@@ -170,6 +172,46 @@ void loop() {
   Micro_Moyenne = MicroRA.getAverage();
 
   //Sortie capteurs à utiliser dans la suite : Proxi_Median & Micro_Moyenne.
+
+
+  // COMPTAGE PASSAGES
+
+ etatPassage = Proxi_Median < seuilPassage; //Condition pour déclencher le comptage du nombre de passages.
+
+  if (etatPassage != LastPassageValue) { //Detection d'un Front
+    if (etatPassage) { //front montant
+      nbPassage++;  // Incrémentation du nombre de passage. 
+      LastPassageValue = 1;
+    }
+    else {
+      LastPassageValue = 0;
+    }
+  }
+
+  ConditionStockage = millis() - Temps > TimeSnapshot; // Condition de temps pour stocker la valeur du nombre de passages (toutes les X secondes) 
+
+  if (ConditionStockage != LastConditionStockage) {
+    if (ConditionStockage) {
+      Temps = millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
+      StockPass[i] = nbPassage;  //On stock le nombre de passage du dernier intervalle de temps dans le tableau.
+      nbPassage = 0; //On remet le nombre de passages à 0. 
+      LastConditionStockage = 1;
+
+      for (x = 0; x < SizeArrayPassage + 1; x++) {  
+        SumTab += StockPass[x];          //On additionne toutes les valeurs du tableau. 
+      }
+    }
+    else {
+      LastConditionStockage = 0;
+      Moy_Pass = SumTab / (SizeArrayPassage); //On fait la MOYENNE des valeurs du dernier tableau.
+      SumTab = 0; // On remet la somme à 0. 
+      i++; //On incrémente le numéro du tableau pour remplir la case suivante. 
+      if (i > SizeArrayPassage) {  
+        i = 0;              //On remet l'incrément à 0 si on dépasse le nombre de case max du tableau.
+      }
+    }
+  }
+
 
   // CALIBRATION
 
@@ -230,6 +272,12 @@ void loop() {
   }
 
 
+
+
+
+
+
+
   //MAPPING VAL MIN MAX CALIBRATION de 0 à 100.
 
   Proxi_map = map(ProxiValue, ProxiMin, ProxiMax, 0, 100);
@@ -238,6 +286,11 @@ void loop() {
   // CLIP
   ProxiValue = constrain(ProxiValue, 0, 100);
   MicroValue = constrain(Micro_Moyenne, 0, 100);
+
+
+
+
+
 
 
   // somme les deux capteurs pour ne faire qu'une variable qui sert à déterminer la fourchette de temps dans laquelle le nombre aléatoire va être piocher. Ce nombre déterminera après combien de temps le player rejouera un nouveau son.
@@ -306,7 +359,6 @@ void loop() {
     treshTrig = random(borneMin, borneMax);
   }
 }
-
 
 delay(5);
 }
