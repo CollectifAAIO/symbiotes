@@ -7,11 +7,8 @@
 #include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
 
 // GUItool: begin automatically generated code
-AudioInputI2S            i2s2;           //xy=66,217
 AudioPlaySdWav           playSdWav1;     //xy=77,263
-AudioAnalyzeRMS          rms1;           //xy=241,211
 AudioOutputI2S           i2s1;           //xy=242,262
-AudioConnection          patchCord1(i2s2, 0, rms1, 0);
 AudioConnection          patchCord2(playSdWav1, 0, i2s1, 0);
 AudioConnection          patchCord3(playSdWav1, 1, i2s1, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
@@ -24,7 +21,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
 #define SDCARD_SCK_PIN   14
 
 #define LED              13
-#define PROXI_PIN        A3
 
 // DECLARATION & INIT VARIABLES
 
@@ -33,23 +29,23 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
 MedianFilter MedianProx(15, 0);
 RunningAverage MicroRA(15);
 
-// Déclaration des fonctions
+// Prototype de fonctions
 
 void CalibProxiMic();
 int CountingFile (File DirName);
 float JaugePeak (bool DetectEvent, const int TimeWindow);
 int URN(int nbtotfile);
 void TrigFile(const char *filename);
-void LoopFile(const char *filename);
 void initSampleSelecteur(int nbtotfile);
 
 // Variables données
 
 int Proxi = 0;
-
-float MicroRms = 0.0;
-float Micro_Moyenne = 0.0;
 int ProxiMedian = 0;
+
+int MicroRms = 0;
+int Micro_Moyenne = 0;
+
 
 // Variables calib Proxi + Micro
 
@@ -57,7 +53,7 @@ const int TEMPS_CALIB = 5000 ;            // REGLAGE  : durée calibration.
 
 int ProxiMin = 1023;
 int ProxiMax = 0;
-float MicroMin = 1023.0;
+int MicroMin = 1023;
 
 // Variable Compteur nombre de fichiers par dossier
 
@@ -67,9 +63,9 @@ int NbFiles[4] = {0};
 // Variables JAUGES
 
 int NbPeak = 0;
-float ThreshPeak = 20.0 ;              //(10 par défaut par rapport à la dérivée)
+int ThreshPeak = 20 ;              //(10 par défaut par rapport à la dérivée)
 bool DetectPeak = false;
-const int TP_STOCKAGE_PEAK = 1500;       //REGLAGE (Temps de stockage de la jauge Micro)
+const int TP_STOCKAGE_PEAK = 2000;       //REGLAGE (Temps de stockage de la jauge Micro)
 float jaugePeak = 0.0;
 
 // Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
