@@ -8,24 +8,41 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav2;     //xy=922,383
-AudioPlaySdWav           playSdWav1;     //xy=927,297
-AudioInputI2S            i2s2;           //xy=1003,156
-AudioMixer4              mixer1;         //xy=1161,294
-AudioMixer4              mixer2;         //xy=1161,361
-AudioAnalyzeRMS          rms1;           //xy=1181,149
-AudioAnalyzePeak         peak1;          //xy=1181,191
-AudioOutputI2S           i2s1;           //xy=1445,298
-AudioConnection          patchCord1(playSdWav2, 0, mixer1, 1);
-AudioConnection          patchCord2(playSdWav2, 1, mixer2, 1);
-AudioConnection          patchCord3(playSdWav1, 0, mixer1, 0);
-AudioConnection          patchCord4(playSdWav1, 1, mixer2, 0);
-AudioConnection          patchCord5(i2s2, 0, rms1, 0);
-AudioConnection          patchCord6(i2s2, 1, peak1, 0);
-AudioConnection          patchCord7(mixer1, 0, i2s1, 0);
-AudioConnection          patchCord8(mixer2, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=1138,437
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+
+// GUItool: begin automatically generated code
+AudioPlaySdWav           playSdWav1;     //xy=253,378
+AudioPlaySdWav           playSdWav2;     //xy=253,409
+AudioSynthNoiseWhite     noise1;         //xy=269,303
+AudioMixer4              mixer2;         //xy=403,393
+AudioMixer4              mixer1;         //xy=405,322
+AudioMixer4              mixer3;         //xy=545,361
+AudioInputI2S            i2s2;           //xy=554,209
+AudioAnalyzeRMS          rms2;            //xy=740,194
+AudioAnalyzePeak         peak2;          //xy=740,225
+AudioAnalyzeRMS          rms1;           //xy=742,291
+AudioAnalyzePeak         peak1;          //xy=743,324
+AudioOutputI2S           i2s1;           //xy=749,368
+AudioConnection          patchCord1(playSdWav1, 0, mixer2, 0);
+AudioConnection          patchCord2(playSdWav1, 1, mixer2, 1);
+AudioConnection          patchCord3(playSdWav2, 0, mixer2, 2);
+AudioConnection          patchCord4(playSdWav2, 1, mixer2, 3);
+AudioConnection          patchCord5(noise1, 0, mixer1, 0);
+AudioConnection          patchCord6(mixer2, 0, mixer3, 1);
+AudioConnection          patchCord7(mixer1, 0, mixer3, 0);
+AudioConnection          patchCord8(mixer3, 0, i2s1, 0);
+AudioConnection          patchCord9(mixer3, 0, i2s1, 1);
+AudioConnection          patchCord10(mixer3, rms1);
+AudioConnection          patchCord11(mixer3, peak1);
+AudioConnection          patchCord12(i2s2, 0, peak2, 0);
+AudioConnection          patchCord13(i2s2, 0, rms2, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=448,527
 // GUItool: end automatically generated code
+
 
 // Settings filtrage
 
@@ -120,6 +137,26 @@ String HumeurFolder[8]  = {"Serein", "Normal_expressif", "Timide", "Peureux", "H
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
+
+// Variables Moyenne Passages
+
+bool etatPassage = 0;
+bool ConditionStockage = 0;
+bool LastConditionStockage = 0;
+
+int TimeSnapshot = 5000; //Temps auquel on scan le nombre de passages en ms.
+int nbPassage = 0;
+int Temps = 0;
+int SizeArrayPassage = 9;
+int StockPass[10] = {0};
+int seuilPassage = 150; // Seuil sous lequel le proxi déclenche le comptage d'un passage. A Calibrer à 1/3 de la valeur Max de Proxi.
+bool LastPassageValue = 0;
+int i = 0; //incrément du tableau
+int x = 0; //lire le tableau via l'incrément de la boucle for
+int SumTab = 0;
+int Moy_Pass = 0;
+
+// -----
 
 int sample_rand = 0;  // tirage au sort du numéro du sample.
 boolean seuil = false;
@@ -286,7 +323,6 @@ void loop() {
   // CLIP
   ProxiValue = constrain(ProxiValue, 0, 100);
   MicroValue = constrain(Micro_Moyenne, 0, 100);
-
 
 
 
