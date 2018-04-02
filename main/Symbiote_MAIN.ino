@@ -1,5 +1,3 @@
-// Symbiote MAIN : mesure des peaks sur la dérivée du microphone avec compensation de gain et de délai.
-
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -10,29 +8,23 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioSynthNoiseWhite     noise1;         //xy=66,362
-AudioPlaySdWav           playSdWav1;     //xy=81,288
-AudioMixer4              mixer1;         //xy=374,302
-AudioMixer4              mixer2;         //xy=374,370
-AudioInputI2S            i2s2;           //xy=526,141
-AudioMixer4              mixer3;         //xy=544,255
-AudioAnalyzeRMS          rms1;           //xy=701,135
-AudioEffectDelay         delay1;         //xy=704,255
-AudioOutputI2S           i2s1;           //xy=834,363
-AudioAnalyzeRMS          rms2;           //xy=867,209
+AudioSynthNoiseWhite     noise1;         //xy=58,381
+AudioPlaySdWav           playSdWav1;     //xy=73,307
+AudioMixer4              mixer1;         //xy=366,321
+AudioMixer4              mixer2;         //xy=366,389
+AudioInputI2S            i2s2;           //xy=518,160
+AudioAnalyzeRMS          rms1;           //xy=693,154
+AudioOutputI2S           i2s1;           //xy=826,382
 AudioConnection          patchCord1(noise1, 0, mixer1, 1);
 AudioConnection          patchCord2(noise1, 0, mixer2, 1);
 AudioConnection          patchCord3(playSdWav1, 0, mixer1, 0);
 AudioConnection          patchCord4(playSdWav1, 1, mixer2, 0);
 AudioConnection          patchCord5(mixer1, 0, i2s1, 0);
-AudioConnection          patchCord6(mixer1, 0, mixer3, 0);
-AudioConnection          patchCord7(mixer2, 0, i2s1, 1);
-AudioConnection          patchCord8(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord9(i2s2, 0, rms1, 0);
-AudioConnection          patchCord10(mixer3, delay1);
-AudioConnection          patchCord11(delay1, 0, rms2, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=77,72
+AudioConnection          patchCord6(mixer2, 0, i2s1, 1);
+AudioConnection          patchCord7(i2s2, 0, rms1, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=69,91
 // GUItool: end automatically generated code
+
 
 //Use these with the audio adaptor board
 
@@ -87,9 +79,6 @@ float MicroMax = 0;
 
 // Variables Calibration compensation Gain
 
-float MicroCorrec;
-float InternalSig;
-float InternalSigCorrected;
 float AttenuationFactor = 0.40;    // Dans calib.
 float delayCompens = 0.44;          // REGLAGE entrer une valeur selon la distance par rapport au microphone.
 float DetectSignal = 0;
@@ -101,27 +90,22 @@ int NbFiles[4] = {0};
 
 // Variables JAUGES
 
-int NbPassage = 0;
 int NbPeak = 0;
 
-int ThreshPassage = 180 ;         //(180 par défaut mais réglage auto à -10% de la valeur Max)
 int ThreshPeak = 20 ;              //(10 par défaut par rapport à la dérivée)
 
-bool DetectPassage = 0;
 bool DetectPeak = 0;
 
 int TpsStockagePassage = 10000 ;  //REGLAGE (Temps de stockage de la jauge Proxi)
 int TpsStockagePeak = 1500;       //REGLAGE (Temps de stockage de la jauge Micro)
 
-float jaugePassage = 0;
 float jaugePeak = 0;
 
 // Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
 
 int SeuilAgressif;
-int Condition = 1;
+int Condition = 0;
 int SeuilJaugeMicro = 1;              //REGLAGE (Seuil de changement d'humeur Micro)
-int SeuilJaugePassage = 2.5;          //REGLAGE (Seuil de changement d'humeur Proxi)
 
 // Variables fonction TRIGFILE
 
@@ -173,9 +157,6 @@ void setup() {
   sgtl5000_1.volume(0.7);                         //REGLAGE
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
-  //setup delay compensation
-  for (int ii = 1; ii < 8; ii++) delay1.disable(ii);
-  delay1.delay(0, delayCompens);
   //Setup SD Card
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
@@ -221,22 +202,10 @@ void loop() {
   //Micro Moyenne
 
   MicroRms = rms1.read() * 1000;            // DOIT ETRE COMPRIS DE 0 à 1
-  InternalSig = rms2.read() * 1000;
   MicroRA.addValue(MicroRms);
   Micro_Moyenne = MicroRA.getAverage();
-  InternalSigCorrected =  InternalSig * AttenuationFactor;
-  // JAUGES
 
-  // Jauge du nombre de passage toutes les x secondes
-
-  if (ProxiMedian < ThreshPassage) {
-    DetectPassage = 1;
-  }
-  else {
-    DetectPassage = 0;
-  }
-
-  jaugePassage = JaugePassage(DetectPassage, TpsStockagePassage);
+  // JAUGE PEAK
 
   // Modif du seuil de comptabilité du nb de peaks pour éviter un retrig.
 
@@ -281,7 +250,7 @@ void loop() {
       RangeMax = ProxiMax - SeuilAgressif;
       BorneMinMin = 100 ;                        // REGLAGE
       BorneMinMax = 200;                        // REGLAGE
-      BorneMaxMax = 1000;                        // REGLAGE                                // REGLAGE
+      BorneMaxMax = 1000;                        // REGLAGE
       selecthumeur = 3;
       Condition = 2;
     }
@@ -332,31 +301,34 @@ void loop() {
     threshTrig = random(randomMin, randomMax);
   }
 
-
   // MONITORING
 
   //  Serial.print("Millis - Reset Millis : ");
   //  Serial.println(millis() - resetMillis);
-  
-    Serial.print("PROXI : ");
-    Serial.println(ProxiMedian);
-  
-    Serial.println("----------");
 
-    Serial.print("RANDOM MIN : ");
-    Serial.print(randomMin);
-    Serial.print("  !!  RANDOM MAX : ");
-    Serial.println(randomMax);
+  //  Serial.print("Proxi Median : ");
+  //  Serial.println(ProxiMedian);
+  //  Serial.print("DETECT PASSAGE : ");
+  //  Serial.print(DetectPassage);
+  //  Serial.print("  !!  JAUGE PASSAGE : ");
+  //  Serial.println(jaugePassage);
 
-//  Serial.print("Micro : ");
-//  Serial.print(Micro_Moyenne);
-//  Serial.print("  !!  Signal interne : ");
-//  Serial.println(InternalSigCorrected);
+  //  Serial.println("----------");
 
-      Serial.print("DETECT PEAK : ");
-      Serial.print(DetectPeak);
-      Serial.print("  !!  JAUGE PEAK : ");
-      Serial.println(jaugePeak);
+  //  Serial.print("RANDOM MIN : ");
+  //  Serial.print(randomMin);
+  //  Serial.print("  !!  RANDOM MAX : ");
+  //  Serial.println(randomMax);
+
+  //  Serial.print("Micro : ");
+  //  Serial.print(Micro_Moyenne);
+  //  Serial.print("  !!  Signal interne : ");
+  //  Serial.println(InternalSigCorrected);
+
+  //    Serial.print("DETECT PEAK : ");
+  //    Serial.print(DetectPeak);
+  //    Serial.print("  !!  JAUGE PEAK : ");
+  //    Serial.println(jaugePeak);
 
   //  Serial.println("----------");
   //    AudioProcessorUsageMaxReset();
@@ -387,16 +359,14 @@ void CalibProxiMic () {
   int InitTimerCalib = millis();
   Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
   while (millis() - InitTimerCalib < TempsCalib) {
-    while (millis() - InitTimerCalib < TempsCalibGain) {
-      noise1.amplitude(1);
-      MicroRms = rms1.read() * 1000;
-      MicroRA.addValue(MicroRms);
-      Micro_Moyenne = MicroRA.getAverage();
-      InternalSig = rms2.read() * 1000;
-      AttenuationFactor = Micro_Moyenne / InternalSig;
-      delay(10);
-    }
-    noise1.amplitude(0);
+        while (millis() - InitTimerCalib < TempsCalibGain) {
+          noise1.amplitude(1);
+          MicroRms = rms1.read() * 1000;
+          MicroRA.addValue(MicroRms);
+          Micro_Moyenne = MicroRA.getAverage();
+          delay(10);
+        }
+        noise1.amplitude(0);
     MicroRms = rms1.read() * 1000;
     Proxi = analogRead(ProxiPin);
     MicroRA.addValue(MicroRms);
@@ -408,7 +378,6 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
-      ThreshPassage = ProxiMax - ProxiMax * 10 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
       SeuilAgressif = ProxiMax / 2;
     }
     // record the minimum Micro Value
@@ -418,22 +387,22 @@ void CalibProxiMic () {
     delay(10);
   }
   if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
-  ThreshPeak = MicroMin * 2.5;
+  ThreshPeak = MicroMin * 2;
 
   Serial.print("ProxiMin & ProxiMax : ");
   Serial.print(ProxiMin);
   Serial.print(" & ");
   Serial.println(ProxiMax);
-  Serial.print("MicroMin : ");
+  Serial.print("MicroMin & MicroMax : ");
   Serial.print(MicroMin);
-  Serial.print("ThresPassage : ");
-  Serial.print(ThreshPassage);
+  Serial.print(" & ");
+  Serial.println(MicroMax);
   Serial.print("  !!  Seuil agressif : ");
   Serial.print(SeuilAgressif);
   Serial.print("  !!  ThresPeak : ");
-  Serial.println(ThreshPeak);
-//  Serial.print("  !!  Facteur d'atténuation : ");
-//  Serial.println(AttenuationFactor);
+  Serial.print(ThreshPeak);
+  Serial.print("  !!  Facteur d'atténuation : ");
+  Serial.println(AttenuationFactor);
   Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
 }
 
@@ -460,52 +429,10 @@ int CountingFile (File DirName) {
   return FileNumber;
 }
 
-
+//-------------
 //-------------
 
 // FONCTIONS JAUGE : COMPTE NB D'EVENEMENTS DANS UN INTERVALLE DE TEMPS DONNE ET L'INTERPOLE LINEAIREMENT PAR RAPPORT A LA VALEUR PRECEDENTE ET PENDANT L'INTERVALLE DE TEMPS DETERMINE.
-
-float JaugePassage (bool DetectEvent, float TimeWindow) {
-
-  static float nbEvent = 0;
-  static float arrivee = 0;
-  static float depart = 0;
-  static float Temps = 0;
-  static bool LastDetectEvent = 0;
-  static bool LastStockageEvent = 0;
-  static bool StockageEvent = 0;
-
-  if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
-    if (DetectEvent) {
-      nbEvent++;  // Incrémentation du nombre de passage.
-      LastDetectEvent = 1;
-    }
-    else {
-      LastDetectEvent = 0;
-    }
-  }
-
-  StockageEvent = millis() - Temps > TimeWindow; // Condition de temps pour retourner la future valeur de la jauge (toutes les X secondes)
-
-  if (StockageEvent != LastStockageEvent) {
-    if (StockageEvent) {
-      depart = arrivee;
-      arrivee = nbEvent; // On retourne le nombre d'évènements.
-      Temps = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
-      nbEvent = 0; // On remet le nombre d'évènements à 0.
-      LastStockageEvent = 1;
-    }
-    else {
-      LastStockageEvent = 0;
-    }
-  }
-  float coef = (arrivee - depart) / TimeWindow ;
-  float Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
-  return Line;
-}
-
-//-------------
-//-------------
 
 float JaugePeak (bool DetectEvent, float TimeWindow) {
 
@@ -616,12 +543,10 @@ void TrigFile(const char *filename)
   delay(10);
 }
 
-
 //-------------
 //-------------
 
 // INTERPOLATION LINEAIRE EN UN TEMPS DONNE (=LINE dans Pure Data)
-
 
 float Line(float data, float arrivee, float TimeInterpol) {
   static float Temps = 0;
