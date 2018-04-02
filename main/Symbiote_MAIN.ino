@@ -1,4 +1,5 @@
-// Symbiote MAIN : Sans compensation de délai. Mesure des peaks sur le signal moyenné du microphone.
+// Symbiote MAIN : mesure des peaks sur la dérivée du microphone avec compensation de gain et de délai. 
+
 
 #include <Audio.h>
 #include <Wire.h>
@@ -10,34 +11,40 @@
 #include <Bounce.h>
 
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav2;     //xy=96,371
-AudioPlaySdWav           playSdWav1;     //xy=98,256
-AudioSynthWaveformSine   AMSine;         //xy=161,436
-AudioEffectMultiply      multiply2;      //xy=302,423
-AudioEffectMultiply      multiply1;      //xy=306,317
-AudioMixer4              mixer1;         //xy=463,270
-AudioMixer4              mixer2;         //xy=463,384
-AudioInputI2S            i2s2;           //xy=531,155
-AudioMixer4              mixer3;         //xy=657.77783203125,284.4444580078125
-AudioMixer4              mixer4;         //xy=661.1111450195312,387.77777099609375
-AudioAnalyzeRMS          rms1;           //xy=706,149
-AudioOutputI2S           i2s1;           //xy=790.77783203125,316.7778015136719
+AudioPlaySdWav           playSdWav2;     //xy=127.77778625488281,372.2222442626953
+AudioPlaySdWav           playSdWav1;     //xy=129.7777862548828,333.2222442626953
+AudioSynthWaveformSine   AMSine;         //xy=140.7777862548828,410.2222442626953
+AudioEffectMultiply      multiply1;      //xy=303.7777862548828,309.2222442626953
+AudioEffectMultiply      multiply2;      //xy=304.7777862548828,423.2222442626953
+AudioMixer4              mixer1;         //xy=432.7777862548828,316.2222442626953
+AudioMixer4              mixer2;         //xy=432.7777862548828,430.2222442626953
+AudioMixer4              mixer4;         //xy=561.7777862548828,427.2222442626953
+AudioMixer4              mixer3;         //xy=562.7777862548828,336.2222442626953
+AudioInputI2S            i2s2;           //xy=584.7777862548828,201.2222442626953
+AudioMixer4              mixer5;         //xy=691.7777862548828,302.2222442626953
+AudioAnalyzeRMS          rms1;           //xy=759.7777862548828,195.2222442626953
+AudioEffectDelay         delay1;         //xy=821.7777862548828,302.2222442626953
+AudioOutputI2S           i2s1;           //xy=892.7777862548828,423.2222442626953
+AudioAnalyzeRMS          rms2;           //xy=945.7777862548828,256.2222442626953
 AudioConnection          patchCord1(playSdWav2, 0, multiply1, 0);
 AudioConnection          patchCord2(playSdWav2, 1, multiply2, 0);
 AudioConnection          patchCord3(playSdWav1, 0, mixer1, 0);
 AudioConnection          patchCord4(playSdWav1, 1, mixer2, 0);
 AudioConnection          patchCord5(AMSine, 0, multiply2, 1);
 AudioConnection          patchCord6(AMSine, 0, multiply1, 1);
-AudioConnection          patchCord7(multiply2, 0, mixer2, 1);
-AudioConnection          patchCord8(multiply1, 0, mixer1, 1);
+AudioConnection          patchCord7(multiply1, 0, mixer1, 1);
+AudioConnection          patchCord8(multiply2, 0, mixer2, 1);
 AudioConnection          patchCord9(mixer1, 0, mixer3, 0);
 AudioConnection          patchCord10(mixer2, 0, mixer4, 0);
-AudioConnection          patchCord11(i2s2, 0, rms1, 0);
-AudioConnection          patchCord12(mixer3, 0, i2s1, 0);
-AudioConnection          patchCord13(mixer4, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=82,86
+AudioConnection          patchCord11(mixer4, 0, mixer5, 1);
+AudioConnection          patchCord12(mixer4, 0, i2s1, 1);
+AudioConnection          patchCord13(mixer3, 0, mixer5, 0);
+AudioConnection          patchCord14(mixer3, 0, i2s1, 0);
+AudioConnection          patchCord15(i2s2, 0, rms1, 0);
+AudioConnection          patchCord16(mixer5, delay1);
+AudioConnection          patchCord17(delay1, 0, rms2, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=135.7777862548828,132.2222442626953
 // GUItool: end automatically generated code
-
 
 //Use these with the audio adaptor board
 
@@ -83,16 +90,6 @@ int MemMic = 0;
 int ProxiMedian = 0;
 int Micro_Moyenne = 0;
 
-// Variables bouton calib
-
-int BoutonCal;
-int PressInstant = 0;
-int LastButtonValue = 0;
-
-// Variable Compteur nombre de fichiers par dossier
-
-File root;
-int NbFiles[4] = {0};
 // Variables calib Proxi + Micro
 
 int ProxiMin = 1023;
@@ -100,15 +97,35 @@ int ProxiMax = 0;
 int MicroMin = 1023;
 int MicroMax = 0;
 
-int ThreshPassage = 180 ; // AUTOMATIQUE (180, par défaut)
-int ThreshPeak = 60 ;     // AUTOMATIQUE : Seuil déclenchement peak
+int TempsCalib = 5000 ;            // REGLAGE  : durée calibration quand le bouton est déclenché.
 
-int TempsCalib = 5000 ;   // REGLAGE  : durée calibration quand le bouton est déclenché.
+// Variables bouton calib
+
+int TpsPressBouton = 800;      // REGLAGE : Temps d'appui nécessaire avant d'appeler une autre fonction
+int PressInstant = 0;
+int LastButtonValue = 0;
+int BoutonCal;
+
+// Variables Calibration compensation Delay + Gain
+
+float MicroCorrec;
+float InternalSig;
+float AttenuationFactor = 0.56;    // REGLAGE entrer une valeur par défaut
+float delayCompens = 0.25;         // REGLAGE entrer une valeur par défaut
+float DetectSignal = 0;
+
+// Variable Compteur nombre de fichiers par dossier
+
+File root;
+int NbFiles[4] = {0};
 
 // Variables JAUGES
 
 int NbPassage = 0;
 int NbPeak = 0;
+
+int ThreshPassage = 180 ;          //(180 par défaut mais réglage auto à -10% de la valeur Max)
+int ThreshPeak = 5 ;              //(60 par défaut par rapport à la dérivée)
 
 bool DetectPassage = 0;
 bool DetectPeak = 0;
@@ -131,7 +148,7 @@ int resetMillis = 0;
 int threshTrig = 0;
 int randomMin = 50;
 int randomMax = 34000;
-int corpusSampleNumber = 10;   // AUTOMATIQUE : 10 par défaut.
+int corpusSampleNumber = 10;   //REGLAGE (Nombre de son dans chaque dossier)
 
 int sample_rand = 1;           // tirage au sort du numéro du sample.
 String SoundFile, SoundType;
@@ -146,7 +163,7 @@ float ProxiRange = 0;
 float ProxiValue = 0;
 float ProxiLine = 0;
 
-int TempsLineTremble = 500 ;   // REGLAGE (Temps du line)
+int TempsLineTremble = 3000 ; // REGLAGE (Temps du line)
 int AMfreqMax = 15;           // REGLAGE (fréquence max de la modulation d'amplitude)
 
 //-------------
@@ -161,7 +178,7 @@ void setup() {
 
   //AUDIO
 
-  AudioMemory(64);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
+  AudioMemory(70);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
   // setup audio board
   SoundFile = String();
   SoundType = String(".wav");
@@ -169,7 +186,9 @@ void setup() {
   sgtl5000_1.volume(0.8);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
-
+  //setup delay compensation
+  for (int ii = 1; ii < 8; ii++) delay1.disable(ii);
+  delay1.delay(0, delayCompens);
   //Setup Bouton Calibration en input mode
   pinMode(BUTTON, INPUT);
 
@@ -186,8 +205,8 @@ void setup() {
   //Compte le nombre de fichiers dans chacun des dossiers d'humeur.
 
   for (int i = 0; i <= 3; i++) {
-    String FileRemove = HumeurFolder[i] + "/" + "DS_STO~1";
-    SD.remove(FileRemove.c_str());
+    //    String FileRemove = HumeurFolder[i] + "/" + "DS_STO~1";
+    //    SD.remove(FileRemove.c_str());
     String FolderName = HumeurFolder[i] + "/";
     root = SD.open(FolderName.c_str());
     NbFiles[i] = CountingFile(root);
@@ -220,11 +239,20 @@ void loop() {
 
   //Micro Moyenne
 
-  MicroRms = rms1.read() * 100.0f;            // DOIT ETRE COMPRIS DE 0 à 1
-  MicroRA.addValue(MicroRms);
-  Micro_Moyenne = MicroRA.getAverage();
-  //  deriveeMic = MicroRms - MemMic;
-  //  MemMic = MicroRms;
+  MicroRms = rms1.read() * 1000.0f;            // DOIT ETRE COMPRIS DE 0 à 1
+  InternalSig = rms2.read();
+  //  DetectSignal = rms3.read();
+
+  MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
+
+  //  MicroRA.addValue(MicroRms);
+  //  Micro_Moyenne = MicroRA.getAverage();
+
+  deriveeMic = MicroCorrec - MemMic;
+  MemMic = MicroCorrec;
+
+  Serial.print("Derivée Micro : ");
+  Serial.println(deriveeMic);
 
   // RECALIBRATION AVEC BOUTON
 
@@ -248,7 +276,7 @@ void loop() {
 
   // Jauge du nombre de passage toutes les x secondes
 
-  if (ProxiMedian > ThreshPassage) {
+  if (ProxiMedian < ThreshPassage) {
     DetectPassage = 1;
   }
   else {
@@ -259,7 +287,7 @@ void loop() {
 
   // Jauge du nombre de peak toutes les x secondes
 
-  if (Micro_Moyenne > ThreshPeak) {
+  if (deriveeMic > ThreshPeak) {
     DetectPeak = 1;
   }
   else {
@@ -267,21 +295,6 @@ void loop() {
   }
 
   jaugePeak = JaugePeak(DetectPeak, TpsStockagePeak);
-
-  //  Serial.print("Micro : ");
-  //  Serial.println(Micro_Moyenne);
-  //  Serial.print("Proxi Median : ");
-  //  Serial.println(ProxiMedian);
-  //      Serial.print("DETECT PASSAGE : ");
-  //      Serial.println(DetectPassage);
-  //  Serial.print("  !!  JAUGE PASSAGE : ");
-  //  Serial.println(jaugePassage);
-  //  Serial.print("DETECT PEAK : ");
-  //  Serial.print(DetectPeak);
-  //  Serial.print("  !!  JAUGE PEAK : ");
-  //  Serial.println(jaugePeak);
-  //  Serial.println("----------");
-
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
@@ -333,13 +346,6 @@ void loop() {
     }
   }
 
-  //  Serial.print("Millis - Reset Millis : ");
-  //  Serial.println(millis() - resetMillis);
-  //  Serial.print("Temps redéclenchement sample : ");
-  //  Serial.println(threshTrig);
-  //  Serial.println();
-
-
   // PLAYERS AUDIO
 
   // Random Retrig
@@ -356,7 +362,7 @@ void loop() {
 
   // Loop Tremblement
 
-  ProxiRange = map(ProxiMedian, ProxiMin + 15 * ProxiMax / 100, ProxiMax, 0, 100);
+  ProxiRange = map(ProxiMedian, ProxiMin, ProxiMax - ProxiMax / 2, 100, 0);
   ProxiValue = constrain(ProxiRange, 0, 100) / 100;
   ProxiLine = Line (ProxiValue, TempsLineTremble);
 
@@ -367,10 +373,7 @@ void loop() {
 
   LoopFile("tremble.wav");  // Joue le son en boucle
 
-  //  Serial.print("ProxiLine : ");
-  //  Serial.println(ProxiLine);
-
-  // MIX DYNAMIC
+  // Dynamic mix
 
   if (ProxiLine > 0.1 ) {
     mixer1.gain(0, 0);
@@ -380,8 +383,37 @@ void loop() {
     mixer1.gain(0, 1);
     mixer2.gain(0, 1);
   }
+  
+// MONITORING
 
-  delay(20);
+  //  Serial.print("Millis - Reset Millis : ");
+  //  Serial.println(millis() - resetMillis);
+  //  Serial.print("Micro : ");
+  //  Serial.println(Micro_Moyenne);
+  //  Serial.print("Proxi Median : ");
+  //  Serial.println(ProxiMedian);
+  //  Serial.print("DETECT PASSAGE : ");
+  //  Serial.print(DetectPassage);
+  //  Serial.print("  !!  JAUGE PASSAGE : ");
+  //  Serial.println(jaugePassage);
+  //  Serial.print("DETECT PEAK : ");
+  //  Serial.print(DetectPeak);
+  //  Serial.print("  !!  JAUGE PEAK : ");
+  //  Serial.println(jaugePeak);
+  //  Serial.println("----------");
+  //    AudioProcessorUsageMaxReset();
+  //    AudioMemoryUsageMaxReset();
+  //    Serial.print("CPU =");
+  //    Serial.print(AudioProcessorUsage());
+  //    Serial.print(",");
+  //    Serial.print(AudioProcessorUsageMax());
+  //    Serial.print("    ");
+  //    Serial.print("Memory: ");
+  //    Serial.print(AudioMemoryUsage());
+  //    Serial.print(",");
+  //    Serial.print(AudioMemoryUsageMax());
+  //    Serial.println("    ");
+  delay(10);
 }
 
 
@@ -394,12 +426,6 @@ void loop() {
 // CALIBRATION PROXI ET MICRO
 
 void CalibProxiMic () {
-  ProxiMin = 1023;
-  ProxiMax = 0;
-  MicroMin = 1023;
-  MicroMax = 0;
-  ThreshPassage = 180 ;
-  ThreshPeak = 60 ;
   mixer3.gain(0, 0);
   mixer4.gain(0, 0);
   int InitTimerCalib = millis();
@@ -407,9 +433,9 @@ void CalibProxiMic () {
   while (millis() - InitTimerCalib < TempsCalib) {
     Proxi = analogRead(ProxiPin);
     MicroRms = rms1.read() * 100;
-    MicroRA.addValue(MicroRms);
-    Micro_Moyenne = MicroRA.getAverage();
-
+    MicroCorrec = MicroRms * AttenuationFactor - InternalSig;
+    deriveeMic = MicroCorrec - MemMic;
+    MemMic = MicroCorrec;
     // record the minimum Proxi Value
     if (Proxi < ProxiMin) {
       ProxiMin = Proxi;
@@ -417,17 +443,16 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
+      ThreshPassage = ProxiMax - ProxiMax * 10 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
     }
-
-    if (Micro_Moyenne < MicroMin) {
-      MicroMin = Micro_Moyenne;
+    if (deriveeMic < MicroMin) {
+      MicroMin = deriveeMic;
     }
     // record the maximum Proxi value
-    if (Micro_Moyenne > MicroMax) {
-      MicroMax = Micro_Moyenne;
+    if (deriveeMic > MicroMax) {
+      MicroMax = deriveeMic;
+      //      ThreshPeak = MicroMax / 2 ;                        // REGLAGE auto du seuil de détection d'un PEAK
     }
-    ThreshPassage = ProxiMin + ProxiMax * 15 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
-    ThreshPeak = MicroMax / 3 ;                        // REGLAGE auto du seuil de détection d'un PEAK
     delay(10);
   }
   mixer3.gain(0, 1);
@@ -645,6 +670,7 @@ void LoopFile(const char *filename)
 //-------------
 
 // INTERPOLATION LINEAIRE EN UN TEMPS DONNE (=LINE dans Pure Data)
+
 
 float Line(float arrivee, float TimeInterpol) {
   static float Temps = 0;
