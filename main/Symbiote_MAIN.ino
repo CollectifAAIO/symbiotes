@@ -49,7 +49,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=376,425
 
 #define BUTTON 0
 #define LED 13
-#define ProxiPin A0;
+#define ProxiPin A0
 
 // DECLARATION & INIT VARIABLES
 
@@ -63,7 +63,8 @@ elapsedMillis msecs;
 // Variables données
 
 int Proxi;
-uint8_t MicroRms;
+int MicroRms;
+uint8_t MicroValue;
 uint8_t SignalInterneRms;
 uint8_t deriveeNoise;
 uint8_t deriveeMic;
@@ -81,22 +82,15 @@ int ProxiRange = 0;
 int ProxiValue = 0;
 int Micro_Moyenne = 0;
 
+// Variables calib
 
+int InitTimerCalib = 0 ;
+int TempsCalib = 5000 ; // REGLAGE  : durée calibration quand le bouton est déclenché.
 int ProxiMin = 1023;        // minimum sensor value
 int ProxiMax = 0;           // maximum sensor value
 int MicroMin = 1023;        // minimum sensor value
 int MicroMax = 0;           // maximum sensor value
 
-
-
-// Variables calib
-
-int TempsAvantCalibAuto = 60 ; //REGLAGE// temps avant la calibration automatique, en minutes
-int DuréeCalib = 20000;        //REGLAGE
-
-int resetTimeCalib = 0;
-int resetTimeCalibButton = 0;
-int TpsPressBouton = 500;
 
 // Variables Comptage Passages
 
@@ -106,8 +100,8 @@ int NbPeak = 0;
 bool DetectPassage = 0;
 bool DetectPeak = 0;
 
-int ThreshPassage = 200;          //REGLAGE
-int ThreshPeak = 70 ;             //REGLAGE
+int ThreshPassage = 100;          //REGLAGE
+int ThreshPeak = 20 ;             //REGLAGE
 
 int TpsStockagePassage = 10000 ;  //REGLAGE
 int TpsStockagePeak = 3000;       //REGLAGE
@@ -115,19 +109,10 @@ int TpsStockagePeak = 3000;       //REGLAGE
 float JaugePassage = 0;
 float JaugePeak = 0;
 
-//Valeurs de seuil de changement de dossier
+// Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
 
-int SeuilMicro = 50;         //REGLAGE
-int SeuilProxi = 50;          //REGLAGE
-
-
-// Variables fonction LINE
-
-float coef = 0;               //REGLAGE
-float depart = 10.0;          //REGLAGE
-float arrivee = 0.0;          //REGLAGE
-float line = 0;               //REGLAGE
-float Ramp = 10000;           //REGLAGE
+int SeuilMicro = 50;          //REGLAGE (entre 0 et 100)
+int SeuilProxi = 50;          //REGLAGE (entre 0 et 100)
 
 // Variables fonction RANDOMTRIG
 
@@ -155,7 +140,7 @@ int
 // Variables play file
 
 String SoundFile, SoundType;
-String HumeurFolder[8]  = {"Serein", "Normal_expressif", "Timide", "Peureux", "Heureux", "Euphorique", "Enervé", "Agressif"};
+String HumeurFolder[4]  = {"Serein", "Timide", "Euphorique", "Agressif"};
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
@@ -184,12 +169,15 @@ void setup() {
   sgtl5000_1.volume(0.7);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
-  pinMode(BUTTON, INPUT);
 
+  //Setup Bouton Calibration en input mode
+  pinMode(BUTTON, INPUT);
+  
   //Calibration Micro / Signal interne.
   MicroRms = rms1.read();
   SignalInterneRms = rms2.read();
 
+ //Setup SD Card
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
   if (!(SD.begin(SDCARD_CS_PIN))) {
@@ -209,89 +197,91 @@ void loop() {
   Proxi = analogRead(ProxiPin);              // DOIT ETRE COMPRIS DE 0 à 1
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
-  
+
   //Micro
   MicroRms = rms1.read() * 1000;              // DOIT ETRE COMPRIS DE 0 à 1
   boutonCalib.update();
   int boutonCal = boutonCalib.read();
 
-  // CALIBRATION MICRO / SIG
+  // CALIBRATION MICRO / SIGNAL INTERNE
 
-
-  // FIN CALIBRATION MICRO/ SIG
-
-  // CALIBRATION PROXI
-
-  //Recalibre les valeurs quand on presse le bouton plus de deux secondes.
-
-  if (boutonCalib != LastButtonValue) { //Detection d'un Front
-    if (boutonCalib == 1) { //front montant
-      PressInstant = millis(); //photo du temps
-      LastButtonValue = 1; // "change"
-    }
-    else { //front descendant
-      if (millis() - PressInstant < TpsPressBouton) {//relachement court
-        LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
-      }
-      else {
-        resetTimeCalib = millis();
-        while (millis - resetTimeCalib < DuréeCalib) {
-          // record the minimum sensor value
-          if (ProxiValue < ProxiMin) {
-            ProxiMin = Proxi_Median;
-          }
-          // record the maximum sensor value
-          if (ProxiValue > ProxiMax) {
-            ProxiMax = Proxi_Median;
-          }
-        }
-        LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
-      }
-    }
-  }
-  // FIN CALIBRATION PROXI
-
-  // -----------------------
+  // A faire avant dans un autre programme et rentrer les valeur de compensation à la main ???
 
   // TRAITEMENT DONNEES
 
-  // SIGNAL INTERNE
-  conditionRms = millis() - resetmillisrms  < freqRms;
+  //Signal interne
 
-  if (conditionRms) {
-    if (conditionRms != LastConditionRms) {
-      InternalSig = rms2.read() * 10;
-      LastConditionRms = 1;
-    }
-  }
-  else {
-    LastConditionRms = 0;
-    resetmillisrms = millis();
-  }
+  //  conditionRms = millis() - resetmillisrms  < freqRms;
+  //
+  //  if (conditionRms) {
+  //    if (conditionRms != LastConditionRms) {
+  //      InternalSig = rms2.read() * 10;
+  //      LastConditionRms = 1;
+  //    }
+  //  }
+  //  else {
+  //    LastConditionRms = 0;
+  //    resetmillisrms = millis();
+  //  }
 
-  // MICRO
+  // Micro
 
   //Tester si la dérivée est suffisamment réactive avec le Micro_Moyenne à la place du MicroRms.
   //  MicroRA.addValue(MicroRms);
   //  Micro_Moyenne = MicroRA.getAverage();
 
-  if (InternalSig > 50) {  // Check si il y a un signal qui sort du mixer Master  >>>> A REGLER <<<<
-    MicroSig = MicroCompens - InternalSig; // Soustraction signal micro avec compensation de gain - signal interne avec compensation de delay à réaliser ici.
+  //  if (InternalSig > 50) {  // Check si il y a un signal qui sort du mixer Master  >>>> A REGLER <<<<
+  //    MicroSig = MicroCompens - InternalSig; // Soustraction signal micro avec compensation de gain - signal interne avec compensation de delay à réaliser ici.
+  //  }
+  //  else {
+  //    MicroSig = MicroRms;
+  //  }
+  //
+  //  deriveeMic = MicroSig - MemMic;
+  //  MemMic = MicroSig;
+
+  // CALIBRATION MAPPING VALEURS
+
+  // Proxi
+
+  if (boutonCal != LastButtonValue) { //Detection d'un Front
+    if (boutonCal == 1) { //front montant
+      LastButtonValue = 1; // "change"
+      InitTimerCalib = millis();
+      while (millis() - InitTimerCalib < TempsCalib) {
+        // record the minimum Proxi Value
+        if (ProxiMedian < ProxiMin) {
+          ProxiMin = ProxiMedian;
+        }
+        // record the maximum Proxi value
+        if (ProxiMedian > ProxiMax) {
+          ProxiMax = ProxiMedian;
+        }
+
+        //        // record the minimum Micro Value
+        //        if (deriveeMic < MicMin) {
+        //          MicroMin = deriveeMic;
+        //        }
+        //        // record the maximum sensor value
+        //        if (deriveeMic > MicMax) {
+        //          MicroMax = deriveeMic;
+        //        }
+      }
+    }
   }
   else {
-    MicroSig = MicroRms;
+    LastButtonValue = 0;//remise à 0 pour ne pas repasser dans le if
   }
 
-  deriveeMic = MicroSig - MemMic;
-  MemMic = MicroSig;
-
-  //MAPPING VAL MIN MAX CALIBRATION de 0 à 100.
+  //MAPPING VAL MIN-MAX de 0 à 100.
 
   ProxiRange = map(ProxiMedian, ProxiMin, ProxiMax, 0, 100);
+  MicroRange = map(deriveeMic, MicroMin, MicroMax, 0, 100);
 
   // CLIP
   ProxiValue = constrain(ProxiRange, 0, 100);
-
+  MicroValue = constrain(MicroRange, 0, 100);
+  -
   // --------------
 
   // JAUGES / COMPTAGE
@@ -305,40 +295,49 @@ void loop() {
     DetectPassage = 0;
   }
 
-  JaugePassage = Jauge(DetectPassage, TpsStockagePassage);
+  jaugePassage = Jauge(DetectPassage, TpsStockagePassage);
 
   Serial.print("La valeur de la jauge est de : ");
-  Serial.print(JaugePassage);
+  Serial.print(jaugePassage);
 
   // Jauge de Peak detection micro toutes les x secondes
-
-
-
+  
+//  if (MicroValue > ThreshPeak) {
+//    DetectPeak = 1;
+//  }
+//  else {
+//    DetectPeak = 0;
+//  }
+//
+//  JaugePeak = Jauge(DetectPeak, TpsStockagePeak);
+//
+//  Serial.print("La valeur de la jauge est de : ");
+//  Serial.print(JaugePeak);
 
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
 
   // Serein
-  if (MicroRms < SeuilMicro && ProxiValue < SeuilProxi) {
+  if (JaugePeak < SeuilMicro && JaugePassage < SeuilProxi) {
     if (Condition != 1) {                                 // Détection de changement d'état
       Condition = 1;
     }
   }
   // Timide
-  if (MicroRms < SeuilMicro && ProxiValue > SeuilProxi) {
+  if (JaugePeak < SeuilMicro && JaugePassage > SeuilProxi) {
     if (Condition != 2) {
       Condition = 2;
     }
   }
   // Hilare
-  if (MicroRms > SeuilMicro && ProxiValue < SeuilProxi) {
+  if (JaugePeak > SeuilMicro && JaugePassage < SeuilProxi) {
     if (Condition != 3) {
       Condition = 3;
     }
   }
   // Agressif
-  if (MicroRms > SeuilMicro && ProxiValue > SeuilProxi) {
+  if (JaugePeak > SeuilMicro && JaugePassage > SeuilProxi) {
     if (Condition != 4) {
       Condition = 4;
     }
@@ -421,9 +420,11 @@ float nbEvent = 0;
 float arrivee = 0;
 float depart;
 float Line = 0;
+float Temps = 0;
+float coef = 0;
+float jaugePassage = 0;
 
-float Jauge(bool DetectEvent, float TimeWindow) {
-
+float Jauge (bool DetectEvent, float TimeWindow) {
   if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
     if (DetectEvent) {
       nbEvent++;  // Incrémentation du nombre de passage.
@@ -434,12 +435,12 @@ float Jauge(bool DetectEvent, float TimeWindow) {
     }
   }
 
-  StockageEvent = millis() - float Temps > TimeWindow; // Condition de temps pour retourner la future valeur de la jauge (toutes les X secondes)
+  StockageEvent = millis() - Temps > TimeWindow; // Condition de temps pour retourner la future valeur de la jauge (toutes les X secondes)
 
   if (StockageEvent != LastStockageEvent) {
     if (StockageEvent) {
       depart = arrivee;
-      nbEvent = arrivee; // On retourne le nombre d'évènements.
+      arrivee = nbEvent; // On retourne le nombre d'évènements.
       Temps = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
       nbEvent = 0; // On remet le nombre d'évènements à 0.
       LastStockageEvent = 1;
@@ -452,6 +453,7 @@ float Jauge(bool DetectEvent, float TimeWindow) {
   Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
   return Line;
 }
+
 
 
 //-------------
