@@ -53,6 +53,9 @@ void initSampleSelecteur(int nbtotfile);
 int Proxi;
 float MicroRms;
 
+float deriveeNoise;
+float deriveeMic;
+
 int ProxiMedian = 0;
 float Micro_Moyenne = 0;
 
@@ -101,10 +104,8 @@ int randomMin;
 int randomMax;
 
 // Variables fonction TRIGFILE
-
 int resetMillis = 0;
 int threshTrig = 0;
-
 int corpusSampleNumber = 10;   // Nombre de son dans chaque dossier
 
 int sample_rand = 1;           // tirage au sort du numéro du sample.
@@ -114,8 +115,7 @@ int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
 
-// Variables Freeze Timide
-
+// Variables Timide
 int FreezeTimideTime = 60000;           // REGLAGE (durée du mode timide)
 
 //-------------
@@ -180,37 +180,10 @@ void loop() {
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
 
-  //Micro Moyenne
-
-  MicroRms = rms1.read() * 1000;            // DOIT ETRE COMPRIS DE 0 à 1
-  MicroRA.addValue(MicroRms);
-  Micro_Moyenne = MicroRA.getAverage();
-
-  // JAUGES PEAK
-
-  // Modif du seuil de comptabilité du nb de peaks pour éviter un retrig.
-
-  if (playSdWav1.isPlaying()) {
-    ThreshPeak =  Micro_Moyenne + 1;
-  }
-  else {
-    ThreshPeak = MicroMin * 2;
-  }
-
-  // Jauge du nombre de peak toutes les x secondes
-  if (Micro_Moyenne > ThreshPeak) {
-    DetectPeak = 1;
-  }
-  else {
-    DetectPeak = 0;
-  }
-
-  jaugePeak = JaugePeak(DetectPeak, TpsStockagePeak);
-
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
 
   // Serein
-  if (jaugePeak < SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
+  if (ProxiMedian > SeuilProxi) {
     if (Condition != 1) {
       corpusSampleNumber = NbFiles[0] ;          //Met à jour le nombre total de fichiers disponible dans le dossier serein
       RangeMin = SeuilProxi;
@@ -223,8 +196,8 @@ void loop() {
     }
   }
 
-  // Hostile
-  if (jaugePeak < SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
+  // Agressif
+  if (ProxiMedian < SeuilProxi) {
     if (Condition != 2) {
       corpusSampleNumber = NbFiles[3];          //Met à jour le nombre total de fichiers disponible dans le dossier timide
       RangeMin = ProxiMin;
@@ -234,42 +207,6 @@ void loop() {
       BorneMaxMax = 1000;                        // REGLAGE                                // REGLAGE
       selecthumeur = 3;
       Condition = 2;
-    }
-  }
-
-  // Hilare
-  if (jaugePeak > SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
-    if (Condition != 3) {
-      corpusSampleNumber = NbFiles[2];         //Met à jour le nombre total de fichiers disponible dans le dossier hilare
-      RangeMin = SeuilProxi;
-      RangeMax = ProxiMax;
-      BorneMinMin = 500 ;                        // REGLAGE
-      BorneMinMax = 1000;                        // REGLAGE
-      BorneMaxMax = 3000;                        // REGLAGE
-      selecthumeur = 2;
-      Condition = 3;
-    }
-  }
-
-  // Timide
-  if (jaugePeak > SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
-    if (Condition != 4) {
-      corpusSampleNumber = NbFiles[1];                     //Met à jour le nombre total de fichiers disponible dans le dossier hostile
-      selecthumeur = 1;
-      Condition = 4;
-      randomMin = 15000;                                   // REGLAGE
-      randomMax = 45000;                                   // REGLAGE
-      int ResetMillisTimide = millis();
-      while (millis() - ResetMillisTimide < FreezeTimideTime) {
-        if (millis() - resetMillis > threshTrig) {
-          resetMillis = millis();
-          sample_rand = URN(corpusSampleNumber) + 1;                  // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
-          SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
-          TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
-          threshTrig = random(randomMin, randomMax);
-        }
-        delay(10);
-      }
     }
   }
 
@@ -289,23 +226,12 @@ void loop() {
     SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
     TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
   }
-
-// MONITORING 
-
-Serial.print("Microphone");
-Serial.println(Micro_Moyenne);
-Serial.print(" !!  Threshpeak");
-Serial.println(ThreshPeak);
-Serial.println("-----------");
-Serial.print("Threshtrig");
-Serial.println(threshTrig);
-
   delay(10);
 }
 
 //-------------
 
-//FONCTIONS
+// FONCTIONS
 
 //-------------
 
@@ -316,10 +242,9 @@ void CalibProxiMic () {
   int InitTimerCalib = millis();
   Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
   while (millis() - InitTimerCalib < TempsCalib) {
-    MicroRms = rms1.read() * 1000;
+ 
     Proxi = analogRead(ProxiPin);
-    MicroRA.addValue(MicroRms);
-    Micro_Moyenne = MicroRA.getAverage();
+  
     // record the minimum Proxi Value
     if (Proxi < ProxiMin) {
       ProxiMin = Proxi;
@@ -328,22 +253,16 @@ void CalibProxiMic () {
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
     }
-    // record the minimum Micro Value
-    if (Micro_Moyenne < MicroMin) {
-      MicroMin = Micro_Moyenne;
-    }
     delay(10);
   }
   if (ProxiMin > ProxiMax / 2) ProxiMin = ProxiMax / 2 ;
   SeuilProxi = ProxiMax / 2;
-  ThreshPeak = MicroMin * 3;
 
   Serial.print("ProxiMin & ProxiMax : ");
   Serial.print(ProxiMin);
   Serial.print(" & ");
   Serial.println(ProxiMax);
-  Serial.print("MicroMin : ");
-  Serial.print(MicroMin);
+
   Serial.print("  !!  Seuil Proxi : ");
   Serial.print(SeuilProxi);
   Serial.print("  !!  ThresPeak : ");
@@ -373,53 +292,6 @@ int CountingFile (File DirName) {
   }
   return FileNumber;
 }
-
-//-------------
-
-// FONCTIONS JAUGE : COMPTE NB D'EVENEMENTS DANS UN INTERVALLE DE TEMPS DONNE ET L'INTERPOLE LINEAIREMENT PAR RAPPORT A LA VALEUR PRECEDENTE ET PENDANT L'INTERVALLE DE TEMPS DETERMINE.
-
-float JaugePeak (bool DetectEvent, float TimeWindow) {
-
-  static float nbEvent = 0;
-  static float arrivee = 0;
-  static float depart = 0;
-  static float Temps = 0;
-  static bool LastDetectEvent = 0;
-  static bool LastStockageEvent = 0;
-  static bool StockageEvent = 0;
-
-  if (DetectEvent != LastDetectEvent) { //Detection d'un front montant
-    if (DetectEvent) {
-      nbEvent++;  // Incrémentation du nombre de peak.
-      LastDetectEvent = 1;
-    }
-    else {
-      LastDetectEvent = 0;
-    }
-  }
-
-  StockageEvent = millis() - Temps > TimeWindow; // Condition de temps pour retourner la future valeur de la jauge (toutes les X secondes)
-
-  if (StockageEvent != LastStockageEvent) {
-    if (StockageEvent) {
-      depart = arrivee;
-      arrivee = nbEvent; // On retourne le nombre d'évènements.
-      Temps = (float)millis();  //On remet le compteur de temps à 0 pour la prochaine boucle et avoir un snapshot régulier.
-      nbEvent = 0; // On remet le nombre d'évènements à 0.
-      LastStockageEvent = 1;
-    }
-    else {
-      LastStockageEvent = 0;
-    }
-  }
-
-  float coef = (arrivee - depart) / TimeWindow ;
-  float Line = (coef * ((float)millis() - Temps) + depart); // Interpolation linéaire (= Line pure data)
-  return Line;
-}
-
-//-------------
-//-------------
 
 // FONCTION URN Thomas (tire aléatoirement un son qui n'a pas encore été joué)
 
