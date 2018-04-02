@@ -95,10 +95,10 @@ File root;
 int NbFiles[4] = {0};
 // Variables calib Proxi + Micro
 
-float ProxiMin = 1023;
-float ProxiMax = 0;
-float MicroMin = 1023;
-float MicroMax = 0;
+int ProxiMin = 1023;
+int ProxiMax = 0;
+int MicroMin = 1023;
+int MicroMax = 0;
 
 int ThreshPassage = 180 ; // AUTOMATIQUE (180, par défaut)
 int ThreshPeak = 60 ;     // AUTOMATIQUE : Seuil déclenchement peak
@@ -114,7 +114,7 @@ bool DetectPassage = 0;
 bool DetectPeak = 0;
 
 int TpsStockagePassage = 10000 ;  //REGLAGE (Temps de stockage de la jauge Proxi)
-int TpsStockagePeak = 2000;       //REGLAGE (Temps de stockage de la jauge Micro)
+int TpsStockagePeak = 1500;       //REGLAGE (Temps de stockage de la jauge Micro)
 
 float jaugePassage = 0;
 float jaugePeak = 0;
@@ -224,7 +224,7 @@ void loop() {
   MicroRA.addValue(MicroRms);
   Micro_Moyenne = MicroRA.getAverage();
   //  deriveeMic = MicroRms - MemMic;
-  //  MemMic = MicroRms;&
+  //  MemMic = MicroRms;
 
   // RECALIBRATION AVEC BOUTON
 
@@ -248,7 +248,7 @@ void loop() {
 
   // Jauge du nombre de passage toutes les x secondes
 
-  if (ProxiMedian < ThreshPassage) {
+  if (ProxiMedian > ThreshPassage) {
     DetectPassage = 1;
   }
   else {
@@ -268,19 +268,19 @@ void loop() {
 
   jaugePeak = JaugePeak(DetectPeak, TpsStockagePeak);
 
-//  Serial.print("Micro : ");
-//  Serial.println(Micro_Moyenne);
-//  Serial.print("Proxi Median : ");
-//  Serial.println(ProxiMedian);
-//  Serial.print("DETECT PASSAGE : ");
-//  Serial.print(DetectPassage);
-//  Serial.print("  !!  JAUGE PASSAGE : ");
-//  Serial.println(jaugePassage);
-//  Serial.print("DETECT PEAK : ");
-//  Serial.print(DetectPeak);
-//  Serial.print("  !!  JAUGE PEAK : ");
-//  Serial.println(jaugePeak);
-//  Serial.println("----------");
+  //  Serial.print("Micro : ");
+  //  Serial.println(Micro_Moyenne);
+  //  Serial.print("Proxi Median : ");
+  //  Serial.println(ProxiMedian);
+  //      Serial.print("DETECT PASSAGE : ");
+  //      Serial.println(DetectPassage);
+  //  Serial.print("  !!  JAUGE PASSAGE : ");
+  //  Serial.println(jaugePassage);
+  //  Serial.print("DETECT PEAK : ");
+  //  Serial.print(DetectPeak);
+  //  Serial.print("  !!  JAUGE PEAK : ");
+  //  Serial.println(jaugePeak);
+  //  Serial.println("----------");
 
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
@@ -333,11 +333,11 @@ void loop() {
     }
   }
 
-  //    Serial.print("Millis - Reset Millis : ");
-  //    Serial.println(millis() - resetMillis);
-  //    Serial.print("Temps redéclenchement sample : ");
-  //    Serial.println(threshTrig);
-  //    Serial.println();
+  //  Serial.print("Millis - Reset Millis : ");
+  //  Serial.println(millis() - resetMillis);
+  //  Serial.print("Temps redéclenchement sample : ");
+  //  Serial.println(threshTrig);
+  //  Serial.println();
 
 
   // PLAYERS AUDIO
@@ -356,7 +356,7 @@ void loop() {
 
   // Loop Tremblement
 
-  ProxiRange = map(ProxiMedian, ProxiMin, ProxiMax - ProxiMax / 2, 100, 0);
+  ProxiRange = map(ProxiMedian, ProxiMin + 15 * ProxiMax / 100, ProxiMax, 0, 100);
   ProxiValue = constrain(ProxiRange, 0, 100) / 100;
   ProxiLine = Line (ProxiValue, TempsLineTremble);
 
@@ -380,19 +380,8 @@ void loop() {
     mixer1.gain(0, 1);
     mixer2.gain(0, 1);
   }
-  //  AudioProcessorUsageMaxReset();
-  //  AudioMemoryUsageMaxReset();
-  //  Serial.print("CPU =");
-  //  Serial.print(AudioProcessorUsage());
-  //  Serial.print(",");
-  //  Serial.print(AudioProcessorUsageMax());
-  //  Serial.print("    ");
-  //  Serial.print("Memory: ");
-  //  Serial.print(AudioMemoryUsage());
-  //  Serial.print(",");
-  //  Serial.print(AudioMemoryUsageMax());
-  //  Serial.println("    ");
-  delay(15);
+
+  delay(20);
 }
 
 
@@ -428,7 +417,6 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Proxi > ProxiMax) {
       ProxiMax = Proxi;
-      ThreshPassage = ProxiMax - ProxiMax * 10 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
     }
 
     if (Micro_Moyenne < MicroMin) {
@@ -437,13 +425,13 @@ void CalibProxiMic () {
     // record the maximum Proxi value
     if (Micro_Moyenne > MicroMax) {
       MicroMax = Micro_Moyenne;
-      ThreshPeak = MicroMax / 3;                        // REGLAGE auto du seuil de détection d'un PEAK
     }
+    ThreshPassage = ProxiMin + ProxiMax * 15 / 100 ;    // REGLAGE auto du seuil de détection d'un passage à -10% de la valeur max
+    ThreshPeak = MicroMax / 3 ;                        // REGLAGE auto du seuil de détection d'un PEAK
     delay(10);
   }
   mixer3.gain(0, 1);
   mixer4.gain(0, 1);
-  if (ProxiMin > ProxiMax / 1.2) ProxiMin = ProxiMax / 2 ;
   Serial.print("ProxiMin & ProxiMax : ");
   Serial.print(ProxiMin);
   Serial.print(" & ");
