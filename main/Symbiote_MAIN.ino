@@ -9,7 +9,7 @@ void setup() {
   SoundFile = String();
   SoundType = String(".wav");
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.6);                         //REGLAGE
+  sgtl5000_1.volume(0.65);                         //REGLAGE
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
   sgtl5000_1.micGain(50);
 
@@ -28,8 +28,12 @@ void setup() {
   for (int i = 0; i <= 3; i++) {
     String FileRemove = HumeurFolder[i] + "/" + "DS_STO~1";
     String FileRemove2 = HumeurFolder[i] + "/" + "ICON~1";
+    String FileRemove3 = HumeurFolder[i] + "/" + "PRINTM~1.WAV";
+    String FileRemove4 = HumeurFolder[i] + "/" + "PRINTM~2.WAV";
     SD.remove(FileRemove.c_str());
     SD.remove(FileRemove2.c_str());
+    SD.remove(FileRemove3.c_str());
+    SD.remove(FileRemove4.c_str());
     String FolderName = HumeurFolder[i] + "/";
     root = SD.open(FolderName.c_str());
     NbFiles[i] = CountingFile(root);
@@ -45,7 +49,7 @@ void setup() {
 void loop() {
   // LECTURE DES DONNEES
 
-  Proxi = random(PROXIMIN, PROXIMAX);
+  Proxi = analogRead(PROXI_PIN);
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
 
@@ -97,7 +101,7 @@ void loop() {
   jaugePeak = JaugePeak(DetectPeak, TP_STOCKAGE_PEAK);
 
   // SELECTIONNE LA BONNE  HUMEUR ET LES BONNES PLAGES DE RANDOM RETRIG
-  
+
   // Serein
   if (jaugePeak < SEUILJAUGEMICRO && jaugePassage < SEUILJAUGEPROXI) {
     if (Condition != 1) {
@@ -196,6 +200,15 @@ void CalibProxiMic() {
     MicroRms = rms1.read() * 1000.0;
     MicroRA.addValue(MicroRms);
     Micro_Moyenne = MicroRA.getAverage();
+
+    Proxi = analogRead(PROXI_PIN);
+    MedianProx.in(Proxi);
+    ProxiMedian = MedianProx.out();
+
+    // record the maximum Proxi value
+    if (ProxiMedian > ProxiMax) {
+      ProxiMax = ProxiMedian;
+    }
     // record the minimum Micro Value
     if (Micro_Moyenne < MicroMin) {
       MicroMin = Micro_Moyenne;
@@ -203,15 +216,17 @@ void CalibProxiMic() {
     delay(10);
   }
 
-  ThreshPassage = (int)(PROXIMAX / 4);
+  ThreshPassage = (int)(ProxiMax - (ProxiMax * POURCENTAGE_PROXI) / 100);
   ThreshPeak = MicroMin * COEF_THRESPEAK;
 
-  Serial.print("MicroMin : ");
-  Serial.print(MicroMin);
+  Serial.print("ProxiMax : ");
+  Serial.print(ProxiMax);
+  Serial.print("  !!  MicroMin : ");
+  Serial.println(MicroMin);
+  Serial.print("ThreshPassage : ");
+  Serial.print(ThreshPassage);
   Serial.print("  !!  ThresPeak : ");
   Serial.println(ThreshPeak);
-  Serial.print("Seuil Proxi : ");
-  Serial.println(ThreshPassage);
 
   Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
 }

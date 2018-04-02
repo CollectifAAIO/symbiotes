@@ -24,12 +24,13 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
 #define SDCARD_SCK_PIN   14
 
 #define LED              13
+#define PROXI_PIN        A3
 
 // DECLARATION & INIT VARIABLES
 
 // Settings fonctions
 
-MedianFilter MedianProx(5, 0);
+MedianFilter MedianProx(10, 0);
 RunningAverage MicroRA(15);
 
 // Déclaration des fonctions
@@ -40,46 +41,48 @@ float JaugePeak (bool DetectEvent, const int TimeWindow);
 float JaugePassage (bool DetectEvent, float TimeWindow);
 int URN(int nbtotfile);
 void TrigFile(const char *filename);
-void LoopFile(const char *filename);
 void initSampleSelecteur(int nbtotfile);
 
 // Variables données
 
-// REGLAGES 
+// REGLAGES
 
-const int TEMPS_CALIB = 5000 ;             // REGLAGE  : durée calibration.
+const int TEMPS_CALIB = 5000 ;          
 
-const int PROXIMIN = 60;                   // REGLAGE Random RangeMin
-const int PROXIMAX = 600;                  // REGLAGE Random RangeMax
+const int TP_STOCKAGE_PASSAGE = 10000;     
+const int SEUILJAUGEPROXI = 1;           
 
-const int TP_STOCKAGE_PASSAGE = 10000;      // REGLAGE (Temps de stockage de la jauge passage)
-const int SEUILJAUGEPROXI = 20;             // REGLAGE (Seuil de changement d'humeur Proxi)
-
-const int TP_STOCKAGE_PEAK = 2000;         // REGLAGE (Temps de stockage de la jauge Micro)
-const int SEUILJAUGEMICRO = 2;             // REGLAGE (Seuil de changement d'humeur Micro)
+const int TP_STOCKAGE_PEAK = 3000;          
+const int SEUILJAUGEMICRO = 3;                    
 
 const int TIMIDEMIN = 20000;
 const int TIMIDEMAX = 40000;
 const int SEREINMIN = 12000;
 const int SEREINMAX = 20000;
-const int HILAREMIN = 1000;
+const int HILAREMIN = 800;
 const int HILAREMAX = 2500;
 const int HOSTILEMIN = 100;
-const int HOSTILEMAX = 1000;
+const int HOSTILEMAX = 800;
 
 const int COEF_THRESPEAK = 3;
+const int POURCENTAGE_PROXI = 50;
 
-// AUTRES
+// -------
 
-int Proxi = 600;
+// AUTRES 
+
+int Proxi = 0;
 uint32_t ResetTimeRandProxi = 0;
 
+// ----
 float MicroRms = 0.0;
 float Micro_Moyenne = 0.0;
 int ProxiMedian = 0;
 
 // Variables calib Proxi + Micro
 
+int ProxiMin = 1023;                      // REGLAGE
+int ProxiMax = 0;                     // REGLAGE
 float MicroMin = 1023.0;
 
 // Variable Compteur nombre de fichiers par dossier
@@ -122,3 +125,4 @@ String HumeurFolder[4]  = {"serein", "timide", "hilare", "hostile"}; // ATTENTIO
 int selecthumeur = 0;
 int previoushumeur = 1000;
 int statechangeselecthumeur = 0;
+
