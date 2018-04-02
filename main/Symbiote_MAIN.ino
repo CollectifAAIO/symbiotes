@@ -43,15 +43,16 @@ void setup() {
 void loop() {
   // LECTURE DES DONNEES
 
-  Proxi = analogRead(PROXI_PIN);              // DOIT ETRE COMPRIS DE 0 à 1
+  if (millis() - ResetTimeRandProxi > RANDTIMEPROXI) {
+    Proxi = random(PROXIMIN, PROXIMAX);
+    ResetTimeRandProxi = millis();
+  }
   MedianProx.in(Proxi);
   ProxiMedian = MedianProx.out();
-  Serial.print("Proxi : ");
-  Serial.println(ProxiMedian);
-  
+
   //Micro Moyenne
 
-  MicroRms = rms1.read() * 1000.0;   // DOIT ETRE COMPRIS DE 0 à 1
+  MicroRms = rms1.read() * 1000.0;
   MicroRA.addValue(MicroRms);
   Micro_Moyenne = MicroRA.getAverage();
 
@@ -89,40 +90,34 @@ void loop() {
   if (jaugePeak < SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
     if (Condition != 1) {
       corpusSampleNumber = NbFiles[0] ;          //Met à jour le nombre total de fichiers disponible dans le dossier serein
-      RangeMin = SeuilProxi;
-      RangeMax = ProxiMax;
-      BorneMinMin = 5000 ;                        // REGLAGE
-      BorneMinMax = 10000;                        // REGLAGE
-      BorneMaxMax = 20000;                        // REGLAGE
+      randomMin = 6000;                                   // REGLAGE
+      randomMax = 15000;                                   // REGLAGE
       selecthumeur = 0 ;
+      threshTrig = random(randomMin, randomMax);
       Condition = 1;
     }
   }
 
   // Hostile
-  if (jaugePeak < SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
+  if (jaugePeak > SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
     if (Condition != 2) {
       corpusSampleNumber = NbFiles[3];          //Met à jour le nombre total de fichiers disponible dans le dossier timide
-      RangeMin = ProxiMin;
-      RangeMax = SeuilProxi;
-      BorneMinMin = 100 ;                        // REGLAGE
-      BorneMinMax = 200;                         // REGLAGE
-      BorneMaxMax = 1000;                        // REGLAGE                    
+      randomMin = 100;                                   // REGLAGE
+      randomMax = 1000;                                   // REGLAGE
       selecthumeur = 3;
+      threshTrig = random(randomMin, randomMax);
       Condition = 2;
     }
   }
 
   // Hilare
-  if (jaugePeak > SeuilJaugeMicro && ProxiMedian > SeuilProxi) {
+  if (jaugePeak < SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
     if (Condition != 3) {
       corpusSampleNumber = NbFiles[2];         //Met à jour le nombre total de fichiers disponible dans le dossier hilare
-      RangeMin = SeuilProxi;
-      RangeMax = ProxiMax;
-      BorneMinMin = 500 ;                        // REGLAGE
-      BorneMinMax = 1000;                        // REGLAGE
-      BorneMaxMax = 2500;                        // REGLAGE
+      randomMin = 1000;                                   // REGLAGE
+      randomMax = 4000;                                   // REGLAGE
       selecthumeur = 2;
+      threshTrig = random(randomMin, randomMax);
       Condition = 3;
     }
   }
@@ -131,21 +126,13 @@ void loop() {
   if (jaugePeak > SeuilJaugeMicro && ProxiMedian < SeuilProxi) {
     if (Condition != 4) {
       corpusSampleNumber = NbFiles[1];                     //Met à jour le nombre total de fichiers disponible dans le dossier hostile
-      RangeMin = ProxiMin;
-      RangeMax = SeuilProxi;
-      BorneMinMin = 10000 ;                        // REGLAGE
-      BorneMinMax = 20000;                         // REGLAGE
-      BorneMaxMax = 40000;                        // REGLAGE     
+      randomMin = 15000;                                   // REGLAGE
+      randomMax = 40000;                                   // REGLAGE
       selecthumeur = 1;
+      threshTrig = random(randomMin, randomMax);
       Condition = 4;
     }
   }
-
-  ProxiRangeMin = map(ProxiMedian, RangeMin, RangeMax, BorneMinMin, BorneMinMax) ;
-  ProxiRangeMax = map(ProxiMedian, RangeMin, RangeMax, BorneMinMax, BorneMaxMax) ;
-  randomMin = constrain(ProxiRangeMin, BorneMinMin, BorneMinMax) ;
-  randomMax = constrain(ProxiRangeMax, BorneMinMax, BorneMaxMax) ;
-  threshTrig = random(randomMin, randomMax);
 
   // PLAYER AUDIO
 
@@ -156,13 +143,17 @@ void loop() {
     sample_rand = URN(corpusSampleNumber);             // TIRAGE ALEATOIRE SANS REDECLENCHER LE MEME SON.
     SoundFile = HumeurFolder[selecthumeur] + "/" + sample_rand + SoundType;  //inttochar
     TrigFile(SoundFile.c_str());                                //JOUE LE fichier après un temps tiré aléatoirement définie dans une fourchette qui varie selon la somme des deux capteurs. .c_str() passe un string en char (en gros...)
+    threshTrig = random(randomMin, randomMax);
   }
 
   // MONITORING
-  Serial.print("Microphone");
-  Serial.print(Micro_Moyenne);
-  Serial.print("  !!  ThreshPeak : ");
-  Serial.println(ThreshPeak);
+    Serial.print("Proxi : ");
+    Serial.println(ProxiMedian);
+  //  Serial.print("Microphone");
+  //  Serial.print(Micro_Moyenne);
+  //  Serial.print("  !!  ThreshPeak : ");
+  //  Serial.println(ThreshPeak);
+
   delay(10);
 }
 
@@ -184,17 +175,6 @@ void CalibProxiMic() {
     MicroRms = rms1.read() * 1000.0;
     MicroRA.addValue(MicroRms);
     Micro_Moyenne = MicroRA.getAverage();
-
-    Proxi = analogRead(PROXI_PIN);
-
-    // record the minimum Proxi Value
-    if (Proxi < ProxiMin) {
-      ProxiMin = Proxi;
-    }
-    // record the maximum Proxi value
-    if (Proxi > ProxiMax) {
-      ProxiMax = Proxi;
-    }
     // record the minimum Micro Value
     if (Micro_Moyenne < MicroMin) {
       MicroMin = Micro_Moyenne;
@@ -202,23 +182,16 @@ void CalibProxiMic() {
     delay(10);
   }
 
-  if (ProxiMin > (int)(ProxiMax / 2)) {
-    ProxiMin = ProxiMax / 2 ;
-  }
-
-  SeuilProxi = (int)(ProxiMax / 2);
+  SeuilProxi = (int)(PROXIMAX / 4);
   ThreshPeak = MicroMin * 3;
 
-  Serial.print("ProxiMin & ProxiMax : ");
-  Serial.print(ProxiMin);
-  Serial.print(" & ");
-  Serial.println(ProxiMax);
   Serial.print("MicroMin : ");
   Serial.print(MicroMin);
-  Serial.print("  !!  Seuil Proxi : ");
-  Serial.print(SeuilProxi);
   Serial.print("  !!  ThresPeak : ");
   Serial.println(ThreshPeak);
+  Serial.print("  !!  Seuil Proxi : ");
+  Serial.println(SeuilProxi);
+
   Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
 }
 

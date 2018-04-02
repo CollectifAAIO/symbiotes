@@ -24,13 +24,12 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=74,170
 #define SDCARD_SCK_PIN   14
 
 #define LED              13
-#define PROXI_PIN        A1
 
 // DECLARATION & INIT VARIABLES
 
 // Settings fonctions
 
-MedianFilter MedianProx(15, 0);
+MedianFilter MedianProx(5, 0);
 RunningAverage MicroRA(15);
 
 // Déclaration des fonctions
@@ -45,7 +44,9 @@ void initSampleSelecteur(int nbtotfile);
 
 // Variables données
 
-int Proxi = 0;
+int Proxi = 600;
+uint32_t ResetTimeRandProxi = 0;
+const int RANDTIMEPROXI = 1000; //  REGLAGE     Temps après lequel on lit une nouvelle valeur de random
 
 float MicroRms = 0.0;
 float Micro_Moyenne = 0.0;
@@ -55,8 +56,8 @@ int ProxiMedian = 0;
 
 const int TEMPS_CALIB = 5000 ;            // REGLAGE  : durée calibration.
 
-int ProxiMin = 1023;
-int ProxiMax = 0;
+const int PROXIMIN = 60;                      // REGLAGE
+const int PROXIMAX = 600;                     // REGLAGE 
 float MicroMin = 1023.0;
 
 // Variable Compteur nombre de fichiers par dossier
@@ -69,7 +70,7 @@ int NbFiles[4] = {0};
 int NbPeak = 0;
 float ThreshPeak = 20.0 ;              //(10 par défaut par rapport à la dérivée)
 bool DetectPeak = false;
-const int TP_STOCKAGE_PEAK = 1500;       //REGLAGE (Temps de stockage de la jauge Micro)
+const int TP_STOCKAGE_PEAK = 2000;       //REGLAGE (Temps de stockage de la jauge Micro)
 float jaugePeak = 0.0;
 
 // Valeurs de seuil de changement d'humeur + changement de rapidité de déclenchement
