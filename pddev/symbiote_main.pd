@@ -1,0 +1,77 @@
+#N canvas 928 693 783 570 10;
+#X obj 49 22 adc~;
+#X obj 37 529 dac~;
+#X obj 49 53 env~ 16384 8192;
+#X floatatom 49 83 5 0 0 0 - - -, f 5;
+#X obj 580 37 comport;
+#X obj 666 35 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X msg 666 55 \; pd dsp \$1;
+#X floatatom 49 178 5 0 0 0 - - -, f 5;
+#X text 89 144 Moyenne du volume sur n mesures, f 11;
+#X obj 307 172 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 307 268 f 1;
+#X obj 307 198 moses 1;
+#X floatatom 307 304 5 0 0 0 - - -, f 5;
+#X obj 344 268 + 1;
+#X obj 307 235 metro 500;
+#X obj 242 215 t b 0 1;
+#X obj 242 319 f;
+#X text 371 230 Calcule le temps passé au dessus d'un seuil pour avoir
+une réponse adéquate (cri/murmure/etc.), f 26;
+#X obj 307 120 >= 70;
+#X obj 307 142 change;
+#X obj 49 218 vsl 15 128 0 100 0 0 empty empty Humeur_bruit 0 -9 0
+10 -262144 -1 -1 4821 1;
+#X obj 133 220 vsl 15 128 0 100 0 0 empty empty Enveloppe_follower
+0 -9 0 10 -262144 -1 -1 4988 1;
+#X obj 49 113 average 100;
+#X obj 242 354 hradio 15 1 0 8 empty empty Echelle_de_cri 0 -8 0 10
+-262144 -1 -1 0;
+#X obj 242 446 spigot 1;
+#N canvas 1593 211 450 300 players 0;
+#X obj 99 246 outlet;
+#X obj 241 247 outlet;
+#X obj 102 85 readsf~ 2;
+#X obj 245 135 s isPlaying;
+#X restore 43 446 pd players;
+#N canvas 1004 449 450 300 mixer 0;
+#X obj 391 42 inlet;
+#X obj 103 131 *~ 0.1;
+#X obj 266 133 *~ 0.1;
+#X obj 241 247 outlet~;
+#X obj 270 42 inlet~;
+#X obj 104 40 inlet~;
+#X obj 99 246 outlet~;
+#X connect 0 0 2 1;
+#X connect 0 0 1 1;
+#X connect 1 0 6 0;
+#X connect 2 0 3 0;
+#X connect 4 0 2 0;
+#X connect 5 0 1 0;
+#X restore 32 489 pd mixer;
+#X connect 0 0 2 0;
+#X connect 2 0 3 0;
+#X connect 3 0 18 0;
+#X connect 3 0 21 0;
+#X connect 3 0 22 0;
+#X connect 5 0 6 0;
+#X connect 7 0 20 0;
+#X connect 9 0 11 0;
+#X connect 10 0 12 0;
+#X connect 10 0 13 0;
+#X connect 11 0 15 0;
+#X connect 11 1 14 0;
+#X connect 12 0 16 1;
+#X connect 13 0 10 1;
+#X connect 14 0 10 0;
+#X connect 15 0 16 0;
+#X connect 15 1 14 0;
+#X connect 15 2 10 1;
+#X connect 16 0 23 0;
+#X connect 18 0 19 0;
+#X connect 19 0 9 0;
+#X connect 22 0 7 0;
+#X connect 26 0 1 0;
+#X connect 26 1 1 1;
