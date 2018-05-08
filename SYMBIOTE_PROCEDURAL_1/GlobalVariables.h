@@ -53,11 +53,13 @@ bool Note_Off = false;
 bool ChangeNoteOn = false;
 
 int MinTimeNoteOn = 40;    // SETTING
+int MaxTimeNoteOnBorneMin = 100 ; // SETTING
+int MaxTimeNoteOnBorneMax = 15000; // SETTING
 int MinTimeNoteOff = 100;   // SETTING
 int MaxTimeNoteOff = 1000; // SETTING
 
 int randomNoteOnTime = 0;
-int randomNoteOffTime = 0;
+int randomNoteOffTime = MaxTimeNoteOnBorneMax + 1;
 
 int RandomDensiteTimeCycle = 1000; // SETTING (en ms)
 

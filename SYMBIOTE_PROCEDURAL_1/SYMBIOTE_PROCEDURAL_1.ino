@@ -10,15 +10,15 @@ void setup() {
   // setup audio board
 
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.7);                         //REGLAGE
+  sgtl5000_1.volume(0.5);                         //REGLAGE
 }
 
 // >>>>> MAIN LOOP <<<<<
 
 void loop() {
 
-  MACROExpressivite = map(Proxi(), 0.0, 100.0, 0.0, 1.0);
-  MACRODensity = map(Proxi(), 0, 100, 100, 15000);
+  MACROExpressivite = Proxi();
+  MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
   // CPU & SENSOR MONITORING
 
@@ -29,8 +29,14 @@ void loop() {
     //      AudioProcessorUsageMaxReset();
     //      AudioMemoryUsageMaxReset();
     //      Serial.println();
-        Serial.print("Proxi Scale : ");
-        Serial.println(Proxi());
+    //        Serial.print("Proxi Scale : ");
+    //        Serial.println(Proxi());
+    //        Serial.print("Proxi Scale : ");
+    //        Serial.println(Proxi());
+//    Serial.print("Temps Note On : ");
+//    Serial.println(randomNoteOnTime);
+//    Serial.print("Temps Note Off : ");
+//    Serial.println(randomNoteOffTime);
     //    Serial.print("Macro Expressivite : ");
     //    Serial.println(MACROExpressivite);
     //    Serial.print("Macro Density : ");
@@ -38,11 +44,11 @@ void loop() {
     MonitorTimeElapsed = 0;
   }
 
-  // Define new random sound density according sensor.
+  // Define new random sound density according sensor and every cycle.
 
   if (RandomDensiteTimeElapsed > RandomDensiteTimeCycle) {
     randomNoteOnTime = random(MinTimeNoteOn, MACRODensity);
-    randomNoteOffTime = randomNoteOnTime + random(MinTimeNoteOff, MaxTimeNoteOff);
+    randomNoteOffTime =  randomNoteOnTime + random(MinTimeNoteOff, MaxTimeNoteOff);
     RandomDensiteTimeElapsed = 0;
   }
 

@@ -70,22 +70,22 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     // PARAMETERS SETTINGS (MAPPING & RANDOM VALUES)
 
     // OSCs SHAPE
-    int WaveformOSC1 = 0; // Waveform selected in the array between 0 & 7.
-    float ShapeModFreq1 = 5.0;
-    int ShapeModWaveform1 = 0; // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
-    float PWShapeMod1 = 1.0;    // Width of Pulse signal.
-    int ShapeModAtk1 = 100;    // Attack of Shape modulation between (between 0 & 11880ms)
-    int ShapeModDcay1 = 100;   // Decay of Shape modulation          (between 0 & 11880ms)
-    float ShapeModSus1 = 1.0;  // Sustain of Shape modulation        (between 0.0 & 1.0)
-    int ShapeModRls1 = 500;    // Decay of Shape modulation          (between 0 & 11880ms)
-    int ShapeModDelay1 = 0;    // Delay of Shape modulation          (between 0 & 11880ms)
+    int WaveformOSC1 = 0;       // Waveform selected in the array between 0 & 7.
+    float ShapeModFreq1 = 5.0;  // Rate/frequency of the modulation of the shape of the waveform.
+    int ShapeModWaveform1 = 0;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
+    float PWShapeMod1 = 0.0;    // Width of Pulse signal.
+    int ShapeModAtk1 = 100;     // Attack of Shape modulation between (between 0 & 11880ms)
+    int ShapeModDcay1 = 100;    // Decay of Shape modulation          (between 0 & 11880ms)
+    float ShapeModSus1 = 1.0;   // Sustain of Shape modulation        (between 0.0 & 1.0)
+    int ShapeModRls1 = 500;     // Decay of Shape modulation          (between 0 & 11880ms)
+    int ShapeModDelay1 = 0;     // Delay of Shape modulation          (between 0 & 11880ms)
 
     // OSC VOLUME
 
     int VolAtk1 = 1;          // Attack of OSC1 level (between 0 & 11880ms)
     int VolDcay1 = 200;       // Decay of OSC1 level (between 0 & 11880ms)
-    float VolSus1 = 0.5;      // Sustain of OSC1 level (between 0.0 & 1.0)
-    int VolRls1 = 500;        // Release of OSC1 level (between 0 & 11880ms)
+    float VolSus1 = 0.2;      // Sustain of OSC1 level (between 0.0 & 1.0)
+    int VolRls1 = 1000;        // Release of OSC1 level (between 0 & 11880ms)
     int VolDelay1 = 0;        // Delay of OSC1 level (between 0 & 11880ms)
 
     // OSC PITCH
@@ -93,28 +93,28 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     // Note
     int FreqOsc1 = 440;         // frequency of OSC1.
 
-    float PitchDepth1 = 0.0   ;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
+    float PitchDepth1 = 0.2   ;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
     int PitchAtk1 = 100 ;               // Attack of OSC1 pitch (between 0 & 11880ms)
     int PitchDcay1 = 220;               // Decay of OSC1 pitch (between 0 & 11880ms)
-    float PitchSus1 = 0.3;              // sustain of OSC1 pitch (between 0.0 & 1.0)
+    float PitchSus1 = 0.0;              // sustain of OSC1 pitch (between 0.0 & 1.0)
     int PitchRls1 = 200;                // Release of OSC1 pitch (between 0 & 11880ms)
-    int PitchDelay1 = 0 ;               // Delay of OSC1 pitch (between 0 & 11880ms)
+    int PitchDelay1 = 100 ;               // Delay of OSC1 pitch (between 0 & 11880ms)
 
     // MODULATIONS
 
     // FM
 
     // Osc
-    float FMOsc1toOsc1 = 0.0;     // Depth of FM from OSC1
+    float FMOsc1toOsc1 = 0.4;     // Depth of FM from OSC1
     float FMOsc2toOsc1 = 0.0;     // Depth of FM from OSC2
     float FMOsc3toOsc1 = 0.0;     // Depth of FM from OSC3
     float FMOsc4toOsc1 = 0.0;     // Depth of FM from OSC4
 
     // Noise enveloppe
     float DepthNoiseMod1 = 0.0;     // Depth of noise modulation
-    int NoiseAtk1 = 250;            // Attack of Noise Modulation (between 0 & 11880ms)
-    int NoiseDcay1 = 100;           // Decay of Noise Modulation (between 0 & 11880ms)
-    float NoiseSus1 = 0.5;          // sustain of Noise Modulation (between 0.0 & 1.0)
+    int NoiseAtk1 = 1;            // Attack of Noise Modulation (between 0 & 11880ms)
+    int NoiseDcay1 = 50;           // Decay of Noise Modulation (between 0 & 11880ms)
+    float NoiseSus1 = 0.0;          // sustain of Noise Modulation (between 0.0 & 1.0)
     int NoiseRls1 = 100;            // Release of Noise Modulation (between 0 & 11880ms)
     int NoiseDelay1 = 0;            // Delay of Noise Modulation (between 0 & 11880ms)
 
@@ -174,7 +174,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     mixerOSCtoOSC1.gain(3, FMOsc4toOsc1);     // Depth of FM from OSC4
 
     // Noise enveloppe
-    mixerOSC1.gain(3, DepthNoiseMod1);       // Depth of noise modulation
+    mixerOSC1.gain(2, DepthNoiseMod1);       // Depth of noise modulation
     EnvNoise1.attack(NoiseAtk1);
     EnvNoise1.decay(NoiseDcay1);
     EnvNoise1.sustain(NoiseSus1);
@@ -297,7 +297,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     mixerOSCtoOSC2.gain(3, FMOsc4toOsc2);     // Depth of FM from OSC4
 
     // Noise enveloppe
-    mixerOSC2.gain(3, DepthNoiseMod2);       // Depth of noise modulation
+    mixerOSC2.gain(2, DepthNoiseMod2);       // Depth of noise modulation
     EnvNoise2.attack(NoiseAtk2);
     EnvNoise2.decay(NoiseDcay2);
     EnvNoise2.sustain(NoiseSus2);
@@ -423,7 +423,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     mixerOSCtoOSC3.gain(3, FMOsc4toOsc3);     // Depth of FM from OSC4
 
     // Noise enveloppe
-    mixerOSC3.gain(3, DepthNoiseMod3);       // Depth of noise modulation
+    mixerOSC3.gain(2, DepthNoiseMod3);       // Depth of noise modulation
     EnvNoise3.attack(NoiseAtk3);
     EnvNoise3.decay(NoiseDcay3);
     EnvNoise3.sustain(NoiseSus3);
@@ -549,7 +549,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     mixerOSCtoOSC4.gain(3, FMOsc4toOsc4);     // Depth of FM from OSC4
 
     // Noise enveloppe
-    mixerOSC4.gain(3, DepthNoiseMod4);       // Depth of noise modulation
+    mixerOSC4.gain(2, DepthNoiseMod4);       // Depth of noise modulation
     EnvNoise4.attack(NoiseAtk4);
     EnvNoise4.decay(NoiseDcay4);
     EnvNoise4.sustain(NoiseSus4);
