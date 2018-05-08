@@ -29,8 +29,8 @@ void loop() {
     //      AudioProcessorUsageMaxReset();
     //      AudioMemoryUsageMaxReset();
     //      Serial.println();
-    //    Serial.print("Proxi clip : ");
-    //    Serial.println(ProxiClip);
+        Serial.print("Proxi Scale : ");
+        Serial.println(Proxi());
     //    Serial.print("Macro Expressivite : ");
     //    Serial.println(MACROExpressivite);
     //    Serial.print("Macro Density : ");
@@ -51,7 +51,7 @@ void loop() {
   if (TimeNoteElapsed > randomNoteOnTime) {
     if (ChangeNoteOn != true) {
       Note_On = true;
-      FM4_synth(Note_On, MACROExpressivite);
+      FM4_synth(Note_On, Note_Off, MACROExpressivite);
       Note_On = false;
       ChangeNoteOn = true;
     }
@@ -61,11 +61,9 @@ void loop() {
 
   if (TimeNoteElapsed > randomNoteOffTime) {
     Note_Off = true;
-    FM4_synth(Note_Off, MACROExpressivite);
+    FM4_synth(Note_On, Note_Off, MACROExpressivite);
     Note_Off = false;
     TimeNoteElapsed = 0;
     ChangeNoteOn = false;
   }
 }
-
-

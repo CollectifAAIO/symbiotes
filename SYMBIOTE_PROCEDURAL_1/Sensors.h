@@ -40,14 +40,11 @@ float Proxi() {
   MedianProx.in(Proximeter);
   ProxiMedian = MedianProx.out();
   ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
-  ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 100);
+  ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
   return ProxiScale;
 }
 
-
 // CALIB MICRO & RETURN VALUE
-
-
 
 // record the minimum Micro Value
 //    if (Micro_Moyenne < MicroMin) {

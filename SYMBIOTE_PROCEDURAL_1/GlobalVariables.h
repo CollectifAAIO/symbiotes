@@ -14,7 +14,7 @@
 // DECLARATION FONCTIONS
 
 float Proxi();
-void FM4_synth (int Trig, int Macro);
+void FM4_synth (bool Note_on, bool Note_off, int Macro);
 
 // DECLARATION & INIT VARIABLES
 
@@ -52,17 +52,15 @@ bool Note_On = false;
 bool Note_Off = false;
 bool ChangeNoteOn = false;
 
-uint32_t randomNoteOn = 0;
-uint32_t randomNoteOff = 0;
-
-int MinTimeNoteOn = 50;    // SETTING
-int MinTimeNoteOff = 25;   // SETTING
+int MinTimeNoteOn = 40;    // SETTING
+int MinTimeNoteOff = 100;   // SETTING
 int MaxTimeNoteOff = 1000; // SETTING
-
-int RandomDensiteTimeCycle = 1000; // SETTING (en ms)
 
 int randomNoteOnTime = 0;
 int randomNoteOffTime = 0;
+
+int RandomDensiteTimeCycle = 1000; // SETTING (en ms)
+
 
 int RefreshScreen = 100;  // SETTING (en ms)
 
