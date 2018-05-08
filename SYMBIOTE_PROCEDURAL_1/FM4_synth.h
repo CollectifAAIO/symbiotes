@@ -1,10 +1,13 @@
+
+
+
 // SYNTH FM4.
 void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   // Locked Parameters
 
   if (InitialiseFM4 = true) {
-    noise.amplitude(1);
+    Noise.amplitude(1);
     // Osc 1
     OSC1.amplitude(1);
     VolEnvOsc1.releaseNoteOn(30);
@@ -52,10 +55,10 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     // MASTER MIXER
 
-    float VolOsc1 = 1.0  // Oscillator 1 Level
-    float VolOsc2 = 0.0  // Oscillator 2 Level
-    float VolOsc3 = 0.0  // Oscillator 3 Level
-    float VolOsc4 = 0.0  // Oscillator 4 Level
+    float VolOsc1 = 1.0;  // Oscillator 1 Level
+    float VolOsc2 = 0.0;  // Oscillator 2 Level
+    float VolOsc3 = 0.0;  // Oscillator 3 Level
+    float VolOsc4 = 0.0;  // Oscillator 4 Level
 
     mixerMASTER.gain(0, VolOsc1);
     mixerMASTER.gain(1, VolOsc2);
@@ -128,7 +131,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     // OSCs SHAPE
 
-    OSC1.begin(WAVEFORM[WaveformOSC1])
+    OSC1.begin(WAVEFORM[WaveformOSC1]);
 
     waveform1.begin(1, ShapeModFreq1, WAVEFORM[ShapeModWaveform1]); // Waveform parameters which modulate the shape of the OSC.
     waveform1.pulseWidth(PWShapeMod1); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
@@ -175,8 +178,8 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     EnvNoise1.attack(NoiseAtk1);
     EnvNoise1.decay(NoiseDcay1);
     EnvNoise1.sustain(NoiseSus1);
-    Envnoise1.release(NoiseRls1);
-    Envnoise1.delay(NoiseDelay1);
+    EnvNoise1.release(NoiseRls1);
+    EnvNoise1.delay(NoiseDelay1);
 
     // AM
     mixerAM1.gain(0, AMdepth1);
@@ -185,7 +188,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     WaveAM1.begin(1, AMFreq1, WAVEFORM[WaveformAM1]); // Waveform & Rate of AM
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     // PARAMETERS SETTINGS (MAPPING & RANDOM VALUES)
 
@@ -251,7 +254,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     // OSCs SHAPE
 
-    OSC2.begin(WAVEFORM[WaveformOSC2])
+    OSC2.begin(WAVEFORM[WaveformOSC2]);
 
     waveform2.begin(1, ShapeModFreq2, WAVEFORM[ShapeModWaveform2]); // Waveform parameters which modulate the shape of the OSC.
     waveform2.pulseWidth(PWShapeMod2); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
@@ -298,8 +301,8 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     EnvNoise2.attack(NoiseAtk2);
     EnvNoise2.decay(NoiseDcay2);
     EnvNoise2.sustain(NoiseSus2);
-    Envnoise2.release(NoiseRls2);
-    Envnoise2.delay(NoiseDelay2);
+    EnvNoise2.release(NoiseRls2);
+    EnvNoise2.delay(NoiseDelay2);
 
     // AM
     mixerAM2.gain(0, AMdepth2);
@@ -307,9 +310,9 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     WaveAM2.begin(1, AMFreq2, WAVEFORM[WaveformAM2]); // Waveform & Rate of AM
 
-   
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC3 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC3 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
@@ -377,7 +380,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     // OSCs SHAPE
 
-    OSC3.begin(WAVEFORM[WaveformOSC3])
+    OSC3.begin(WAVEFORM[WaveformOSC3]);
 
     waveform3.begin(1, ShapeModFreq3, WAVEFORM[ShapeModWaveform3]); // Waveform parameters which modulate the shape of the OSC.
     waveform3.pulseWidth(PWShapeMod3); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
@@ -424,8 +427,8 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     EnvNoise3.attack(NoiseAtk3);
     EnvNoise3.decay(NoiseDcay3);
     EnvNoise3.sustain(NoiseSus3);
-    Envnoise3.release(NoiseRls3);
-    Envnoise3.delay(NoiseDelay3);
+    EnvNoise3.release(NoiseRls3);
+    EnvNoise3.delay(NoiseDelay3);
 
     // AM
     mixerAM3.gain(0, AMdepth3);
@@ -435,7 +438,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC4 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC4 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
@@ -503,7 +506,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
     // OSCs SHAPE
 
-    OSC4.begin(WAVEFORM[WaveformOSC4])
+    OSC4.begin(WAVEFORM[WaveformOSC4]);
 
     waveform4.begin(1, ShapeModFreq4, WAVEFORM[ShapeModWaveform4]); // Waveform parameters which modulate the shape of the OSC.
     waveform4.pulseWidth(PWShapeMod4); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
@@ -550,8 +553,8 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     EnvNoise4.attack(NoiseAtk4);
     EnvNoise4.decay(NoiseDcay4);
     EnvNoise4.sustain(NoiseSus4);
-    Envnoise4.release(NoiseRls4);
-    Envnoise4.delay(NoiseDelay4);
+    EnvNoise4.release(NoiseRls4);
+    EnvNoise4.delay(NoiseDelay4);
 
     // AM
     mixerAM4.gain(0, AMdepth4);
@@ -572,10 +575,10 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     PitchEnvOsc3.noteOn();
     PitchEnvOsc4.noteOn();
 
-    EnvWave1.noteOn();
-    EnvWave2.noteOn();
-    EnvWave3.noteOn();
-    EnvWave4.noteOn();
+    EnvShapeMod1.noteOn();
+    EnvShapeMod2.noteOn();
+    EnvShapeMod3.noteOn();
+    EnvShapeMod4.noteOn();
 
     EnvNoise1.noteOn();
     EnvNoise2.noteOn();
@@ -589,7 +592,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   if (Note_off == true) {
     Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
-    
+
     VolEnvOsc1.noteOff();
     VolEnvOsc2.noteOff();
     VolEnvOsc3.noteOff();
@@ -600,14 +603,14 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     PitchEnvOsc3.noteOff();
     PitchEnvOsc4.noteOff();
 
-    EnvWave1.noteOff();
-    EnvWave2.noteOff();
-    EnvWave3.noteOff();
-    EnvWave4.noteOff();
+    EnvShapeMod1.noteOff();
+    EnvShapeMod2.noteOff();
+    EnvShapeMod3.noteOff();
+    EnvShapeMod4.noteOff();
 
     EnvNoise1.noteOff();
     EnvNoise2.noteOff();
     EnvNoise3.noteOff();
-    EnvNoise4.noteOff();  
+    EnvNoise4.noteOff();
   }
 }
