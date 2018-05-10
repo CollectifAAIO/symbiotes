@@ -25,10 +25,25 @@ int melody_2[] = {
   NOTE_G7, 0, 0,  0,
   NOTE_G6, 0, 0, 0
 };
-//Mario main them tempo
+//Mario main them rythme
 int rythme_2[] = {
   12, 12, 12, 12,
   12, 12, 12, 12,
   12, 12, 12, 12,
   12, 12, 12, 12
+};
+
+//Sonnerie Telephone
+int melody_2[] = {
+  NOTE_F5, NOTE_E5, NOTE_E5, 0,
+  NOTE_F5, NOTE_E5, NOTE_E5, 0,
+  NOTE_F5, NOTE_E5, NOTE_E5, NOTE_C6,
+  0, 0, NOTE_C6, NOTE_C6
+};
+//Telephone Rythme
+int rythme_2[] = {
+  16, 16, 16, 16,
+  16, 16, 16, 16,
+  16, 16, 8, 8,
+  16, 16, 8, 8
 };
