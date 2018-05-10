@@ -69,21 +69,17 @@ void playSong(int song, int tempo, int randomness) {
     // to calculate the note duration, take speedOfPlay divided by the note rhythm : e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     unsigned int noteDuration = speedOfPlay / rythme[thisNote];
 
-    if (timeElapsed < noteDuration * 0.9) {
+    if (timeElapsed < noteDuration * 0.9) { //Note On duration is shortened in order to trig a note Off before the next note.
       if (changeNoteOn == false) {
         if (melody[thisNote] == 0) { // 0 is recognized as a rest.
-          string1.noteOff(0);
           changeNoteOn = true;
         } else {
           changeNoteOn = true;
-          long coeff = 10; //random(0, 200) - 50;
-          long randomDetune = coeff * randomness;
-          //Serial.println(randomDetune);
-          string1.noteOn(melody[thisNote] + randomDetune, 1); //every other note is recognized as a frequency.
+          string1.noteOn(melody[thisNote], 1); //every other note is recognized as a frequency.
         }
       }
 
-      else if (timeElapsed > noteDuration * 0.9 && timeElapsed < noteDuration) { // Note off when arrived at 90% of the duration of each note.
+      else if (timeElapsed > noteDuration * 0.9) { // Note off when arrived at 90% of the duration of each note.
         if (changeNoteOff == false) {
           string1.noteOff(0);
           changeNoteOff = true;
@@ -95,7 +91,6 @@ void playSong(int song, int tempo, int randomness) {
       changeNoteOn = false;
       timeElapsed = 0;
       thisNote++;
-      //Serial.println(melody[thisNote]);
     }
   }
 
