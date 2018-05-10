@@ -29,7 +29,7 @@ void loop() {
   playSong(1, speedVariable, 5);
 }
 
-void playSong(int song, int tempo, int randomness) {
+void playSong(int song, int tempo, int randomness) { //song : number between 0 and 2, tempo: speed of play in milliseconds (best between 500 and 5000), randomness: instability of rhythm and notes (0 to 10).
 
   // Changement de mélodie selon le premier argument : rythmes et mélodies copiés depuis melodies.h dans les arrays "melody" et "rythme".
   if (song == 0 && changeSeq == false) {
