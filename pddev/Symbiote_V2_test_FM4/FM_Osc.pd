@@ -1,4 +1,4 @@
-#N canvas 415 23 1025 325 10;
+#N canvas 353 387 1025 325 10;
 #X obj 13 81 phasor~;
 #X obj 13 103 wavetable~;
 #X obj 556 198 *~;
@@ -8,7 +8,7 @@
 #X obj 661 219 +~;
 #X obj 451 241 +~;
 #X obj 475 -6 vradio 15 1 0 6 empty empty Waveform 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 0;
 #X text 493 -6 Sine;
 #X text 493 9 Square;
 #X text 492 56 Triangle;
@@ -16,7 +16,7 @@
 #X text 493 24 Saw;
 #X text 493 40 Pulse;
 #X obj 945 -18 vsl 20 100 0 1 0 0 empty empty Vol 0 -9 0 10 -128992
--1 -1 6800 1;
+-1 -1 7600 1;
 #X obj 557 10 hsl 40 15 0 20000 0 0 empty empty FM_Osc2 -2 -8 0 10
 -260097 -1 -1 0 1;
 #X obj 557 39 hsl 40 15 0 20000 0 0 empty empty FM_Osc3 -2 -8 0 10
@@ -26,7 +26,7 @@
 #X obj 13 177 *~ 0;
 #X obj 327 178 phasor~;
 #X obj 608 -6 vradio 15 1 0 6 empty empty AM_Waveform 0 -8 0 10 -262144
--1 -1 1;
+-1 -1 0;
 #X text 626 -6 Sine;
 #X text 626 9 Square;
 #X text 625 56 Triangle;
@@ -44,13 +44,13 @@
 #X obj 747 -15 nbx 4 14 0 1 0 0 empty empty empty 0 -8 0 10 -36344
 -1 -1 1 256;
 #X obj 746 21 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -27631
--1 -1 0 256;
+-1 -1 1 256;
 #X obj 746 37 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -27631
--1 -1 192 256;
-#X obj 746 53 nbx 4 14 0 1 0 0 empty empty empty 0 -8 0 10 -27631 -1
--1 0.62 256;
-#X obj 746 69 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -27631
 -1 -1 0 256;
+#X obj 746 53 nbx 4 14 0 1 0 0 empty empty empty 0 -8 0 10 -27631 -1
+-1 1 256;
+#X obj 746 69 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -27631
+-1 -1 3 256;
 #X text 792 -32 Dlay;
 #X text 792 20 Atk;
 #X text 792 -15 Atk Amp;
@@ -63,7 +63,7 @@
 #X obj 846 -14 nbx 4 14 0 19980 0 0 empty empty empty 0 -8 0 10 -56448
 -1 -1 0 256;
 #X obj 845 22 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -51896
--1 -1 0 256;
+-1 -1 1 256;
 #X obj 845 38 nbx 4 14 0 11880 0 0 empty empty empty 0 -8 0 10 -51896
 -1 -1 0 256;
 #X obj 845 54 nbx 4 14 0 20000 0 0 empty empty empty 0 -8 0 10 -51896
@@ -92,7 +92,6 @@
 #X obj 101 -6 ADSR, f 18;
 #X text 237 36 AMPLITUDE ENVELOPPE;
 #X text 238 -5 PITCH ENVELOPPE;
-#X obj 13 -37 r \$1-FreqOsc;
 #X obj 101 -37 r \$1-TrigOsc;
 #X obj 945 116 line;
 #X msg 945 94 \$1 100;
@@ -112,6 +111,8 @@
 #X obj 661 177 r~ 3-FMOsc;
 #X obj 766 177 r~ 4-FMOsc;
 #X obj 108 221 s~ \$1-FMOsc;
+#X obj 474 -33 nbx 4 14 0 20000 0 0 empty \$1-FreqOsc empty 0 -8 0
+10 -20480 -1 -1 415.305 256;
 #X connect 0 0 1 0;
 #X connect 1 0 30 0;
 #X connect 2 0 61 1;
@@ -121,15 +122,15 @@
 #X connect 6 0 7 1;
 #X connect 7 0 5 1;
 #X connect 8 0 1 1;
-#X connect 15 0 75 0;
-#X connect 16 0 81 0;
-#X connect 17 0 79 0;
-#X connect 18 0 77 0;
-#X connect 19 0 86 0;
+#X connect 15 0 74 0;
+#X connect 16 0 80 0;
+#X connect 17 0 78 0;
+#X connect 18 0 76 0;
+#X connect 19 0 85 0;
 #X connect 20 0 58 0;
 #X connect 21 0 58 1;
 #X connect 28 0 20 0;
-#X connect 29 0 85 0;
+#X connect 29 0 84 0;
 #X connect 30 0 63 0;
 #X connect 31 0 5 0;
 #X connect 32 0 62 1;
@@ -145,35 +146,35 @@
 #X connect 49 0 69 5;
 #X connect 50 0 69 6;
 #X connect 58 0 66 2;
-#X connect 59 0 83 0;
+#X connect 59 0 82 0;
 #X connect 60 0 61 0;
 #X connect 61 0 7 0;
 #X connect 62 0 30 1;
 #X connect 63 0 19 0;
-#X connect 63 0 91 0;
+#X connect 63 0 90 0;
 #X connect 66 0 63 1;
 #X connect 67 0 66 0;
 #X connect 68 0 67 0;
 #X connect 68 0 21 0;
 #X connect 68 0 8 0;
 #X connect 69 0 31 1;
-#X connect 72 0 31 0;
-#X connect 73 0 69 0;
-#X connect 73 0 62 0;
-#X connect 74 0 19 1;
-#X connect 75 0 74 0;
-#X connect 76 0 4 1;
-#X connect 77 0 76 0;
-#X connect 78 0 3 1;
-#X connect 79 0 78 0;
-#X connect 80 0 2 1;
-#X connect 81 0 80 0;
-#X connect 82 0 60 1;
-#X connect 83 0 82 0;
-#X connect 84 0 66 1;
-#X connect 85 0 84 0;
-#X connect 87 0 60 0;
-#X connect 88 0 2 0;
-#X connect 89 0 3 0;
-#X connect 90 0 4 0;
+#X connect 72 0 69 0;
+#X connect 72 0 62 0;
+#X connect 73 0 19 1;
+#X connect 74 0 73 0;
+#X connect 75 0 4 1;
+#X connect 76 0 75 0;
+#X connect 77 0 3 1;
+#X connect 78 0 77 0;
+#X connect 79 0 2 1;
+#X connect 80 0 79 0;
+#X connect 81 0 60 1;
+#X connect 82 0 81 0;
+#X connect 83 0 66 1;
+#X connect 84 0 83 0;
+#X connect 86 0 60 0;
+#X connect 87 0 2 0;
+#X connect 88 0 3 0;
+#X connect 89 0 4 0;
+#X connect 91 0 31 0;
 #X coords 0 -1 1 1 500 125 1 470 -35;
