@@ -1,4 +1,4 @@
-#N canvas 11 23 1142 758 10;
+#N canvas 136 23 1142 758 10;
 #N canvas 618 96 588 640 sequencer 0;
 #X obj 126 177 i;
 #X obj 125 292 tgl 20 0 empty empty Play/Stop 25 10 0 10 -27631 -1
@@ -152,7 +152,7 @@
 #X restore 467 6 pd sequencer;
 #X obj 7 339 waveform;
 #X obj 13 45 vsl 40 150 0 1 0 0 MACRO_Expressivity empty MACRO_Expressivity
-0 -9 1 12 -99865 -4032 -1 10300 1;
+0 -9 1 12 -99865 -4032 -1 14900 1;
 #X msg 5 650 \; pd dsp 1;
 #X obj 5 620 loadbang;
 #X obj 490 651 dac~;
@@ -176,7 +176,7 @@
 #X obj 6 491 FM_Osc 3;
 #X obj 516 359 FM_Osc 2;
 #X obj 465 244 s 1-FreqOsc;
-#N canvas 269 258 695 572 toneTelSeq 0;
+#N canvas 269 258 695 572 toneTelSeq 1;
 #X msg 277 263 513;
 #X msg 355 263 508;
 #X msg 278 309 1255;
@@ -232,6 +232,7 @@
 #X text 310 377 Minimum number of tones;
 #X obj 471 254 r MACRO_Expressivity;
 #X obj 471 285 scale 0 1 6 20;
+#X obj 483 316 scale 0 1 4 8;
 #X connect 0 0 47 1;
 #X connect 1 0 46 1;
 #X connect 2 0 47 1;
@@ -286,7 +287,9 @@
 #X connect 46 0 19 1;
 #X connect 47 0 19 1;
 #X connect 49 0 50 0;
+#X connect 49 0 51 0;
 #X connect 50 0 31 1;
+#X connect 51 0 45 1;
 #X coords 0 -1 1 1 70 40 1 142 0;
 #X restore 295 8 pd toneTelSeq;
 #X connect 4 0 3 0;
