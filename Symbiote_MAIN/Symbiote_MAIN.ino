@@ -76,7 +76,7 @@ void loop() {
 
   // Passage toutes les x secondes
 
-  if (ProxiMedian > ThreshPassage) {
+  if (ProxiMedian < ThreshPassage) {
     DetectPassage = true;
   }
   else {
@@ -176,11 +176,14 @@ void loop() {
   }
 
   // MONITORING
-
-  //  Serial.print("Détection passages : ");
-  //  Serial.print(DetectPassage);
-  //  Serial.print("  !!  Jauge passages : ");
-  //  Serial.print(jaugePassage);
+//
+  Serial.print("Proximètre : ");
+  Serial.println(ProxiMedian);
+//
+//    Serial.print("Détection passages : ");
+//    Serial.print(DetectPassage);
+//    Serial.print("  !!  Jauge passages : ");
+//    Serial.println(jaugePassage);
   //
   //
   //  Serial.print("  !!  Microphone");
@@ -216,13 +219,13 @@ void CalibProxiMic() {
     MicroRA.addValue(MicroRms);
     Micro_Moyenne = MicroRA.getAverage();
 
-    Proxi = analogRead(PROXI_PIN);
+    int Proxi = analogRead(PROXI_PIN);
     MedianProx.in(Proxi);
     ProxiMedian = MedianProx.out();
-    
+
     // record the minimum Proxi Value
-    if (ProxiMedian < ProxiMin) {
-      ProxiMin = ProxiMedian;
+    if (Proxi < ProxiMin) {
+      ProxiMin = Proxi;
     }
     // record the minimum Micro Value
     if (Micro_Moyenne < MicroMin) {
@@ -234,8 +237,8 @@ void CalibProxiMic() {
   ThreshPassage = (int)(ProxiMin + ProxiMin * 2);
   ThreshPeak = MicroMin * 3;
 
-  Serial.print("ProxiMax : ");
-  Serial.print(ProxiMax);
+  Serial.print("ProxiMin : ");
+  Serial.print(ProxiMin);
   Serial.print("  !!  MicroMin : ");
   Serial.println(MicroMin);
 
