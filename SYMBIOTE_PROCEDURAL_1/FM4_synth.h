@@ -22,7 +22,7 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   // Locked Parameters
 
-  if (InitialiseFM4 = true) {
+  if (InitialiseFM4 == true) {
     Noise.amplitude(1);
     // Osc 1
     OSC1.amplitude(1);
