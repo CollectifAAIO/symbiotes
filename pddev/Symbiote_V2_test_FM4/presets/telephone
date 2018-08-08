@@ -19,7 +19,7 @@
 4-pst-FADSR_Dcay 0;
 4-pst-FADSR_Sus 0;
 4-pst-FADSR_Rel 0;
-4-pst-Vol 0.343434;
+4-pst-Vol 0;
 2-pst-waveform 3;
 2-pst-glide 0;
 2-pst-FM_Osc1 0;
@@ -63,11 +63,11 @@
 3-pst-FADSR_Dcay 0;
 3-pst-FADSR_Sus 0;
 3-pst-FADSR_Rel 0;
-3-pst-Vol 0.474747;
-1-pst-waveform 4;
+3-pst-Vol 0;
+1-pst-waveform 0;
 1-pst-glide 0;
 1-pst-FM_Osc1 0;
-1-pst-FM_Osc2 20000;
+1-pst-FM_Osc2 0;
 1-pst-FM_Osc3 0;
 1-pst-FM_Osc4 0;
 1-pst-AM_Waveform 0;
@@ -75,10 +75,10 @@
 1-pst-AM_Freq 0;
 1-pst-PADSR_Dlay 0;
 1-pst-PADSR_Amp 1;
-1-pst-PADSR_Atk 23;
-1-pst-PADSR_Dcay 0;
+1-pst-PADSR_Atk 1;
+1-pst-PADSR_Dcay 1;
 1-pst-PADSR_Sus 1;
-1-pst-PADSR_Rel 22;
+1-pst-PADSR_Rel 1;
 1-pst-FADSR_Dlay 0;
 1-pst-FADSR_Amp 0;
 1-pst-FADSR_Atk 0;
