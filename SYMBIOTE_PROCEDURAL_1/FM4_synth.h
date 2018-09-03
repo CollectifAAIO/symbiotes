@@ -14,49 +14,331 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// One synth strip, wrapped for easier global changes
+struct Synth {
+  AudioSynthWaveformDc &     PitchEnvDepthOsc_;
+  AudioEffectEnvelope &      PitchEnvOsc_;
+  AudioMixer4 &              mixerOSCtoOSC_;
+  AudioMixer4 &              mixerOSC_;
+  AudioSynthWaveform &       waveform_;
+  AudioEffectEnvelope &      EnvShapeMod_;
+  AudioSynthWaveformModulated & OSC_;
+  AudioSynthWaveform &       WaveAM_;
+  AudioSynthWaveformDc &     AMdc_;
+  AudioEffectEnvelope &      VolEnvOsc_;
+  AudioMixer4 &              mixerAM_;
+  AudioEffectMultiply &      AM_;
+  AudioEffectEnvelope &      EnvNoise_;
+};
 
+// All 4 instances of the strips
+Synth synth1_ = {
+  PitchEnvDepthOsc1,
+  PitchEnvOsc1,
+  mixerOSCtoOSC1,
+  mixerOSC1,
+  waveform1,
+  EnvShapeMod1,
+  OSC1,
+  WaveAM1,
+  AMdc1,
+  VolEnvOsc1,
+  mixerAM1,
+  AM1,
+  EnvNoise1
+};
+Synth synth2_ = {
+  PitchEnvDepthOsc2,
+  PitchEnvOsc2,
+  mixerOSCtoOSC2,
+  mixerOSC2,
+  waveform2,
+  EnvShapeMod2,
+  OSC2,
+  WaveAM2,
+  AMdc2,
+  VolEnvOsc2,
+  mixerAM2,
+  AM2,
+  EnvNoise2
+};
+Synth synth3_ = {
+  PitchEnvDepthOsc3,
+  PitchEnvOsc3,
+  mixerOSCtoOSC3,
+  mixerOSC3,
+  waveform3,
+  EnvShapeMod3,
+  OSC3,
+  WaveAM3,
+  AMdc3,
+  VolEnvOsc3,
+  mixerAM3,
+  AM3,
+  EnvNoise3
+};
+Synth synth4_ = {
+  PitchEnvDepthOsc4,
+  PitchEnvOsc4,
+  mixerOSCtoOSC4,
+  mixerOSC4,
+  waveform4,
+  EnvShapeMod4,
+  OSC4,
+  WaveAM4,
+  AMdc4,
+  VolEnvOsc4,
+  mixerAM4,
+  AM4,
+  EnvNoise4
+};
 
+Synth * all_synths_[] = { &synth1_, &synth2_, &synth3_, &synth4_ };
 
-// SYNTH FM4.
+struct ADSRParms {
+  ADSRParms( int AtkMs = 100,
+    int DcayMs = 100,
+    float Sus = 1.0,
+    int RlsMs = 500,
+    int DelayMs = 0 ) :
+    AtkMs_( AtkMs ),
+    DcayMs_( DcayMs ),
+    Sus_( Sus ),
+    RlsMs_( RlsMs ),
+    DelayMs_( DelayMs ) {}
+
+    int AtkMs_;
+    int DcayMs_;
+    float Sus_;
+    int RlsMs_;
+    int DelayMs_;
+};
+
+// PARAMETERS SETTINGS (MAPPING & RANDOM VALUES)
+struct SynthParms {
+  SynthParms(
+    int WaveformOSC = 0,
+    float ShapeModFreq = 5.0,
+    int ShapeModWaveform = 0,
+    float PWShapeMod = 0.0,
+    int ShapeModAtk = 100,
+    int ShapeModDcay = 100,
+    float ShapeModSus = 1.0,
+    int ShapeModRls = 500,
+    int ShapeModDelay = 0,
+    int VolAtk = 1,
+    int VolDcay = 200,
+    float VolSus = 0.2,
+    int VolRls = 1000,
+    int VolDelay = 0,
+    int FreqOsc = 440,
+    float PitchDepth = 0.2,
+    int PitchAtk = 100,
+    int PitchDcay = 220,
+    float PitchSus = 0.0,
+    int PitchRls = 200,
+    int PitchDelay = 100,
+    float FMOsc1toOsc = 0.4,
+    float FMOsc2toOsc = 0.0,
+    float FMOsc3toOsc = 0.0,
+    float FMOsc4toOsc = 0.0,
+    float DepthNoiseMod = 0.0,
+    int NoiseAtk = 1,
+    int NoiseDcay = 50,
+    float NoiseSus = 0.0,
+    int NoiseRls = 100,
+    int NoiseDelay = 0,
+    float AMdepth = 0,
+    int AMFreq = 4,
+    int WaveformAM = 0 )
+    :
+    WaveformOSC_( WaveformOSC ),
+    ShapeModFreq_( ShapeModFreq ),
+    ShapeModWaveform_( ShapeModWaveform ),
+    PWShapeMod_( PWShapeMod ),
+    ShapeModAtk_( ShapeModAtk ),
+    ShapeModDcay_( ShapeModDcay ),
+    ShapeModSus_( ShapeModSus ),
+    ShapeModRls_( ShapeModRls ),
+    ShapeModDelay_( ShapeModDelay ),
+    VolAtk_( VolAtk ),
+    VolDcay_( VolDcay ),
+    VolSus_( VolSus ),
+    VolRls_( VolRls ),
+    VolDelay_( VolDelay ),
+    FreqOsc_( FreqOsc ),
+    PitchDepth_( PitchDepth ),
+    PitchAtk_( PitchAtk ),
+    PitchDcay_( PitchDcay ),
+    PitchSus_( PitchSus ),
+    PitchRls_( PitchRls ),
+    PitchDelay_( PitchDelay ),
+    FMOsc1toOsc_( FMOsc1toOsc ),
+    FMOsc2toOsc_( FMOsc2toOsc ),
+    FMOsc3toOsc_( FMOsc3toOsc ),
+    FMOsc4toOsc_( FMOsc4toOsc ),
+    DepthNoiseMod_( DepthNoiseMod ),
+    NoiseAtk_( NoiseAtk ),
+    NoiseDcay_( NoiseDcay ),
+    NoiseSus_( NoiseSus ),
+    NoiseRls_( NoiseRls ),
+    NoiseDelay_( NoiseDelay ),
+    AMdepth_( AMdepth ),
+    AMFreq_( AMFreq ),
+    WaveformAM_( WaveformAM ) {}
+
+    void ApplyToSynth( Synth & synth ) const {
+      // COMMAND SYNTH
+
+      // OSCs SHAPE
+
+      synth.OSC_.begin(WAVEFORM[WaveformOSC_]);
+
+      synth.waveform_.begin(1, ShapeModFreq_, WAVEFORM[ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
+      synth.waveform_.pulseWidth(PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
+      synth.EnvShapeMod_.attack(ShapeModAtk_);
+      synth.EnvShapeMod_.decay(ShapeModDcay_);
+      synth.EnvShapeMod_.sustain(ShapeModSus_);
+      synth.EnvShapeMod_.release(ShapeModRls_);
+      synth.EnvShapeMod_.delay(ShapeModDelay_);
+
+      // OSC VOLUME
+
+      // Envelop
+      synth.VolEnvOsc_.attack(VolAtk_);
+      synth.VolEnvOsc_.decay(VolDcay_);
+      synth.VolEnvOsc_.sustain(VolSus_);
+      synth.VolEnvOsc_.release(VolRls_);
+      synth.VolEnvOsc_.delay(VolDelay_);
+
+      // OSC PITCH
+
+      // Note
+      synth.OSC_.frequency(FreqOsc_);
+
+      // Envelop
+      synth.PitchEnvDepthOsc_.amplitude(PitchDepth_); // Depth of Pitch enveloppe
+      synth.PitchEnvOsc_.attack(PitchAtk_);
+      synth.PitchEnvOsc_.decay(PitchDcay_);
+      synth.PitchEnvOsc_.sustain(PitchSus_);
+      synth.PitchEnvOsc_.release(PitchRls_);
+      synth.PitchEnvOsc_.delay(PitchDelay_);
+
+      // MODULATION
+
+      // FM
+
+      // Osc
+      synth.mixerOSCtoOSC_.gain(0, FMOsc1toOsc_);     // Depth of FM from OSC1
+      synth.mixerOSCtoOSC_.gain(1, FMOsc2toOsc_);     // Depth of FM from OSC2
+      synth.mixerOSCtoOSC_.gain(2, FMOsc3toOsc_);     // Depth of FM from OSC3
+      synth.mixerOSCtoOSC_.gain(3, FMOsc4toOsc_);     // Depth of FM from OSC4
+
+      // Noise enveloppe
+      synth.mixerOSC_.gain(2, DepthNoiseMod_);       // Depth of noise modulation
+      synth.EnvNoise_.attack(NoiseAtk_);
+      synth.EnvNoise_.decay(NoiseDcay_);
+      synth.EnvNoise_.sustain(NoiseSus_);
+      synth.EnvNoise_.release(NoiseRls_);
+      synth.EnvNoise_.delay(NoiseDelay_);
+
+      // AM
+      synth.mixerAM_.gain(0, AMdepth_);
+      synth.mixerAM_.gain(1, 1.0 - AMdepth_);
+
+      synth.WaveAM_.begin(1, AMFreq_, WAVEFORM[WaveformAM_]); // Waveform & Rate of AM
+    }
+
+    // OSCs SHAPE
+    int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
+    float ShapeModFreq_;  // Rate/frequency of the modulation of the shape of the waveform.
+    int ShapeModWaveform_;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
+    float PWShapeMod_;    // Width of Pulse signal.
+    int ShapeModAtk_;     // Attack of Shape modulation between (between 0 & 11880ms)
+    int ShapeModDcay_;    // Decay of Shape modulation          (between 0 & 11880ms)
+    float ShapeModSus_;   // Sustain of Shape modulation        (between 0.0 & 1.0)
+    int ShapeModRls_;     // Decay of Shape modulation          (between 0 & 11880ms)
+    int ShapeModDelay_;     // Delay of Shape modulation          (between 0 & 11880ms)
+
+    // OSC VOLUME
+
+    int VolAtk_;          // Attack of OSC1 level (between 0 & 11880ms)
+    int VolDcay_;       // Decay of OSC1 level (between 0 & 11880ms)
+    float VolSus_;      // Sustain of OSC1 level (between 0.0 & 1.0)
+    int VolRls_;        // Release of OSC1 level (between 0 & 11880ms)
+    int VolDelay_;        // Delay of OSC1 level (between 0 & 11880ms)
+
+    // OSC PITCH
+
+    // Note
+    int FreqOsc_;         // frequency of OSC1.
+
+    float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
+    int PitchAtk_;               // Attack of OSC1 pitch (between 0 & 11880ms)
+    int PitchDcay_;               // Decay of OSC1 pitch (between 0 & 11880ms)
+    float PitchSus_;              // sustain of OSC1 pitch (between 0.0 & 1.0)
+    int PitchRls_;                // Release of OSC1 pitch (between 0 & 11880ms)
+    int PitchDelay_;               // Delay of OSC1 pitch (between 0 & 11880ms)
+
+    // MODULATIONS
+
+    // FM
+
+    // Osc
+    float FMOsc1toOsc_;     // Depth of FM from OSC1
+    float FMOsc2toOsc_;     // Depth of FM from OSC2
+    float FMOsc3toOsc_;     // Depth of FM from OSC3
+    float FMOsc4toOsc_;     // Depth of FM from OSC4
+
+    // Noise enveloppe
+    float DepthNoiseMod_;     // Depth of noise modulation
+    int NoiseAtk_;            // Attack of Noise Modulation (between 0 & 11880ms)
+    int NoiseDcay_;           // Decay of Noise Modulation (between 0 & 11880ms)
+    float NoiseSus_;          // sustain of Noise Modulation (between 0.0 & 1.0)
+    int NoiseRls_;            // Release of Noise Modulation (between 0 & 11880ms)
+    int NoiseDelay_;            // Delay of Noise Modulation (between 0 & 11880ms)
+
+    // AM
+    float AMdepth_;      // Mix between amp
+
+    int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
+    int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
+};
+
+Synth & GetSynth( int index ) {
+  // We expect indices from 1 to 4
+  return *all_synths_[index - 1];
+}
+
+void InitialiseSynth( int index ) {
+  Synth & synth = GetSynth( index );
+  synth.OSC_.amplitude(1);
+  synth.VolEnvOsc_.releaseNoteOn(30);
+  synth.mixerOSC_.gain(1, 1);
+  synth.AMdc_.amplitude(1);
+  synth.WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
+  synth.mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
+  synth.mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
+}
+
+void FM4_init() {
+  for (int i = 0; i < 4; ++i) {
+    InitialiseSynth( i );
+  }
+}
+
+void FM4_setMasterGain() {
+  for (int i = 0; i < 4; ++i) {
+    InitialiseSynth( i );
+  }
+}
+                      // SYNTH FM4.
 void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   // Locked Parameters
 
   if (InitialiseFM4 == true) {
-    Noise.amplitude(1);
-    // Osc 1
-    OSC1.amplitude(1);
-    VolEnvOsc1.releaseNoteOn(30);
-    mixerOSC1.gain(1, 1);
-    AMdc1.amplitude(1);
-    WaveAM1.begin(1, 4, WAVEFORM_TRIANGLE);
-    mixerOSC1.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-    mixerOSC1.gain(2, 1);  // Depth of FM OSCILLATORS
-
-    // Osc 2
-    OSC2.amplitude(1);
-    VolEnvOsc2.releaseNoteOn(30);
-    mixerOSC2.gain(1, 1);
-    AMdc2.amplitude(1);
-    WaveAM2.begin(1, 4, WAVEFORM_PULSE);
-    mixerOSC2.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-
-    // Osc 3
-    OSC3.amplitude(1);
-    VolEnvOsc3.releaseNoteOn(30);
-    mixerOSC3.gain(1, 1);
-    AMdc3.amplitude(1);
-    WaveAM3.begin(1, 4, WAVEFORM_TRIANGLE);
-    mixerOSC3.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-
-    // Osc 4
-    OSC4.amplitude(1);
-    VolEnvOsc4.releaseNoteOn(30);
-    mixerOSC4.gain(1, 1);
-    AMdc4.amplitude(1);
-    WaveAM4.begin(1, 4, WAVEFORM_TRIANGLE);
-    mixerOSC4.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-
+    FM4_init();
     InitialiseFM4 = false;
   }
 
@@ -80,129 +362,6 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     mixerMASTER.gain(1, VolOsc2);
     mixerMASTER.gain(2, VolOsc3);
     mixerMASTER.gain(3, VolOsc4);
-
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    // PARAMETERS SETTINGS (MAPPING & RANDOM VALUES)
-
-    // OSCs SHAPE
-    int WaveformOSC1 = 0;       // Waveform selected in the array between 0 & 7.
-    float ShapeModFreq1 = 5.0;  // Rate/frequency of the modulation of the shape of the waveform.
-    int ShapeModWaveform1 = 0;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
-    float PWShapeMod1 = 0.0;    // Width of Pulse signal.
-    int ShapeModAtk1 = 100;     // Attack of Shape modulation between (between 0 & 11880ms)
-    int ShapeModDcay1 = 100;    // Decay of Shape modulation          (between 0 & 11880ms)
-    float ShapeModSus1 = 1.0;   // Sustain of Shape modulation        (between 0.0 & 1.0)
-    int ShapeModRls1 = 500;     // Decay of Shape modulation          (between 0 & 11880ms)
-    int ShapeModDelay1 = 0;     // Delay of Shape modulation          (between 0 & 11880ms)
-
-    // OSC VOLUME
-
-    int VolAtk1 = 1;          // Attack of OSC1 level (between 0 & 11880ms)
-    int VolDcay1 = 200;       // Decay of OSC1 level (between 0 & 11880ms)
-    float VolSus1 = 0.2;      // Sustain of OSC1 level (between 0.0 & 1.0)
-    int VolRls1 = 1000;        // Release of OSC1 level (between 0 & 11880ms)
-    int VolDelay1 = 0;        // Delay of OSC1 level (between 0 & 11880ms)
-
-    // OSC PITCH
-
-    // Note
-    int FreqOsc1 = 440;         // frequency of OSC1.
-
-    float PitchDepth1 = 0.2   ;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
-    int PitchAtk1 = 100 ;               // Attack of OSC1 pitch (between 0 & 11880ms)
-    int PitchDcay1 = 220;               // Decay of OSC1 pitch (between 0 & 11880ms)
-    float PitchSus1 = 0.0;              // sustain of OSC1 pitch (between 0.0 & 1.0)
-    int PitchRls1 = 200;                // Release of OSC1 pitch (between 0 & 11880ms)
-    int PitchDelay1 = 100 ;               // Delay of OSC1 pitch (between 0 & 11880ms)
-
-    // MODULATIONS
-
-    // FM
-
-    // Osc
-    float FMOsc1toOsc1 = 0.4;     // Depth of FM from OSC1
-    float FMOsc2toOsc1 = 0.0;     // Depth of FM from OSC2
-    float FMOsc3toOsc1 = 0.0;     // Depth of FM from OSC3
-    float FMOsc4toOsc1 = 0.0;     // Depth of FM from OSC4
-
-    // Noise enveloppe
-    float DepthNoiseMod1 = 0.0;     // Depth of noise modulation
-    int NoiseAtk1 = 1;            // Attack of Noise Modulation (between 0 & 11880ms)
-    int NoiseDcay1 = 50;           // Decay of Noise Modulation (between 0 & 11880ms)
-    float NoiseSus1 = 0.0;          // sustain of Noise Modulation (between 0.0 & 1.0)
-    int NoiseRls1 = 100;            // Release of Noise Modulation (between 0 & 11880ms)
-    int NoiseDelay1 = 0;            // Delay of Noise Modulation (between 0 & 11880ms)
-
-    // AM
-    float AMdepth1 = 0;      // Mix between amp
-
-    int AMFreq1 = 4;         // Frequency of Amplitude Modulation (Hz)
-    int WaveformAM1 = 0;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
-
-
-    // ----------------------
-
-    // COMMAND SYNTH
-
-    // OSCs SHAPE
-
-    OSC1.begin(WAVEFORM[WaveformOSC1]);
-
-    waveform1.begin(1, ShapeModFreq1, WAVEFORM[ShapeModWaveform1]); // Waveform parameters which modulate the shape of the OSC.
-    waveform1.pulseWidth(PWShapeMod1); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-    EnvShapeMod1.attack(ShapeModAtk1);
-    EnvShapeMod1.decay(ShapeModDcay1);
-    EnvShapeMod1.sustain(ShapeModSus1);
-    EnvShapeMod1.release(ShapeModRls1);
-    EnvShapeMod1.delay(ShapeModDelay1);
-
-    // OSC VOLUME
-
-    // Envelop
-    VolEnvOsc1.attack(VolAtk1);
-    VolEnvOsc1.decay(VolDcay1);
-    VolEnvOsc1.sustain(VolSus1);
-    VolEnvOsc1.release(VolRls1);
-    VolEnvOsc1.delay(VolDelay1);
-
-    // OSC PITCH
-
-    // Note
-    OSC1.frequency(FreqOsc1);
-
-    // Envelop
-    PitchEnvDepthOsc1.amplitude(PitchDepth1); // Depth of Pitch enveloppe
-    PitchEnvOsc1.attack(PitchAtk1);
-    PitchEnvOsc1.decay(PitchDcay1);
-    PitchEnvOsc1.sustain(PitchSus1);
-    PitchEnvOsc1.release(PitchRls1);
-    PitchEnvOsc1.delay(PitchDelay1);
-
-    // MODULATION
-
-    // FM
-
-    // Osc
-    mixerOSCtoOSC1.gain(0, FMOsc1toOsc1);     // Depth of FM from OSC1
-    mixerOSCtoOSC1.gain(1, FMOsc2toOsc1);     // Depth of FM from OSC2
-    mixerOSCtoOSC1.gain(2, FMOsc3toOsc1);     // Depth of FM from OSC3
-    mixerOSCtoOSC1.gain(3, FMOsc4toOsc1);     // Depth of FM from OSC4
-
-    // Noise enveloppe
-    mixerOSC1.gain(2, DepthNoiseMod1);       // Depth of noise modulation
-    EnvNoise1.attack(NoiseAtk1);
-    EnvNoise1.decay(NoiseDcay1);
-    EnvNoise1.sustain(NoiseSus1);
-    EnvNoise1.release(NoiseRls1);
-    EnvNoise1.delay(NoiseDelay1);
-
-    // AM
-    mixerAM1.gain(0, AMdepth1);
-    mixerAM1.gain(1, 1.0 - AMdepth1);
-
-    WaveAM1.begin(1, AMFreq1, WAVEFORM[WaveformAM1]); // Waveform & Rate of AM
-
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETTINGS OSC2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
