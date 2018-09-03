@@ -107,6 +107,14 @@ struct ADSRParms {
     RlsMs_( RlsMs ),
     DelayMs_( DelayMs ) {}
 
+    void ApplyToADSR( AudioEffectEnvelope & instance ) const {
+      instance.attack(AtkMs_);
+      instance.decay(DcayMs_);
+      instance.sustain(Sus_);
+      instance.release(RlsMs_);
+      instance.delay(DelayMs_);
+    }
+
     int AtkMs_;
     int DcayMs_;
     float Sus_;
@@ -121,33 +129,17 @@ struct SynthParms {
     float ShapeModFreq = 5.0,
     int ShapeModWaveform = 0,
     float PWShapeMod = 0.0,
-    int ShapeModAtk = 100,
-    int ShapeModDcay = 100,
-    float ShapeModSus = 1.0,
-    int ShapeModRls = 500,
-    int ShapeModDelay = 0,
-    int VolAtk = 1,
-    int VolDcay = 200,
-    float VolSus = 0.2,
-    int VolRls = 1000,
-    int VolDelay = 0,
+    const ADSRParms & ShapeModParms = ADSRParms( 100, 100, 1.0, 500, 0 ),
+    const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
     int FreqOsc = 440,
     float PitchDepth = 0.2,
-    int PitchAtk = 100,
-    int PitchDcay = 220,
-    float PitchSus = 0.0,
-    int PitchRls = 200,
-    int PitchDelay = 100,
+    const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
     float FMOsc1toOsc = 0.4,
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
     float DepthNoiseMod = 0.0,
-    int NoiseAtk = 1,
-    int NoiseDcay = 50,
-    float NoiseSus = 0.0,
-    int NoiseRls = 100,
-    int NoiseDelay = 0,
+    const ADSRParms & NoiseParms = ADSRParms( 1, 50, 0.0, 100, 0 ),
     float AMdepth = 0,
     int AMFreq = 4,
     int WaveformAM = 0 )
@@ -156,33 +148,17 @@ struct SynthParms {
     ShapeModFreq_( ShapeModFreq ),
     ShapeModWaveform_( ShapeModWaveform ),
     PWShapeMod_( PWShapeMod ),
-    ShapeModAtk_( ShapeModAtk ),
-    ShapeModDcay_( ShapeModDcay ),
-    ShapeModSus_( ShapeModSus ),
-    ShapeModRls_( ShapeModRls ),
-    ShapeModDelay_( ShapeModDelay ),
-    VolAtk_( VolAtk ),
-    VolDcay_( VolDcay ),
-    VolSus_( VolSus ),
-    VolRls_( VolRls ),
-    VolDelay_( VolDelay ),
+    ShapeModParms_( ShapeModParms ),
+    VolParms_( VolParms ),
     FreqOsc_( FreqOsc ),
     PitchDepth_( PitchDepth ),
-    PitchAtk_( PitchAtk ),
-    PitchDcay_( PitchDcay ),
-    PitchSus_( PitchSus ),
-    PitchRls_( PitchRls ),
-    PitchDelay_( PitchDelay ),
+    PitchParms_( PitchParms ),
     FMOsc1toOsc_( FMOsc1toOsc ),
     FMOsc2toOsc_( FMOsc2toOsc ),
     FMOsc3toOsc_( FMOsc3toOsc ),
     FMOsc4toOsc_( FMOsc4toOsc ),
     DepthNoiseMod_( DepthNoiseMod ),
-    NoiseAtk_( NoiseAtk ),
-    NoiseDcay_( NoiseDcay ),
-    NoiseSus_( NoiseSus ),
-    NoiseRls_( NoiseRls ),
-    NoiseDelay_( NoiseDelay ),
+    NoiseParms_( NoiseParms ),
     AMdepth_( AMdepth ),
     AMFreq_( AMFreq ),
     WaveformAM_( WaveformAM ) {}
@@ -196,20 +172,12 @@ struct SynthParms {
 
       synth.waveform_.begin(1, ShapeModFreq_, WAVEFORM[ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
       synth.waveform_.pulseWidth(PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-      synth.EnvShapeMod_.attack(ShapeModAtk_);
-      synth.EnvShapeMod_.decay(ShapeModDcay_);
-      synth.EnvShapeMod_.sustain(ShapeModSus_);
-      synth.EnvShapeMod_.release(ShapeModRls_);
-      synth.EnvShapeMod_.delay(ShapeModDelay_);
+      ShapeModParms_.ApplyToADSR( synth.EnvShapeMod_ );
 
       // OSC VOLUME
 
       // Envelop
-      synth.VolEnvOsc_.attack(VolAtk_);
-      synth.VolEnvOsc_.decay(VolDcay_);
-      synth.VolEnvOsc_.sustain(VolSus_);
-      synth.VolEnvOsc_.release(VolRls_);
-      synth.VolEnvOsc_.delay(VolDelay_);
+      VolParms_.ApplyToADSR( synth.VolEnvOsc_ );
 
       // OSC PITCH
 
@@ -218,11 +186,7 @@ struct SynthParms {
 
       // Envelop
       synth.PitchEnvDepthOsc_.amplitude(PitchDepth_); // Depth of Pitch enveloppe
-      synth.PitchEnvOsc_.attack(PitchAtk_);
-      synth.PitchEnvOsc_.decay(PitchDcay_);
-      synth.PitchEnvOsc_.sustain(PitchSus_);
-      synth.PitchEnvOsc_.release(PitchRls_);
-      synth.PitchEnvOsc_.delay(PitchDelay_);
+      PitchParms_.ApplyToADSR( synth.PitchEnvOsc_ );
 
       // MODULATION
 
@@ -236,11 +200,7 @@ struct SynthParms {
 
       // Noise enveloppe
       synth.mixerOSC_.gain(2, DepthNoiseMod_);       // Depth of noise modulation
-      synth.EnvNoise_.attack(NoiseAtk_);
-      synth.EnvNoise_.decay(NoiseDcay_);
-      synth.EnvNoise_.sustain(NoiseSus_);
-      synth.EnvNoise_.release(NoiseRls_);
-      synth.EnvNoise_.delay(NoiseDelay_);
+      NoiseParms_.ApplyToADSR( synth.EnvNoise_ );
 
       // AM
       synth.mixerAM_.gain(0, AMdepth_);
@@ -254,19 +214,11 @@ struct SynthParms {
     float ShapeModFreq_;  // Rate/frequency of the modulation of the shape of the waveform.
     int ShapeModWaveform_;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
     float PWShapeMod_;    // Width of Pulse signal.
-    int ShapeModAtk_;     // Attack of Shape modulation between (between 0 & 11880ms)
-    int ShapeModDcay_;    // Decay of Shape modulation          (between 0 & 11880ms)
-    float ShapeModSus_;   // Sustain of Shape modulation        (between 0.0 & 1.0)
-    int ShapeModRls_;     // Decay of Shape modulation          (between 0 & 11880ms)
-    int ShapeModDelay_;     // Delay of Shape modulation          (between 0 & 11880ms)
+    ADSRParms ShapeModParms_;
 
     // OSC VOLUME
 
-    int VolAtk_;          // Attack of OSC1 level (between 0 & 11880ms)
-    int VolDcay_;       // Decay of OSC1 level (between 0 & 11880ms)
-    float VolSus_;      // Sustain of OSC1 level (between 0.0 & 1.0)
-    int VolRls_;        // Release of OSC1 level (between 0 & 11880ms)
-    int VolDelay_;        // Delay of OSC1 level (between 0 & 11880ms)
+    ADSRParms VolParms_;
 
     // OSC PITCH
 
@@ -274,11 +226,7 @@ struct SynthParms {
     int FreqOsc_;         // frequency of OSC1.
 
     float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
-    int PitchAtk_;               // Attack of OSC1 pitch (between 0 & 11880ms)
-    int PitchDcay_;               // Decay of OSC1 pitch (between 0 & 11880ms)
-    float PitchSus_;              // sustain of OSC1 pitch (between 0.0 & 1.0)
-    int PitchRls_;                // Release of OSC1 pitch (between 0 & 11880ms)
-    int PitchDelay_;               // Delay of OSC1 pitch (between 0 & 11880ms)
+    ADSRParms PitchParms_;
 
     // MODULATIONS
 
@@ -292,11 +240,7 @@ struct SynthParms {
 
     // Noise enveloppe
     float DepthNoiseMod_;     // Depth of noise modulation
-    int NoiseAtk_;            // Attack of Noise Modulation (between 0 & 11880ms)
-    int NoiseDcay_;           // Decay of Noise Modulation (between 0 & 11880ms)
-    float NoiseSus_;          // sustain of Noise Modulation (between 0.0 & 1.0)
-    int NoiseRls_;            // Release of Noise Modulation (between 0 & 11880ms)
-    int NoiseDelay_;            // Delay of Noise Modulation (between 0 & 11880ms)
+    ADSRParms NoiseParms_;
 
     // AM
     float AMdepth_;      // Mix between amp
