@@ -1,4 +1,4 @@
-#N canvas 1172 162 1172 762 10;
+#N canvas 515 164 1172 762 10;
 #X obj 506 33 waveform;
 #X obj 817 266 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
@@ -25,7 +25,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 11400 1;
+-1 -1 0 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -74,7 +74,7 @@
 #X connect 24 0 8 0;
 #X connect 24 1 16 0;
 #X coords 0 -1 1 1 300 50 1 40 35;
-#X restore 448 208 pd store-pst;
+#X restore 448 207 pd store-pst;
 #X obj 7 265 FM_Osc 1;
 #X obj 7 32 Sequencer;
 #X obj 411 265 FM_Osc 2;
