@@ -22,13 +22,13 @@
 -1 -1 0 1;
 #X obj 9 133 average-array 50;
 #X obj 221 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
--2 -8 0 10 -262144 -1 -1 4366 1;
+-2 -8 0 10 -262144 -1 -1 4257 1;
 #X obj 221 178 hsl 115 15 0 100 0 0 empty empty Noise_average -2 -8
-0 10 -262144 -1 -1 4208 1;
+0 10 -262144 -1 -1 3790 1;
 #X obj 11 278 bonk~;
 #X msg 463 156 1;
-#X obj 38 311 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 327 114 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
 #X obj 424 132 t b b b;
 #X msg 443 183 0;
 #X obj 115 332 del 500;
@@ -48,13 +48,14 @@
 #X msg 80 248 thresh 35 40;
 #X obj 23 443 s threshold-crossings;
 #X obj 218 212 hradio 15 1 0 8 empty empty Threshold-crossings 0 -8
-0 10 -262144 -1 -1 2;
+0 10 -262144 -1 -1 0;
 #X text 157 366 Nr of threshold crossings in a given time period;
 #X text 157 379 Sensitivity is set using threshold message;
 #X text 157 392 Time period is set using del;
 #X text 553 208 Displays time spent above a given threshold, f 24
 ;
 #X text 606 468 Developed by Collectif AAIO;
+#X obj 187 335 s mic-bang;
 #X connect 0 0 1 0;
 #X connect 0 0 21 0;
 #X connect 1 0 14 0;
@@ -83,6 +84,7 @@
 #X connect 22 0 5 1;
 #X connect 23 0 26 0;
 #X connect 23 0 33 0;
+#X connect 23 0 47 0;
 #X connect 24 0 10 0;
 #X connect 24 1 25 0;
 #X connect 24 2 22 0;

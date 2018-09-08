@@ -1,7 +1,7 @@
 #N canvas 515 164 1172 762 10;
 #X obj 506 33 waveform;
 #X obj 817 266 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
--20480 -262144 0 1;
+-20480 -262144 9552 1;
 #X msg 448 86 \; pd dsp 1;
 #X obj 448 56 loadbang;
 #X obj 171 702 dac~;
@@ -25,7 +25,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 0 1;
+-1 -1 2750 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -80,6 +80,19 @@
 #X obj 411 265 FM_Osc 2;
 #X obj 7 467 FM_Osc 3;
 #X obj 411 467 FM_Osc 4;
+#X obj 585 32 proxi-datas;
+#X obj 771 32 mic-datas;
+#X obj 1004 259 r proxi-bang;
+#X obj 1004 283 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 1004 333 s set-play-seq;
+#X msg 1004 303 1;
+#X obj 894 278 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 894 328 s set-play-seq;
+#X msg 894 298 1;
+#X obj 894 254 r mic-bang;
+#X obj 1036 412 r proxi-average;
 #X connect 3 0 2 0;
 #X connect 5 0 4 0;
 #X connect 5 0 4 1;
@@ -89,3 +102,10 @@
 #X connect 7 0 4 1;
 #X connect 8 0 4 0;
 #X connect 8 0 4 1;
+#X connect 19 0 20 0;
+#X connect 20 0 22 0;
+#X connect 22 0 21 0;
+#X connect 23 0 25 0;
+#X connect 25 0 24 0;
+#X connect 26 0 23 0;
+#X connect 27 0 1 0;
