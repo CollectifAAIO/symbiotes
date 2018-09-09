@@ -14,22 +14,41 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <Audio.h>
+
+AudioInputI2S            i2s1;
+AudioAnalyzePeak         peak1;
+AudioConnection          patchCord1(i2s1, peak1);
+AudioControlSGTL5000     sgtl5000_1;
 
 // the setup routine runs once when you press reset:
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
+
+  // Found empirically, to be checked later on
+  AudioMemory(8);
+  sgtl5000_1.enable();
+  sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
+  sgtl5000_1.volume(1.0);
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
   // read the input on analog pin 3:
   int proxiValue = analogRead(A3);
-  int micValue = analogRead(A13);
   // print out the value you read:
   int proxi = map(proxiValue, 0, 1023, 0, 100); //mapping values
-  int mic = map(micValue, 0, 1023, 101, 200);
   Serial.write(proxi);
+
+  // Assigning a default null value if nothing gets detected by the peak object
+  int micValue = 0;
+  if (peak1.available()) {
+    // read() returns a normalised float, let's scale it
+    micValue = peak1.read() * 1000.0;
+    //Serial.println(micValue);  // Uncomment to see values
+  }
+  int mic = map(micValue, 0, 1023, 101, 200);
   Serial.write(mic);
   delay(50);        // delay in between reads for stability
 }
