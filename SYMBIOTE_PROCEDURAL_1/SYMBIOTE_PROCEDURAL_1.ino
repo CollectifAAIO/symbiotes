@@ -27,7 +27,8 @@ void setup() {
   // setup audio board
 
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.5);                         //REGLAGE
+  sgtl5000_1.volume(0.25);                         //REGLAGE
+  sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
   FM4_init();
 }
@@ -36,59 +37,26 @@ void setup() {
 
 void loop() {
 
-  MACROExpressivite = Proxi();
-  MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
+  //MACROExpressivite = Proxi();
+  //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
-  // CPU & SENSOR MONITORING
-
-  if (MonitorTimeElapsed > RefreshScreen) {
-    //      Serial.print(AudioProcessorUsageMax());
-    //      Serial.print("  ");
-    //      Serial.println(AudioMemoryUsageMax());
-    //      AudioProcessorUsageMaxReset();
-    //      AudioMemoryUsageMaxReset();
-    //      Serial.println();
-    //        Serial.print("Proxi Scale : ");
-    //        Serial.println(Proxi());
-    //        Serial.print("Proxi Scale : ");
-    //        Serial.println(Proxi());
-//    Serial.print("Temps Note On : ");
-//    Serial.println(randomNoteOnTime);
-//    Serial.print("Temps Note Off : ");
-//    Serial.println(randomNoteOffTime);
-    //    Serial.print("Macro Expressivite : ");
-    //    Serial.println(MACROExpressivite);
-    //    Serial.print("Macro Density : ");
-    //    Serial.println(MACRODensity);
-    MonitorTimeElapsed = 0;
-  }
-
-  // Define new random sound density according sensor and every cycle.
-
-  if (RandomDensiteTimeElapsed > RandomDensiteTimeCycle) {
-    randomNoteOnTime = random(MinTimeNoteOn, MACRODensity);
-    randomNoteOffTime =  randomNoteOnTime + random(MinTimeNoteOff, MaxTimeNoteOff);
-    RandomDensiteTimeElapsed = 0;
-  }
-
-  // >>>>> NOTE ON <<<<<
-
-  if (TimeNoteElapsed > randomNoteOnTime) {
-    if (ChangeNoteOn != true) {
-      Note_On = true;
-      FM4_synth(Note_On, Note_Off, MACROExpressivite);
-      Note_On = false;
-      ChangeNoteOn = true;
+  if (isNoteOn) {
+    if (TimeNoteElapsed > randomNoteOffTime) {
+      Serial.print(MonitorTimeElapsed);
+      FM4_synth(false, true, 1.0f);
+      isNoteOn = false;
     }
   }
 
-  // >>>>> NOTE OFF <<<<<
-
-  if (TimeNoteElapsed > randomNoteOffTime) {
-    Note_Off = true;
-    FM4_synth(Note_On, Note_Off, MACROExpressivite);
-    Note_Off = false;
-    TimeNoteElapsed = 0;
-    ChangeNoteOn = false;
+  if( TimeNoteElapsed > MinTimeNoteOn ) {
+    if ( peak1.available() ) {
+      if ( peak1.read() > 0.25 ) {
+        Serial.print(MonitorTimeElapsed);
+        FM4_synth(true, false, 1.0f);
+        isNoteOn = true;
+        TimeNoteElapsed = 0;
+        randomNoteOffTime = random(MinTimeNoteOff, MaxTimeNoteOff);
+      }
+    }
   }
 }

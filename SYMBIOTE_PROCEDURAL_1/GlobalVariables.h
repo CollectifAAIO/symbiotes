@@ -58,6 +58,7 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
+bool isNoteOn = false;
 // Time variables
 
 elapsedMillis TimeNoteElapsed = 0;

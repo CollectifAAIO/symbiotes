@@ -22,6 +22,11 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+// Peak detection for trigger
+AudioInputI2S     audioInput;
+AudioAnalyzePeak  peak1;
+AudioConnection   patchCord(audioInput, peak1);
+
 // GUItool: begin automatically generated code
 
 // Synth 1
