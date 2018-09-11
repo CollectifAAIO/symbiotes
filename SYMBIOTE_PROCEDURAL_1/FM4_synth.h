@@ -373,11 +373,10 @@ void SynthNoteOff( int index ) {
 
 void FM4_note( const bool _on ) {
   for (int i = 0; i < 4; ++i) {
-      if ( _on ) {
-        SynthNoteOn( i );
-      } else {
-        SynthNoteOff( i );
-      }
+    if ( _on ) {
+      SynthNoteOn( i );
+    } else {
+      SynthNoteOff( i );
     }
   }
 }
