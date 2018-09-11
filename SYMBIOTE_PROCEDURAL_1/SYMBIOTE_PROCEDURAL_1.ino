@@ -23,7 +23,7 @@
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(A9));  //passer la fonction random en réelle fonction aléatoire.
-  AudioMemory(70);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
+  AudioMemory(16);             // Audio connections require memory to work.  For more detailed information, see the MemoryAndCpuUsage example
   // setup audio board
 
   sgtl5000_1.enable();
