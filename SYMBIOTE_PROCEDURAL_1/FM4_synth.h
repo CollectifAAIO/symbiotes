@@ -164,6 +164,8 @@ struct SynthParms {
     WaveformAM_( WaveformAM ) {}
 
     void ApplyToSynth( Synth & synth ) const {
+      AudioNoInterrupts();
+
       // COMMAND SYNTH
 
       // OSCs SHAPE
@@ -207,6 +209,8 @@ struct SynthParms {
       synth.mixerAM_.gain(1, 1.0 - AMdepth_);
 
       synth.WaveAM_.begin(1, AMFreq_, WAVEFORM[WaveformAM_]); // Waveform & Rate of AM
+
+      AudioInterrupts();
     }
 
     // OSCs SHAPE
@@ -255,6 +259,8 @@ Synth & GetSynth( int index ) {
 }
 
 void InitialiseSynth( int index ) {
+  AudioNoInterrupts();
+
   Synth & synth = GetSynth( index );
   synth.OSC_.amplitude(1);
   synth.VolEnvOsc_.releaseNoteOn(30);
@@ -263,6 +269,8 @@ void InitialiseSynth( int index ) {
   synth.WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
   synth.mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
   synth.mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
+
+  AudioInterrupts();
 }
 
 void FM4_init() {
@@ -394,8 +402,6 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   // >>>>> NOTE ON <<<<<
 
-  AudioNoInterrupts();
-
   if (Note_on == true) {
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
 
@@ -406,16 +412,17 @@ void FM4_synth (bool Note_on, bool Note_off, int Macro) {
     float VolOsc3 = 0.0;  // Oscillator 3 Level
     float VolOsc4 = 0.0;  // Oscillator 4 Level
 
+  AudioNoInterrupts();
     mixerMASTER.gain(0, VolOsc1);
     mixerMASTER.gain(1, VolOsc2);
     mixerMASTER.gain(2, VolOsc3);
     mixerMASTER.gain(3, VolOsc4);
 
+    AudioInterrupts();
     // TRIG ENVELOPPES
 
     FM4_note( true );
 
-    AudioInterrupts();
   }
 
   // >>>>> NOTE OFF <<<<<
