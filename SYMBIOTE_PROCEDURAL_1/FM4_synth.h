@@ -264,7 +264,6 @@ void InitialiseSynth( int index ) {
   Synth & synth = GetSynth( index );
   synth.OSC_.amplitude(1);
   synth.VolEnvOsc_.releaseNoteOn(30);
-  synth.mixerOSC_.gain(1, 1);
   synth.AMdc_.amplitude(1);
   synth.WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
   synth.mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
