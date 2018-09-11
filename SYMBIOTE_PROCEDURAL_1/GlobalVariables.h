@@ -84,8 +84,6 @@ int RefreshScreen = 100;  // SETTING (en ms)
 
 // FM4_SYNTH GLOBAL VARIABLES
 
-bool InitialiseFM4 = true;
-
 int randDecayValue;
 bool NoteOffStateTime = 0;
 bool NoteOffStateTimePrevious = 0;

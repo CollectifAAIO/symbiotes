@@ -261,6 +261,8 @@ Synth & GetSynth( int index ) {
 void InitialiseSynth( int index ) {
   AudioNoInterrupts();
 
+  Serial.print("Initialise Synth ");
+  Serial.println(index);
   Synth & synth = GetSynth( index );
   synth.OSC_.amplitude(1);
   synth.VolEnvOsc_.releaseNoteOn(30);
@@ -391,11 +393,6 @@ void FM4_note( const bool _on ) {
 void FM4_synth (bool Note_on, bool Note_off, int Macro) {
 
   // Locked Parameters
-
-  if (InitialiseFM4 == true) {
-    FM4_init();
-    InitialiseFM4 = false;
-  }
 
   // Synth Modulation
 

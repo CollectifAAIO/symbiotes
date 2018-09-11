@@ -28,6 +28,8 @@ void setup() {
 
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.5);                         //REGLAGE
+
+  FM4_init();
 }
 
 // >>>>> MAIN LOOP <<<<<
