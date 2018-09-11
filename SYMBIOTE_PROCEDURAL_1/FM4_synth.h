@@ -250,8 +250,8 @@ struct SynthParms {
 };
 
 Synth & GetSynth( int index ) {
-  // We expect indices from 1 to 4
-  return *all_synths_[index - 1];
+  // We expect indices from 0 to 3
+  return *all_synths_[index];
 }
 
 void InitialiseSynth( int index ) {
@@ -346,10 +346,10 @@ void FM4_init() {
     4, /* AMFreq */
     0 /* WaveformAM */ );
 
-  defaultSynth1Parms.ApplyToSynth( GetSynth( 1) );
-  defaultSynth2Parms.ApplyToSynth( GetSynth( 2 ) );
-  defaultSynth3Parms.ApplyToSynth( GetSynth( 3 ) );
-  defaultSynth4Parms.ApplyToSynth( GetSynth( 4 ) );
+  defaultSynth1Parms.ApplyToSynth( GetSynth( 0 ) );
+  defaultSynth2Parms.ApplyToSynth( GetSynth( 1 ) );
+  defaultSynth3Parms.ApplyToSynth( GetSynth( 2 ) );
+  defaultSynth4Parms.ApplyToSynth( GetSynth( 3 ) );
   for (int i = 0; i < 4; ++i) {
     InitialiseSynth( i );
   }
