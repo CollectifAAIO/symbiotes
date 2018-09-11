@@ -59,4 +59,15 @@ void loop() {
       }
     }
   }
+
+  // Diagnostic
+  if (Serial.available() > 0) {
+    // don't care about the actual character that was read
+    Serial.read();
+    Serial.println(AudioProcessorUsageMax());
+    Serial.println(AudioMemoryUsageMax());
+
+    AudioProcessorUsageMaxReset();
+    AudioMemoryUsageMaxReset();
+  }
 }
