@@ -19,6 +19,7 @@
 #include "GlobalVariables.h"
 #include "Sensors.h"
 #include "FM4_synth.h"
+#include "Presets.h"
 
 void setup() {
   Serial.begin(9600);
@@ -70,4 +71,9 @@ void loop() {
     AudioProcessorUsageMaxReset();
     AudioMemoryUsageMaxReset();
   }
+
+  // Debug presets management
+  SynthStripParms parms;
+  int SynthStripIndex = 0;
+  ParseParms(parms, SynthStripIndex);
 }
