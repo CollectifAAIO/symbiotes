@@ -8,6 +8,7 @@
 ///
 /// This program is distributed in the hope that it will be useful,
 /// but WITHOUT ANY WARRANTY; without even the implied warranty of
+
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Lesser Public License for more details.
 ///
@@ -123,8 +124,8 @@ struct ADSRParms {
 };
 
 // PARAMETERS SETTINGS (MAPPING & RANDOM VALUES)
-struct SynthParms {
-  SynthParms(
+struct SynthStripParms {
+  SynthStripParms(
     int WaveformOSC = 0,
     float ShapeModFreq = 5.0,
     int ShapeModWaveform = 0,
@@ -275,7 +276,7 @@ void InitialiseSynth( int index ) {
 }
 
 void FM4_init() {
-   SynthParms defaultSynth1Parms(
+   SynthStripParms defaultSynth1Parms(
     0, /* WaveformOSC */
     5.0, /* ShapeModFreq */
     0, /* ShapeModWaveform */
@@ -295,7 +296,7 @@ void FM4_init() {
     4, /* AMFreq */
     0 /* WaveformAM */ );
 
-   SynthParms defaultSynth2Parms(
+   SynthStripParms defaultSynth2Parms(
     0, /* WaveformOSC */
     5.0, /* ShapeModFreq */
     0, /* ShapeModWaveform */
@@ -315,7 +316,7 @@ void FM4_init() {
     4, /* AMFreq */
     0 /* WaveformAM */ );
 
-   SynthParms defaultSynth3Parms(
+   SynthStripParms defaultSynth3Parms(
     0, /* WaveformOSC */
     5.0, /* ShapeModFreq */
     0, /* ShapeModWaveform */
@@ -335,7 +336,7 @@ void FM4_init() {
     4, /* AMFreq */
     0 /* WaveformAM */ );
 
-   SynthParms defaultSynth4Parms(
+   SynthStripParms defaultSynth4Parms(
     0, /* WaveformOSC */
     5.0, /* ShapeModFreq */
     0, /* ShapeModWaveform */
