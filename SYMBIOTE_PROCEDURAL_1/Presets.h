@@ -59,9 +59,54 @@ static const String c_tokens[] = {
   "LADSR_Rel_rand",
   "Vol"
 };
+enum parameterIndex {
+  waveform,
+  glide,
+  Pitch,
+  glide_rand,
+  Pitch_rand,
+  FM_Osc1,
+  FM_Osc2,
+  FM_Osc3,
+  FM_Osc4,
+  FM_Osc1_rand,
+  FM_Osc2_rand,
+  FM_Osc3_rand,
+  FM_Osc4_rand,
+  AM_Waveform,
+  AM_Depth,
+  AM_Freq,
+  AM_Depth_rand,
+  AM_Freq_rand,
+  PADSR_Dlay,
+  PADSR_Amp,
+  PADSR_Atk,
+  PADSR_Dcay,
+  PADSR_Sus,
+  PADSR_Rel,
+  PADSR_Dlay_rand,
+  PADSR_Amp_rand,
+  PADSR_Atk_rand,
+  PADSR_Dcay_rand,
+  PADSR_Sus_rand,
+  PADSR_Rel_rand,
+  LADSR_Dlay,
+  LADSR_Amp,
+  LADSR_Atk,
+  LADSR_Dcay,
+  LADSR_Sus,
+  LADSR_Rel,
+  LADSR_Dlay_rand,
+  LADSR_Amp_rand,
+  ADSR_Atk_rand,
+  LADSR_Dcay_rand,
+  LADSR_Sus_rand,
+  LADSR_Rel_rand,
+  Vol
+};
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
-bool ParseParms(SynthStripParms & _outParms, int & _outStripIndex) {
+bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float & _outParmValue) {
   if(Serial.available()) {
     const String data = Serial.readString();
     char stripIndexChar = data[0];
@@ -96,6 +141,8 @@ bool ParseParms(SynthStripParms & _outParms, int & _outStripIndex) {
       //Serial.printf("%s",data.substring(cursor).c_str());
       const float value = data.substring(cursor).toFloat();
       _outStripIndex = stripIndex;
+      _outParmIndex = static_cast<parameterIndex>(tokenIdx);
+      _outParmValue = value;
       Serial.printf("%d - %s - %d - %f\n", stripIndex, token.c_str(), tokenIdx, value);
     }
   }

@@ -73,7 +73,8 @@ void loop() {
   }
 
   // Debug presets management
-  SynthStripParms parms;
-  int SynthStripIndex = 0;
-  ParseParms(parms, SynthStripIndex);
+  int synthStripIndex = 0;
+  parameterIndex parmIndex = waveform;
+  float parmValue = -1.0f;
+  ParseParameter(synthStripIndex, parmIndex, parmValue);
 }
