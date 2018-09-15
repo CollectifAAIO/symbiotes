@@ -16,7 +16,7 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // One synth strip, wrapped for easier global changes
-struct Synth {
+struct SynthStrip {
   AudioSynthWaveformDc &     PitchEnvDepthOsc_;
   AudioEffectEnvelope &      PitchEnvOsc_;
   AudioMixer4 &              mixerOSCtoOSC_;
@@ -33,7 +33,7 @@ struct Synth {
 };
 
 // All 4 instances of the strips
-Synth synth1_ = {
+SynthStrip strip1_ = {
   PitchEnvDepthOsc1,
   PitchEnvOsc1,
   mixerOSCtoOSC1,
@@ -48,7 +48,7 @@ Synth synth1_ = {
   AM1,
   EnvNoise1
 };
-Synth synth2_ = {
+SynthStrip strip2_ = {
   PitchEnvDepthOsc2,
   PitchEnvOsc2,
   mixerOSCtoOSC2,
@@ -63,7 +63,7 @@ Synth synth2_ = {
   AM2,
   EnvNoise2
 };
-Synth synth3_ = {
+SynthStrip strip3_ = {
   PitchEnvDepthOsc3,
   PitchEnvOsc3,
   mixerOSCtoOSC3,
@@ -78,7 +78,7 @@ Synth synth3_ = {
   AM3,
   EnvNoise3
 };
-Synth synth4_ = {
+SynthStrip strip4_ = {
   PitchEnvDepthOsc4,
   PitchEnvOsc4,
   mixerOSCtoOSC4,
@@ -94,7 +94,7 @@ Synth synth4_ = {
   EnvNoise4
 };
 
-Synth * all_synths_[] = { &synth1_, &synth2_, &synth3_, &synth4_ };
+SynthStrip * all_synth_strips_[] = { &strip1_, &strip2_, &strip3_, &strip4_ };
 
 struct ADSRParms {
   ADSRParms( int AtkMs = 100,
@@ -164,52 +164,52 @@ struct SynthStripParms {
     AMFreq_( AMFreq ),
     WaveformAM_( WaveformAM ) {}
 
-    void ApplyToSynth( Synth & synth ) const {
+    void ApplyToSynth( SynthStrip & strip ) const {
       AudioNoInterrupts();
 
       // COMMAND SYNTH
 
       // OSCs SHAPE
 
-      synth.OSC_.begin(WAVEFORM[WaveformOSC_]);
+      strip.OSC_.begin(WAVEFORM[WaveformOSC_]);
 
-      synth.waveform_.begin(1, ShapeModFreq_, WAVEFORM[ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
-      synth.waveform_.pulseWidth(PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-      ShapeModParms_.ApplyToADSR( synth.EnvShapeMod_ );
+      strip.waveform_.begin(1, ShapeModFreq_, WAVEFORM[ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
+      strip.waveform_.pulseWidth(PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
+      ShapeModParms_.ApplyToADSR( strip.EnvShapeMod_ );
 
       // OSC VOLUME
 
       // Envelop
-      VolParms_.ApplyToADSR( synth.VolEnvOsc_ );
+      VolParms_.ApplyToADSR( strip.VolEnvOsc_ );
 
       // OSC PITCH
 
       // Note
-      synth.OSC_.frequency(FreqOsc_);
+      strip.OSC_.frequency(FreqOsc_);
 
       // Envelop
-      synth.PitchEnvDepthOsc_.amplitude(PitchDepth_); // Depth of Pitch enveloppe
-      PitchParms_.ApplyToADSR( synth.PitchEnvOsc_ );
+      strip.PitchEnvDepthOsc_.amplitude(PitchDepth_); // Depth of Pitch enveloppe
+      PitchParms_.ApplyToADSR( strip.PitchEnvOsc_ );
 
       // MODULATION
 
       // FM
 
       // Osc
-      synth.mixerOSCtoOSC_.gain(0, FMOsc1toOsc_);     // Depth of FM from OSC1
-      synth.mixerOSCtoOSC_.gain(1, FMOsc2toOsc_);     // Depth of FM from OSC2
-      synth.mixerOSCtoOSC_.gain(2, FMOsc3toOsc_);     // Depth of FM from OSC3
-      synth.mixerOSCtoOSC_.gain(3, FMOsc4toOsc_);     // Depth of FM from OSC4
+      strip.mixerOSCtoOSC_.gain(0, FMOsc1toOsc_);     // Depth of FM from OSC1
+      strip.mixerOSCtoOSC_.gain(1, FMOsc2toOsc_);     // Depth of FM from OSC2
+      strip.mixerOSCtoOSC_.gain(2, FMOsc3toOsc_);     // Depth of FM from OSC3
+      strip.mixerOSCtoOSC_.gain(3, FMOsc4toOsc_);     // Depth of FM from OSC4
 
       // Noise enveloppe
-      synth.mixerOSC_.gain(2, DepthNoiseMod_);       // Depth of noise modulation
-      NoiseParms_.ApplyToADSR( synth.EnvNoise_ );
+      strip.mixerOSC_.gain(2, DepthNoiseMod_);       // Depth of noise modulation
+      NoiseParms_.ApplyToADSR( strip.EnvNoise_ );
 
       // AM
-      synth.mixerAM_.gain(0, AMdepth_);
-      synth.mixerAM_.gain(1, 1.0 - AMdepth_);
+      strip.mixerAM_.gain(0, AMdepth_);
+      strip.mixerAM_.gain(1, 1.0 - AMdepth_);
 
-      synth.WaveAM_.begin(1, AMFreq_, WAVEFORM[WaveformAM_]); // Waveform & Rate of AM
+      strip.WaveAM_.begin(1, AMFreq_, WAVEFORM[WaveformAM_]); // Waveform & Rate of AM
 
       AudioInterrupts();
     }
@@ -254,23 +254,23 @@ struct SynthStripParms {
     int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 };
 
-Synth & GetSynth( int index ) {
+SynthStrip & GetStrip( int index ) {
   // We expect indices from 0 to 3
-  return *all_synths_[index];
+  return *all_synth_strips_[index];
 }
 
-void InitialiseSynth( int index ) {
+void InitialiseStrip( int index ) {
   AudioNoInterrupts();
 
   Serial.print("Initialise Synth ");
   Serial.println(index);
-  Synth & synth = GetSynth( index );
-  synth.OSC_.amplitude(1);
-  synth.VolEnvOsc_.releaseNoteOn(30);
-  synth.AMdc_.amplitude(1);
-  synth.WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
-  synth.mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-  synth.mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
+  SynthStrip & strip = GetStrip( index );
+  strip.OSC_.amplitude(1);
+  strip.VolEnvOsc_.releaseNoteOn(30);
+  strip.AMdc_.amplitude(1);
+  strip.WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
+  strip.mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
+  strip.mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
 
   AudioInterrupts();
 }
@@ -356,37 +356,37 @@ void FM4_init() {
     4, /* AMFreq */
     0 /* WaveformAM */ );
 
-  defaultSynth1Parms.ApplyToSynth( GetSynth( 0 ) );
-  defaultSynth2Parms.ApplyToSynth( GetSynth( 1 ) );
-  defaultSynth3Parms.ApplyToSynth( GetSynth( 2 ) );
-  defaultSynth4Parms.ApplyToSynth( GetSynth( 3 ) );
+  defaultSynth1Parms.ApplyToSynth( GetStrip( 0 ) );
+  defaultSynth2Parms.ApplyToSynth( GetStrip( 1 ) );
+  defaultSynth3Parms.ApplyToSynth( GetStrip( 2 ) );
+  defaultSynth4Parms.ApplyToSynth( GetStrip( 3 ) );
   for (int i = 0; i < 4; ++i) {
-    InitialiseSynth( i );
+    InitialiseStrip( i );
   }
 }
 
-void SynthNoteOn( int index ) {
-  Synth & synth = GetSynth( index );
-  synth.VolEnvOsc_.noteOn();
-  synth.PitchEnvOsc_.noteOn();
-  synth.EnvShapeMod_.noteOn();
-  synth.EnvNoise_.noteOn();
+void StripNoteOn( int index ) {
+  SynthStrip & strip = GetStrip( index );
+  strip.VolEnvOsc_.noteOn();
+  strip.PitchEnvOsc_.noteOn();
+  strip.EnvShapeMod_.noteOn();
+  strip.EnvNoise_.noteOn();
 }
 
-void SynthNoteOff( int index ) {
-  Synth & synth = GetSynth( index );
-  synth.VolEnvOsc_.noteOff();
-  synth.PitchEnvOsc_.noteOff();
-  synth.EnvShapeMod_.noteOff();
-  synth.EnvNoise_.noteOff();
+void StripNoteOff( int index ) {
+  SynthStrip & strip = GetStrip( index );
+  strip.VolEnvOsc_.noteOff();
+  strip.PitchEnvOsc_.noteOff();
+  strip.EnvShapeMod_.noteOff();
+  strip.EnvNoise_.noteOff();
 }
 
 void FM4_note( const bool _on ) {
   for (int i = 0; i < 4; ++i) {
     if ( _on ) {
-      SynthNoteOn( i );
+      StripNoteOn( i );
     } else {
-      SynthNoteOff( i );
+      StripNoteOff( i );
     }
   }
 }
