@@ -21,6 +21,8 @@
 #include "FM4_synth.h"
 #include "Presets.h"
 
+static FM4 FM4synth;
+
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(A9));  //passer la fonction random en réelle fonction aléatoire.
@@ -31,7 +33,7 @@ void setup() {
   sgtl5000_1.volume(0.25);                         //REGLAGE
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
-  FM4_init();
+  FM4synth.init();
 }
 
 // >>>>> MAIN LOOP <<<<<
@@ -44,7 +46,7 @@ void loop() {
   if (isNoteOn) {
     if (TimeNoteElapsed > randomNoteOffTime) {
       Serial.print(MonitorTimeElapsed);
-      FM4_synth(false, true, 1.0f);
+      FM4synth.NoteOff();
       isNoteOn = false;
     }
   }
@@ -53,7 +55,7 @@ void loop() {
     if ( peak1.available() ) {
       if ( peak1.read() > 0.25 ) {
         Serial.print(MonitorTimeElapsed);
-        FM4_synth(true, false, 1.0f);
+        FM4synth.NoteOn();
         isNoteOn = true;
         TimeNoteElapsed = 0;
         randomNoteOffTime = random(MinTimeNoteOff, MaxTimeNoteOff);
