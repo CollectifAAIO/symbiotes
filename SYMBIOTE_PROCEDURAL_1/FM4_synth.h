@@ -15,6 +15,9 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef _FM4_SYNTH_H_
+#define _FM4_SYNTH_H_
+
 // Struct defining an envelope generator parameters
 struct ADSRParms {
   ADSRParms( int AtkMs = 100,
@@ -437,3 +440,4 @@ class FM4 {
   SynthStrip * all_synth_strips_[4];
 };
 
+#endif // _FM4_SYNTH_H_

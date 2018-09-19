@@ -14,6 +14,9 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef _PRESETS_H_
+#define _PRESETS_H_
+
 static const String c_tokens[] = {
   "waveform",
   "glide",
@@ -148,4 +151,6 @@ bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float 
   }
   return false;
 }
+
+#endif // _PRESETS_H_
 
