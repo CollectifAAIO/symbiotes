@@ -160,7 +160,7 @@
 #X connect 6 1 1 0;
 #X connect 6 2 1 0;
 #X restore 609 241 pd presets;
-#N canvas 78 23 1305 597 pst-routing 1;
+#N canvas 78 23 1305 597 pst-routing 0;
 #X obj 60 44 r pst;
 #X obj 61 315 scale 0 1 0 1;
 #X obj 61 269 r pst-morph;
@@ -354,7 +354,7 @@ pst-StepNumber pst-RandomSpeed;
 #X restore 609 263 pd pst-routing;
 #X obj 14 337 f;
 #X obj 419 293 vradio 15 1 0 11 octave set-octave empty 23 174 0 10
--66577 -4032 -33289 0.4384;
+-66577 -4032 -33289 0.434;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 14 632 s seq;
@@ -385,7 +385,7 @@ pst-StepNumber pst-RandomSpeed;
 #X connect 10 0 9 0;
 #X restore 609 285 pd rambom-seq-trigger;
 #X obj 437 435 tgl 20 0 random-trig set-random-trig Random_mode 25
-10 0 10 -4032 -1 -1 0.4384 1;
+10 0 10 -4032 -1 -1 0.434 1;
 #X obj 609 307 sel 1;
 #X msg 609 329 0;
 #X text 739 147 Set array display properties;
@@ -420,7 +420,7 @@ pst-StepNumber pst-RandomSpeed;
 #X obj 709 359 sel 0;
 #X msg 709 381 0;
 #X msg 633 422 0;
-#X obj 446 534 r RandomSpeed;
+#X obj 436 534 r RandomSpeed;
 #X obj 633 359 change;
 #X obj 53 534 expr $f1 + 12 * ($f2* -1 + 11);
 #X obj 437 407 tgl 15 0 RandomizeSeqOrSound set-RandomizeSeqOrSound
