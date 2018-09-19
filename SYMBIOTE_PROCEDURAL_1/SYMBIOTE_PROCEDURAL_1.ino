@@ -53,7 +53,7 @@ void loop() {
 
   if( TimeNoteElapsed > MinTimeNoteOn ) {
     if ( peak1.available() ) {
-      if ( peak1.read() > 0.25 ) {
+      if ( peak1.read() > 0.5 ) {
         Serial.print(MonitorTimeElapsed);
         FM4synth.NoteOn();
         isNoteOn = true;
@@ -78,5 +78,9 @@ void loop() {
   int synthStripIndex = 0;
   parameterIndex parmIndex = waveform;
   float parmValue = -1.0f;
-  ParseParameter(synthStripIndex, parmIndex, parmValue);
+  if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
+    FM4synth.SetIndexedParameter(synthStripIndex, parmIndex, parmValue);
+    FM4synth.ApplyParms();
+  }
 }
+

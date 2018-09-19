@@ -17,7 +17,7 @@
 #ifndef _PRESETS_H_
 #define _PRESETS_H_
 
-constexpr const char * c_tokens[] = {
+static const String c_tokens[] = {
   "waveform",
   "glide",
   "Pitch",
@@ -107,7 +107,7 @@ enum parameterIndex {
   LADSR_Rel_rand,
   Vol
 };
-constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(char *);
+constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
 bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float & _outParmValue) {
   if(Serial.available()) {
@@ -129,7 +129,7 @@ bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float 
       int tokenIdx = 0;
       for (; tokenIdx < c_tokensCount; ++tokenIdx) {
         //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
-        if(token == String(c_tokens[tokenIdx])) {
+        if(token == c_tokens[tokenIdx]) {
           break;
         }
       }
@@ -147,6 +147,7 @@ bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float 
       _outParmIndex = static_cast<parameterIndex>(tokenIdx);
       _outParmValue = value;
       Serial.printf("%d - %s - %d - %f\n", stripIndex, token.c_str(), tokenIdx, value);
+      return true;
     }
   }
   return false;
