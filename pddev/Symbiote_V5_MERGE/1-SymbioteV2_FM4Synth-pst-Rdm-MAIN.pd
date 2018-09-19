@@ -98,6 +98,9 @@
 #X obj 411 265 FM_Osc 2;
 #X obj 7 467 FM_Osc 3;
 #X obj 411 467 FM_Osc 4;
+#X obj 900 449 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 900 469 s calibration-reset;
 #X connect 2 0 1 0;
 #X connect 2 0 1 1;
 #X connect 3 0 1 0;
@@ -114,3 +117,4 @@
 #X connect 18 0 16 0;
 #X connect 19 0 0 0;
 #X connect 22 0 20 0;
+#X connect 26 0 27 0;
