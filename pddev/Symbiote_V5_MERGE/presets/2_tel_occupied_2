@@ -131,15 +131,15 @@ pst-RandomizeSeqOrSound 0;
 pst-loop 0;
 pst-bpm 30;
 pst-RestartFrom0 1;
-pst-StepNumber 9;
-pst-RandomSpeed 1;
+pst-StepNumber 11;
+pst-RandomSpeed 0;
 pst-octave 6;
 pst-arpeg 10.0667 0.066535 10.1333 0 10.0667 0.066534 10.1333 -0.066802
 10.1333 0.0665331 0.0665331 0.0665331 0.0665331 0.0665331 0.0665331
 0;
-pst-random-trig 1;
-pst-min-trigger-time 7500;
-pst-max-trigger-time 15000;
+pst-random-trig 0;
+pst-min-trigger-time 0;
+pst-max-trigger-time 0;
 1-pst-waveform 0;
 1-pst-glide 0;
 1-pst-Pitch 466.164;
