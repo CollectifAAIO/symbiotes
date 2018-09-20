@@ -3,9 +3,9 @@
 #X obj 376 163 sel 1;
 #X msg 9 25 close;
 #X obj 221 152 hsl 115 15 0 1 0 0 empty empty Proxi_value -2 -8 0 10
--262144 -1 -1 0 1;
+-262144 -1 -1 11400 1;
 #X obj 221 183 hsl 115 15 0 1 0 0 empty empty proxi-average -2 -8 0
-10 -262144 -1 -1 0 1;
+10 -262144 -1 -1 11400 1;
 #X obj 218 28 * -1;
 #X obj 218 52 + 1;
 #X obj 218 120 tgl 15 0 empty empty SENSOR_ACTIVE 17 7 0 10 -262144
@@ -28,7 +28,7 @@
 #X obj 361 305 f;
 #X msg 453 303 0;
 #X obj 219 216 hradio 15 1 0 8 empty empty Threshold-crossings 0 -8
-0 10 -262144 -1 -1 2;
+0 10 -262144 -1 -1 0;
 #X text 495 271 Nr of threshold crossings in a given time period;
 #X text 495 284 Sensitivity is set using threshold message;
 #X text 495 297 Time period is set using del;
@@ -79,6 +79,7 @@ f 17;
 #X connect 1 1 2 2;
 #X connect 2 0 3 0;
 #X restore 9 154 pd auto-calibrate;
+#X msg 116 25 open 2;
 #X connect 0 0 1 0;
 #X connect 1 0 15 0;
 #X connect 2 0 11 0;
@@ -113,4 +114,5 @@ f 17;
 #X connect 35 0 3 0;
 #X connect 36 0 35 0;
 #X connect 36 0 8 0;
+#X connect 37 0 11 0;
 #X coords 0 -1 1 1 170 140 1 200 100;
