@@ -1,0 +1,6 @@
+[submodule "externals/MedianFilter"]
+	path = externals/MedianFilter
+	url = https://github.com/daPhoosa/MedianFilter.git
+[submodule "externals/RobTillaart"]
+	path = externals/RobTillaart
+	url = https://github.com/RobTillaart/Arduino.git
