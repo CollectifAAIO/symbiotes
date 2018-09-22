@@ -596,9 +596,8 @@ class FM4 {
   }
 
   void ApplyParms() {
-    Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOff();
+      GetStrip(i).ApplyParms();
     }
   }
 
