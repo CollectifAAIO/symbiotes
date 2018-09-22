@@ -115,7 +115,7 @@ bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float 
     char stripIndexChar = data[0];
     if (isDigit(stripIndexChar)) {
       // 48 => "0" in ASCII
-      const int stripIndex = stripIndexChar - 48;
+      const int stripIndex = stripIndexChar - 48 - 1;
 
       int cursor = 1;
       const int dataLength = data.length();
