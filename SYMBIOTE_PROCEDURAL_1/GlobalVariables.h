@@ -58,6 +58,7 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
+bool isNoteOn = false;
 // Time variables
 
 elapsedMillis TimeNoteElapsed = 0;
@@ -83,8 +84,6 @@ int RandomDensiteTimeCycle = 1000; // SETTING (en ms)
 int RefreshScreen = 100;  // SETTING (en ms)
 
 // FM4_SYNTH GLOBAL VARIABLES
-
-bool InitialiseFM4 = true;
 
 int randDecayValue;
 bool NoteOffStateTime = 0;
