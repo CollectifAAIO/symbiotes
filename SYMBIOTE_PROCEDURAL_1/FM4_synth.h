@@ -42,25 +42,37 @@ struct ADSRParms {
     }
 
     void SetIndexedParameter(const int parmIndex, const float parmValue ) {
+      // Note there is a mismatch between Arduino and the pd patch parameters orde
+      // The pd patch saves as follows:
+      // 0 - Delay
+      // 1 - Amplitude (which does not exist in Teensy ADSR)
+      // 2 - Attack
+      // 3 - Decay
+      // 4 - Sustain
+      // 5 - Release
       switch(parmIndex) {
       case 0:{
-          AtkMs_ = parmValue;
+          DelayMs_ = parmValue;
           break;
         }
       case 1:{
-          DcayMs_ = parmValue;
+          // Nothing here!
           break;
         }
       case 2:{
-          Sus_ = parmValue;
+          AtkMs_ = parmValue;
           break;
         }
       case 3:{
-          RlsMs_ = parmValue;
+          DcayMs_ = parmValue;
           break;
         }
       case 4:{
-          DelayMs_ = parmValue;
+          Sus_ = parmValue;
+          break;
+        }
+      case 5:{
+          RlsMs_ = parmValue;
           break;
         }
       default: {
@@ -212,7 +224,6 @@ struct SynthStripParms {
       break;
     }
     case PADSR_Dlay:
-    case PADSR_Amp:
     case PADSR_Atk:
     case PADSR_Dcay:
     case PADSR_Sus:
@@ -220,6 +231,9 @@ struct SynthStripParms {
       const int adsrParmIndex = parmIndex - PADSR_Dlay;
       PitchParms_.SetIndexedParameter(adsrParmIndex, parmValue);
       break;
+    }
+    case PADSR_Amp: {
+      PitchDepth_ = parmValue;
     }
     case PADSR_Dlay_rand:
     case PADSR_Amp_rand:
