@@ -126,7 +126,7 @@ struct ADSRParms {
           break;
         }
       default: {
-        Serial.println("Bad parameter index.");
+        Serial.printf("ADSR: Bad parameter index %d.\n", parmIndex);
         break;
       }
       }
@@ -311,7 +311,7 @@ struct SynthStripParms {
       break;
     }
     default:{
-      Serial.println("Bad parameter index.");
+        Serial.printf("Synth: Bad parameter index %d.\n", parmIndex);
       break;
     }
     }
@@ -646,7 +646,9 @@ class FM4 {
   }
 
   void setIndexedParameterOnStrip(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
-    Serial.printf("Set Strip %d - ", stripIndex);
+#ifdef SYNTH_DEBUG
+    Serial.printf("Set Strip %d - \n", stripIndex);
+#endif // SYNTH_DEBUG
     getStrip(stripIndex).setIndexedParameter(parmIndex, parmValue);
   }
 
