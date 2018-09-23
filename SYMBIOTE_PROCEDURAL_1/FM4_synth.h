@@ -648,3 +648,4 @@ class FM4 {
 };
 
 #endif // _FM4_SYNTH_H_
+
