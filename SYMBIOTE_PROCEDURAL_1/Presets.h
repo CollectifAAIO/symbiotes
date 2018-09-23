@@ -91,14 +91,14 @@ bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, 
   inOutCursor = cursor;
   if (cursor > initialCursor) {
     outToken = token;
-    #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
     Serial.printf("ParseToken: %s\n", token.c_str());
-    #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
     return true;
   }
-  #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
   Serial.printf("ParseToken failed on %s", data.c_str());
-  #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
   return false;
 }
 
@@ -116,9 +116,9 @@ unsigned ParseNumberTokens(const String & data, unsigned & inOutCursor, Paramete
   while (cursor < dataLength && data[cursor] != '\n' && ParseToken(data, cursor, token, true)) {
     const float value = token.toFloat();
     out.data_[valueIndex++] = value;
-    #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
     Serial.printf("ParseNumberToken: %s %f\n", token.c_str(), value);
-    #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
     token = "";
     while(data[cursor] == ' ') {
       cursor += 1;
@@ -140,21 +140,20 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, ParameterVal
       if (ParseToken(data, cursor, token, false)) {
         unsigned tokenIdx = 0;
         for (; tokenIdx < c_tokensCount; ++tokenIdx) {
-          //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
           if(token == c_tokens[tokenIdx]) {
             break;
           }
         }
         if(tokenIdx >= c_tokensCount) {
-          #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
           Serial.println("Token not found");
-          #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
           return false;
         }
         if(cursor == data.length()) {
-          #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
           Serial.println("Missing value!");
-          #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
           return false;
         }
         ParameterValues values;
@@ -162,9 +161,9 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, ParameterVal
           _outStripIndex = stripIndex;
           _outParmIndex = tokenIdx;
           _outParmValues = values;
-          #ifdef PRESET_DEBUG
+#ifdef PRESET_DEBUG
           Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, values.data_[0]);
-          #endif // PRESET_DEBUG
+#endif // PRESET_DEBUG
           return true;
         }
       }
