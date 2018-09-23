@@ -16,12 +16,14 @@
 
 
 #include "AudioConfig.h"
-#include "GlobalVariables.h"
-#include "Sensors.h"
 #include "FM4_synth.h"
+#include "GlobalVariables.h"
 #include "Presets.h"
+#include "Sensors.h"
+#include "Sequencer.h"
 
 static FM4 FM4synth;
+static Sequencer seq;
 
 void setup() {
   Serial.begin(9600);
@@ -45,25 +47,8 @@ void loop() {
   //MACROExpressivite = Proxi();
   //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
-  if (isNoteOn) {
-    if (TimeNoteElapsed > randomNoteOffTime) {
-      Serial.print(MonitorTimeElapsed);
-      FM4synth.NoteOff();
-      isNoteOn = false;
-    }
-  }
-
-  if( TimeNoteElapsed > MinTimeNoteOn ) {
-    if ( peak1.available() ) {
-      if ( peak1.read() > 0.5 ) {
-        Serial.print(MonitorTimeElapsed);
-        FM4synth.NoteOn();
-        isNoteOn = true;
-        TimeNoteElapsed = 0;
-        randomNoteOffTime = random(MinTimeNoteOff, MaxTimeNoteOff);
-      }
-    }
-  }
+  seq.setBpm(30);
+  seq.update(FM4synth);
 
   // Diagnostic
   if (Serial.available() > 0) {
