@@ -17,6 +17,9 @@
 #ifndef _PRESETS_H_
 #define _PRESETS_H_
 
+#include "FM4_synth.h"
+#include "Sequencer.h"
+
 static const String c_tokens[] = {
   "waveform",
   "glide",
@@ -77,6 +80,13 @@ static const String c_tokens[] = {
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
 //#define PRESET_DEBUG
+
+struct BinaryPreset {
+  unsigned SynthStripIndex_;
+  unsigned ParameterIndex_;
+  unsigned ParameterValuesCount_;
+  float ParameterValues_[16];
+};
 
 bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, const bool allowDigits) {
   unsigned cursor = inOutCursor;
@@ -180,6 +190,35 @@ bool ParseParameterLine(const String & data, int & _outStripIndex, unsigned & _o
     }
   }
   return false;
+}
+
+void ParseBinaryPresets(const BinaryPreset * data, const unsigned dataLength, FM4 & synth, Sequencer & seq) {
+  unsigned index = 0;
+
+#ifdef PRESET_DEBUG
+  Serial.printf("ParseBinaryPresets: %d presets\n", dataLength);
+#endif // PRESET_DEBUG
+
+  while (index < dataLength) {
+    const BinaryPreset * presetItem = data + index;
+
+    int synthStripIndex = presetItem->SynthStripIndex_ - 1;
+    unsigned parmIndex = presetItem->ParameterIndex_;
+    ParameterValues parmValues(presetItem->ParameterValuesCount_, presetItem->ParameterValues_);
+#ifdef PRESET_DEBUG
+    //parmValues.dump();
+#endif // PRESET_DEBUG
+    if (parmIndex > SynthParameterIndex::Count) {
+      const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
+      seq.setIndexedParameter(seqParmIndex, parmValues);
+    } else {
+      const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+      // For now the synth has no multi-values parameters
+      synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
+      synth.applyParms();
+    }
+    index += 1;
+  }
 }
 
 #endif // _PRESETS_H_

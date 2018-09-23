@@ -55,6 +55,12 @@ struct ParameterValues{
   ParameterValues() : data_{} {
   }
 
+  ParameterValues(const unsigned count, const float data[16] ) : data_{} {
+    for(unsigned i = 0; i < count; ++i) {
+      data_[i] = data[i];
+    }
+  }
+
   const ParameterValues & operator=(const ParameterValues & rhs) {
     memcpy(&data_[0], &rhs.data_[0], sizeof(data_));
     return *this;

@@ -27,6 +27,11 @@ static Sequencer seq;
 
 //#define PARMS_DUMP
 
+const BinaryPreset c_presets[] = {
+  #include "preset_data.h"
+};
+constexpr unsigned c_presetsCount = sizeof(c_presets)/sizeof(*c_presets);
+
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(A9));  //passer la fonction random en réelle fonction aléatoire.
@@ -39,6 +44,7 @@ void setup() {
 
   FM4synth.init();
   seq.start();
+  ParseBinaryPresets(c_presets, c_presetsCount, FM4synth, seq);
 }
 
 // >>>>> MAIN LOOP <<<<<
