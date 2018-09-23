@@ -127,17 +127,30 @@ unsigned ParseNumberTokens(const String & data, unsigned & inOutCursor, Paramete
   return valueIndex;
 }
 
+void CleanIdToken(String & _inOutToken, const bool isSynthPreset) {
+  constexpr const char * c_synthPrefix = "-pst-";
+  constexpr const char * c_seqPrefix = "pst-";
+
+  _inOutToken = _inOutToken.substring( isSynthPreset ? sizeof(c_synthPrefix) + 1 : sizeof(c_seqPrefix));
+#ifdef PRESET_DEBUG
+  Serial.printf("CleanIdToken: %s\n", _inOutToken.c_str());
+#endif // PRESET_DEBUG
+}
+
 bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, ParameterValues & _outParmValues) {
   if(Serial.available()) {
     const String data = Serial.readString();
-    char stripIndexChar = data[0];
-    if (isDigit(stripIndexChar)) {
+    char firstChar = data[0];
+    const bool isSynthPreset = isDigit(firstChar);
+    const bool isSeqPreset = firstChar == 'p';
+    if (isSynthPreset || isSeqPreset) {
       // 48 => "0" in ASCII
-      const int stripIndex = stripIndexChar - 48 - 1;
+      const int stripIndex = firstChar - 48 - 1;
 
-      unsigned cursor = 1;
+      unsigned cursor = isSynthPreset? 1 : 0;
       String token;
       if (ParseToken(data, cursor, token, false)) {
+        CleanIdToken(token, isSynthPreset);
         unsigned tokenIdx = 0;
         for (; tokenIdx < c_tokensCount; ++tokenIdx) {
           if(token == c_tokens[tokenIdx]) {
