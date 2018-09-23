@@ -109,10 +109,6 @@ class Sequencer {
   periodMs_(0),
   parms_() {}
 
-  void setBpm(unsigned value) {
-    parms_.setIndexedParameter(static_cast<SequencerParameterIndex>(seq_bpm), static_cast<float>(value));
-  }
-
   void start() {
     timer_ = 0;
     stepsCounter_ = 0;
