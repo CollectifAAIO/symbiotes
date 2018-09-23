@@ -51,18 +51,5 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
-// Time variables
-
-elapsedMillis TimeNoteElapsed = 0;
-elapsedMillis MonitorTimeElapsed = 0;
-
-int MinTimeNoteOn = 40;    // SETTING
-int MaxTimeNoteOnBorneMin = 100 ; // SETTING
-int MaxTimeNoteOnBorneMax = 15000; // SETTING
-int MinTimeNoteOff = 100;   // SETTING
-int MaxTimeNoteOff = 1000; // SETTING
-
-int randomNoteOffTime = 0;
-
 #endif // _GLOBAL_VARIABLES_H_
 
