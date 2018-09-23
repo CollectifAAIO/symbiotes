@@ -38,6 +38,8 @@ void setup() {
 
 // >>>>> MAIN LOOP <<<<<
 
+bool isNoteOn = false;
+
 void loop() {
 
   //MACROExpressivite = Proxi();
