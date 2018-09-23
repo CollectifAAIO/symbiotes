@@ -124,7 +124,7 @@ class Sequencer {
 
   void update(FM4 & synth_) {
     if (timer_ >= periodMs_) {
-      if(stepsCounter_ <= parms_.stepsCount_ || parms_.isLooping_) {
+      if(stepsCounter_ < parms_.stepsCount_ || parms_.isLooping_) {
         if (!isNoteOn_) {
           noteOn(synth_);
         } else {
@@ -153,13 +153,13 @@ class Sequencer {
     isNoteOn_ = true;
     timer_ = 0;
     stepsCounter_ += 1;
+    stepsCounter_ = stepsCounter_ % parms_.stepsCount_;
   }
 
   void noteOff(FM4 & synth_) {
     synth_.noteOff();
     isNoteOn_ = false;
     timer_ = 0;
-    stepsCounter_ += 1;
   }
 
  private:
