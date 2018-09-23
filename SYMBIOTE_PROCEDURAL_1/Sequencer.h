@@ -100,7 +100,8 @@ struct SequencerParms {
 class Sequencer {
  public:
   Sequencer()
-  : counter_(0),
+  : timer_(0),
+  stepsCounter_(0),
   isNoteOn_(false),
   periodMs_(0),
   parms_() {}
@@ -110,20 +111,22 @@ class Sequencer {
   }
 
   void start() {
-    counter_ = 0;
+    timer_ = 0;
+    stepsCounter_ = 0;
+    isNoteOn_ = false;
   }
 
   void update(FM4 & synth_) {
-    if (counter_ >= periodMs_) {
-      if (!isNoteOn_) {
-        applyParms();
-        synth_.noteOn();
-        isNoteOn_ = true;
-        counter_ = 0;
-      } else {
-        synth_.noteOff();
-        isNoteOn_ = false;
-        counter_ = 0;
+    if (timer_ >= periodMs_) {
+      if(stepsCounter_ <= parms_.stepsCount_ || parms_.isLooping_) {
+        if (!isNoteOn_) {
+          noteOn(synth_);
+        } else {
+          noteOff(synth_);
+        }
+        Serial.printf("Steps count: %d\n", stepsCounter_);
+      } else if(isNoteOn_) {
+        noteOff(synth_);
       }
     }
   }
@@ -136,8 +139,24 @@ class Sequencer {
     parms_.setIndexedParameter(parmIndex, parmValue);
   }
 
+  void noteOn(FM4 & synth_) {
+    applyParms();
+    synth_.noteOn();
+    isNoteOn_ = true;
+    timer_ = 0;
+    stepsCounter_ += 1;
+  }
+
+  void noteOff(FM4 & synth_) {
+    synth_.noteOff();
+    isNoteOn_ = false;
+    timer_ = 0;
+    stepsCounter_ += 1;
+  }
+
  private:
-  elapsedMillis counter_;
+  elapsedMillis timer_;
+  unsigned stepsCounter_;
   bool isNoteOn_;
   unsigned periodMs_;
   SequencerParms parms_;

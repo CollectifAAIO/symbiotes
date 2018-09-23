@@ -47,6 +47,13 @@ void loop() {
   //MACROExpressivite = Proxi();
   //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
+  if ( peak1.available() ) {
+    if ( peak1.read() > 0.5 ) {
+      seq.start();
+      seq.noteOn(FM4synth);
+    }
+  }
+
   seq.update(FM4synth);
 
   // Diagnostic
