@@ -170,7 +170,7 @@ struct SynthStripParms {
   int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
   int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
-  void setIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     switch(parmIndex) {
     case waveform:{
       WaveformOSC_ = static_cast<int>(parmValue);
@@ -371,7 +371,7 @@ struct SynthStrip {
     parms_ = parms;
   }
 
-  void setIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     parms_.setIndexedParameter(parmIndex, parmValue);
     Serial.printf("Parm  %d - %f\n", parmIndex, parmValue);
   }
@@ -587,7 +587,7 @@ class FM4 {
     }
   }
 
-  void setIndexedParameter(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
     if(stripIndex > 3) {
       for (int i = 0; i < 4; ++i) {
         setIndexedParameterOnStrip(i, parmIndex, parmValue);
@@ -609,7 +609,7 @@ class FM4 {
     return *all_synth_strips_[index];
   }
 
-  void setIndexedParameterOnStrip(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameterOnStrip(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
     Serial.printf("Set Strip %d - ", stripIndex);
     getStrip(stripIndex).setIndexedParameter(parmIndex, parmValue);
   }
