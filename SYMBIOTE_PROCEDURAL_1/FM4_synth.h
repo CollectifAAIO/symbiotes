@@ -26,6 +26,7 @@ enum SynthParameterIndex {
   Pitch,
   glide_rand,
   Pitch_rand,
+  ListenSeq,
   FM_Osc1,
   FM_Osc2,
   FM_Osc3,
@@ -145,6 +146,7 @@ struct SynthStripParms {
     const ADSRParms & ShapeModParms = ADSRParms( 100, 100, 1.0, 500, 0 ),
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
     int FreqOsc = 440,
+    bool ListenSeq = false,
     float PitchDepth = 0.2,
     const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
     float FMOsc1toOsc = 0.4,
@@ -164,6 +166,7 @@ struct SynthStripParms {
     ShapeModParms_( ShapeModParms ),
     VolParms_( VolParms ),
     FreqOsc_( FreqOsc ),
+    ListenSeq_( ListenSeq ),
     PitchDepth_( PitchDepth ),
     PitchParms_( PitchParms ),
     FMOsc1toOsc_( FMOsc1toOsc ),
@@ -191,6 +194,8 @@ struct SynthStripParms {
 
   // Note
   int FreqOsc_;         // frequency of OSC1.
+
+  bool ListenSeq_;
 
   float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
   ADSRParms PitchParms_;
@@ -230,6 +235,10 @@ struct SynthStripParms {
     }
     case glide_rand:
     case Pitch_rand:{
+      break;
+    }
+    case ListenSeq:{
+      ListenSeq_ = parmValue > 0.0f;
       break;
     }
     case FM_Osc1:{
@@ -421,7 +430,12 @@ struct SynthStrip {
     Serial.printf("Parm  %d - %f\n", parmIndex, parmValue);
   }
 
-  void noteOn() {
+  void noteOn(const float noteFreqHz) {
+    if(parms_.ListenSeq_) {
+      setIndexedParameter(Pitch, noteFreqHz);
+    }
+    applyParms();
+
     VolEnvOsc_.noteOn();
     PitchEnvOsc_.noteOn();
     EnvShapeMod_.noteOn();
@@ -523,16 +537,18 @@ class FM4 {
       0.0, /* PWShapeMod */
       ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
-      440, /* FreqOsc */
-      0.2, /* PitchDepth */
-      ADSRParms( 100, 220, 0.0, 200, 100 ), /* PitchParms */
-      0.4, /* FMOsc1toOsc */
+      550, /* FreqOsc */
+      true, /* ListenSeq */
+      1.0, /* PitchDepth */
+      ADSRParms( 100, 200, 0.25, 200, 0 ), /* PitchParms */
+      //ADSRParms( 100, 220, 0.0, 200, 100 ), /* PitchParms */
+      0.0, /* FMOsc1toOsc */
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
       0.0, /* DepthNoiseMod */
       ADSRParms( 1, 50, 0.0, 100, 0 ), /* NoiseParms */
-      0, /* AMdepth */
+      1, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
@@ -544,6 +560,7 @@ class FM4 {
       ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
@@ -564,6 +581,7 @@ class FM4 {
       ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
@@ -584,6 +602,7 @@ class FM4 {
       ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
@@ -606,7 +625,7 @@ class FM4 {
     }
   }
 
-  void noteOn() {
+  void noteOn(const float midiNote) {
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
     float VolOsc1 = 1.0;  // Oscillator 1 Level
     float VolOsc2 = 0.0;  // Oscillator 2 Level
@@ -620,8 +639,10 @@ class FM4 {
     mixerMASTER.gain(3, VolOsc4);
 
     AudioInterrupts();
+    const float noteFreqHz = mtof(midiNote);
+    Serial.printf("noteOn: frequency %f\n", noteFreqHz);
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).noteOn();
+      getStrip(i).noteOn(noteFreqHz);
     }
   }
 
@@ -652,6 +673,11 @@ class FM4 {
   SynthStrip & getStrip( int index ) {
     // We expect indices from 0 to 3
     return *all_synth_strips_[index];
+  }
+
+  float mtof(const float midiNote) {
+    const float freqValueHz = 8.17579891564 * exp(0.0577622650 * midiNote);
+    return freqValueHz;
   }
 
   void setIndexedParameterOnStrip(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {

@@ -23,6 +23,7 @@ static const String c_tokens[] = {
   "Pitch",
   "glide_rand",
   "Pitch_rand",
+  "ListenSeq",
   "FM_Osc1",
   "FM_Osc2",
   "FM_Osc3",

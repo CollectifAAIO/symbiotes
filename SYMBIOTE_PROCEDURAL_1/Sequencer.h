@@ -17,6 +17,8 @@
 #ifndef _SEQUENCER_H_
 #define _SEQUENCER_H_
 
+#include "FM4_synth.h"
+
 enum SequencerParameterIndex {
   seq_randomizeSeqOrSound,
   seq_loop,
@@ -139,8 +141,10 @@ class Sequencer {
   }
 
   void noteOn(FM4 & synth_) {
+    const float midiNote = computeNextNote();
+    Serial.printf("noteOn: %f\n", midiNote);
+    synth_.noteOn(midiNote);
     applyParms();
-    synth_.noteOn();
     isNoteOn_ = true;
     timer_ = 0;
     stepsCounter_ += 1;
@@ -154,6 +158,12 @@ class Sequencer {
   }
 
  private:
+  float computeNextNote() const {
+    const float arpegValue = parms_.arpeg_.data_[stepsCounter_];
+    const float midiValue = arpegValue + 12.0 * (11.0 - parms_.octave_);
+    return midiValue;
+  }
+
   elapsedMillis timer_;
   unsigned stepsCounter_;
   bool isNoteOn_;
