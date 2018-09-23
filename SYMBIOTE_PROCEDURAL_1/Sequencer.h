@@ -112,6 +112,7 @@ class Sequencer {
   Sequencer()
   : timer_(0),
   stepsCounter_(0),
+  isStarted_(false),
   isNoteOn_(false),
   periodMs_(0),
   parms_() {}
@@ -120,12 +121,13 @@ class Sequencer {
     timer_ = 0;
     stepsCounter_ = 0;
     isNoteOn_ = false;
+    isStarted_ = true;
   }
 
   void update(FM4 & synth_) {
     if (timer_ >= periodMs_) {
       if(stepsCounter_ < parms_.stepsCount_ || parms_.isLooping_) {
-        if (!isNoteOn_) {
+        if (isStarted_ && !isNoteOn_) {
           noteOn(synth_);
         } else {
           noteOff(synth_);
@@ -154,6 +156,7 @@ class Sequencer {
     timer_ = 0;
     stepsCounter_ += 1;
     stepsCounter_ = stepsCounter_ % parms_.stepsCount_;
+    isStarted_ = stepsCounter_ != 0;
   }
 
   void noteOff(FM4 & synth_) {
@@ -171,6 +174,7 @@ class Sequencer {
 
   elapsedMillis timer_;
   unsigned stepsCounter_;
+  bool isStarted_;
   bool isNoteOn_;
   unsigned periodMs_;
   SequencerParms parms_;

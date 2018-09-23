@@ -36,6 +36,7 @@ void setup() {
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
   FM4synth.init();
+  seq.start();
 }
 
 // >>>>> MAIN LOOP <<<<<
