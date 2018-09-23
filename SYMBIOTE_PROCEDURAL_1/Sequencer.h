@@ -116,7 +116,7 @@ class Sequencer {
   Sequencer()
   : timer_(0),
   stepsCounter_(0),
-  isStarted_(false),
+  cyclesCounter_(0),
   isNoteOn_(false),
   periodMs_(0),
   parms_() {}
@@ -124,23 +124,25 @@ class Sequencer {
   void start() {
     timer_ = 0;
     stepsCounter_ = 0;
+    cyclesCounter_ = 0;
     isNoteOn_ = false;
-    isStarted_ = true;
   }
 
   void update(FM4 & synth_) {
     if (timer_ >= periodMs_) {
-      if(stepsCounter_ < parms_.stepsCount_ || parms_.isLooping_) {
-        if (isStarted_ && !isNoteOn_) {
-          noteOn(synth_);
-        } else {
+      if(cyclesCounter_ == 0 || parms_.isLooping_) {
+        if(stepsCounter_ < parms_.stepsCount_) {
+          if (!isNoteOn_) {
+            noteOn(synth_);
+          } else {
+            noteOff(synth_);
+          }
+#ifdef SEQ_DEBUG
+          Serial.printf("Cycles count %d - Steps count %d\n", cyclesCounter_, stepsCounter_);
+#endif // SEQ_DEBUG
+        } else if(isNoteOn_) {
           noteOff(synth_);
         }
-#ifdef SEQ_DEBUG
-        Serial.printf("Steps count: %d\n", stepsCounter_);
-#endif // SEQ_DEBUG
-      } else if(isNoteOn_) {
-        noteOff(synth_);
       }
     }
   }
@@ -164,13 +166,15 @@ class Sequencer {
     timer_ = 0;
     stepsCounter_ += 1;
     stepsCounter_ = stepsCounter_ % parms_.stepsCount_;
-    isStarted_ = stepsCounter_ != 0;
   }
 
   void noteOff(FM4 & synth_) {
     synth_.noteOff();
     isNoteOn_ = false;
     timer_ = 0;
+    if (stepsCounter_ == 0) {
+      cyclesCounter_ += 1;
+    }
   }
 
  private:
@@ -182,7 +186,7 @@ class Sequencer {
 
   elapsedMillis timer_;
   unsigned stepsCounter_;
-  bool isStarted_;
+  unsigned cyclesCounter_;
   bool isNoteOn_;
   unsigned periodMs_;
   SequencerParms parms_;
