@@ -75,6 +75,20 @@ static const String c_tokens[] = {
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
+String ParseToken(const String & data, unsigned & inOutCursor, const bool allowDigits) {
+  unsigned cursor = inOutCursor;
+  const unsigned dataLength = data.length();
+  String token;
+  token.reserve(dataLength);
+  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && (allowDigits || !isDigit(data[cursor]))) {
+    token += data[cursor];
+    cursor += 1;
+  }
+  inOutCursor = cursor;
+  Serial.printf("ParseToken: %s\n", token.c_str());
+  return token;
+}
+
 bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _outParmValue) {
   if(Serial.available()) {
     const String data = Serial.readString();
@@ -83,15 +97,8 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _out
       // 48 => "0" in ASCII
       const int stripIndex = stripIndexChar - 48 - 1;
 
-      int cursor = 1;
-      const int dataLength = data.length();
-      String token;
-      token.reserve(dataLength);
-      while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && !isDigit(data[cursor])) {
-        token += data[cursor];
-        cursor += 1;
-      }
-      //Serial.printf("%d - %s\n", stripIndex, token.c_str());
+      unsigned cursor = 1;
+      String token = ParseToken(data, cursor, false);
       unsigned tokenIdx = 0;
       for (; tokenIdx < c_tokensCount; ++tokenIdx) {
         //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
@@ -103,7 +110,7 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _out
         Serial.println("Token not found");
         return false;
       }
-      if(cursor == dataLength) {
+      if(cursor == data.length()) {
         Serial.println("Missing value!");
         return false;
       }
