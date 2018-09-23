@@ -34,9 +34,9 @@ enum SequencerParameterIndex {
 
 struct SequencerParms {
   SequencerParms(
-    unsigned bpm = 30,
-    unsigned stepsCount = 10,
-    bool isLooping = true,
+    unsigned bpm = 60,
+    unsigned stepsCount = 2,
+    bool isLooping = false,
     unsigned octave = 0) :
     bpm_(bpm),
     stepsCount_(stepsCount),
