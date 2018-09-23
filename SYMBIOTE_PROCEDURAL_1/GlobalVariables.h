@@ -14,6 +14,8 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef _GLOBAL_VARIABLES_H_
+#define _GLOBAL_VARIABLES_H_
 
 // Def In & Out
 #define PROXI_PIN        A3
@@ -64,4 +66,5 @@ int randomNoteOffTime = 0;
 
 const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
 
+#endif // _GLOBAL_VARIABLES_H_
 
