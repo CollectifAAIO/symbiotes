@@ -61,6 +61,17 @@ static const String c_tokens[] = {
   "LADSR_Sus_rand",
   "LADSR_Rel_rand",
   "Vol",
+  "randomizeSeqOrSound",
+  "loop",
+  "bpm",
+  "RestartFrom0",
+  "StepNumber",
+  "RandomSpeed",
+  "octave",
+  "arpeg",
+  "random-trig",
+  "min-trigger-time",
+  "max-trigger-time"
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 

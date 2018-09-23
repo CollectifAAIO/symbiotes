@@ -65,9 +65,14 @@ void loop() {
   unsigned parmIndex = 0;
   float parmValue = -1.0f;
   if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
+    if (parmIndex > SynthParameterIndex::Count) {
+      const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
+      seq.setIndexedParameter(seqParmIndex, parmValue);
+    } else {
       const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
       FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValue);
       FM4synth.applyParms();
+    }
   }
 }
 
