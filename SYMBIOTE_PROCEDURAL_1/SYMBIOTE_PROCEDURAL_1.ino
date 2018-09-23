@@ -25,6 +25,8 @@
 static FM4 FM4synth;
 static Sequencer seq;
 
+//#define PARMS_DUMP
+
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(A9));  //passer la fonction random en réelle fonction aléatoire.
@@ -66,6 +68,13 @@ void loop() {
     AudioProcessorUsageMaxReset();
     AudioMemoryUsageMaxReset();
   }
+
+#ifdef PARMS_DUMP
+  if(Serial.available()) {
+    FM4synth.dumpParms();
+    seq.dumpParms();
+  }
+#endif // PARMS_DUMP
 
   // Debug presets management
   if(Serial.available()) {

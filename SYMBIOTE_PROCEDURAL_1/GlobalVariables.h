@@ -60,6 +60,11 @@ struct ParameterValues{
     return *this;
   }
 
+  void dump() const {
+    Serial.printf("%f %f %f %f\n",
+                  data_[0], data_[1], data_[2], data_[3]);
+  }
+
   float data_[16];
 };
 

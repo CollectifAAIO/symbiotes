@@ -132,6 +132,11 @@ struct ADSRParms {
       }
     }
 
+    void dump() const {
+      Serial.printf("AtkMs_: %d; DcayMs_: %d; Sus_: %f; RlsMs_: %d; DelayMs_: %d\n",
+                    AtkMs_, DcayMs_, Sus_, RlsMs_, DelayMs_);
+    }
+
     int AtkMs_;
     int DcayMs_;
     float Sus_;
@@ -316,6 +321,14 @@ struct SynthStripParms {
     }
     }
   }
+
+  void dump() const {
+    VolParms_.dump();
+    PitchParms_.dump();
+    NoiseParms_.dump();
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
+  }
 };
 
 // One synth strip, wrapped for easier global changes
@@ -434,6 +447,9 @@ struct SynthStrip {
     EnvNoise_.noteOff();
   }
 
+  void dump() const {
+    parms_.dump();
+  }
  private:
   SynthStripParms parms_;
 
@@ -634,7 +650,15 @@ class FM4 {
     }
   }
 
+  void dumpParms() const {
+    getConstStrip(0).dump();
+  }
  private:
+  const SynthStrip & getConstStrip( int index ) const {
+    // We expect indices from 0 to 3
+    return *all_synth_strips_[index];
+  }
+
   SynthStrip & getStrip( int index ) {
     // We expect indices from 0 to 3
     return *all_synth_strips_[index];

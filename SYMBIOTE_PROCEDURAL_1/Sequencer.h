@@ -104,6 +104,11 @@ struct SequencerParms {
     }
   }
 
+  void dump() const {
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; octave_: %d; arpeg_0: %f;\n",
+                  bpm_, stepsCount_, isLooping_, octave_, arpeg_.data_[0]);
+  }
+
   unsigned bpm_;
   unsigned stepsCount_;
   bool isLooping_;
@@ -175,6 +180,10 @@ class Sequencer {
     if (stepsCounter_ == 0) {
       cyclesCounter_ += 1;
     }
+  }
+
+  void dumpParms() const {
+    parms_.dump();
   }
 
  private:
