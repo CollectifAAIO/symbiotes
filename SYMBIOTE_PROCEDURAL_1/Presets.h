@@ -137,48 +137,45 @@ void CleanIdToken(String & _inOutToken, const bool isSynthPreset) {
 #endif // PRESET_DEBUG
 }
 
-bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, ParameterValues & _outParmValues) {
-  if(Serial.available()) {
-    const String data = Serial.readString();
-    char firstChar = data[0];
-    const bool isSynthPreset = isDigit(firstChar);
-    const bool isSeqPreset = firstChar == 'p';
-    if (isSynthPreset || isSeqPreset) {
-      // 48 => "0" in ASCII
-      const int stripIndex = firstChar - 48 - 1;
+bool ParseParameterLine(const String & data, int & _outStripIndex, unsigned & _outParmIndex, ParameterValues & _outParmValues) {
+  char firstChar = data[0];
+  const bool isSynthPreset = isDigit(firstChar);
+  const bool isSeqPreset = firstChar == 'p';
+  if (isSynthPreset || isSeqPreset) {
+    // 48 => "0" in ASCII
+    const int stripIndex = firstChar - 48 - 1;
 
-      unsigned cursor = isSynthPreset? 1 : 0;
-      String token;
-      if (ParseToken(data, cursor, token, false)) {
-        CleanIdToken(token, isSynthPreset);
-        unsigned tokenIdx = 0;
-        for (; tokenIdx < c_tokensCount; ++tokenIdx) {
-          if(token == c_tokens[tokenIdx]) {
-            break;
-          }
+    unsigned cursor = isSynthPreset? 1 : 0;
+    String token;
+    if (ParseToken(data, cursor, token, false)) {
+      CleanIdToken(token, isSynthPreset);
+      unsigned tokenIdx = 0;
+      for (; tokenIdx < c_tokensCount; ++tokenIdx) {
+        if(token == c_tokens[tokenIdx]) {
+          break;
         }
-        if(tokenIdx >= c_tokensCount) {
+      }
+      if(tokenIdx >= c_tokensCount) {
 #ifdef PRESET_DEBUG
-          Serial.println("Token not found");
+        Serial.println("Token not found");
 #endif // PRESET_DEBUG
-          return false;
-        }
-        if(cursor == data.length()) {
+        return false;
+      }
+      if(cursor == data.length()) {
 #ifdef PRESET_DEBUG
-          Serial.println("Missing value!");
+        Serial.println("Missing value!");
 #endif // PRESET_DEBUG
-          return false;
-        }
-        ParameterValues values;
-        if (0 < ParseNumberTokens(data, cursor, values)) {
-          _outStripIndex = stripIndex;
-          _outParmIndex = tokenIdx;
-          _outParmValues = values;
+        return false;
+      }
+      ParameterValues values;
+      if (0 < ParseNumberTokens(data, cursor, values)) {
+        _outStripIndex = stripIndex;
+        _outParmIndex = tokenIdx;
+        _outParmValues = values;
 #ifdef PRESET_DEBUG
-          Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, values.data_[0]);
+        Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, values.data_[0]);
 #endif // PRESET_DEBUG
-          return true;
-        }
+        return true;
       }
     }
   }

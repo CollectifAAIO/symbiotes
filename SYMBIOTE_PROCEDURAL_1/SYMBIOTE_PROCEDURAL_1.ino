@@ -68,18 +68,21 @@ void loop() {
   }
 
   // Debug presets management
-  int synthStripIndex = 0;
-  unsigned parmIndex = 0;
-  ParameterValues parmValues;
-  if ( ParseParameter(synthStripIndex, parmIndex, parmValues) ) {
-    if (parmIndex > SynthParameterIndex::Count) {
-      const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
-      seq.setIndexedParameter(seqParmIndex, parmValues);
-    } else {
-      const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
-      // For now the synth has no multi-values parameters
-      FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
-      FM4synth.applyParms();
+  if(Serial.available()) {
+    int synthStripIndex = 0;
+    unsigned parmIndex = 0;
+    ParameterValues parmValues;
+    const String data = Serial.readString();
+    if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
+      if (parmIndex > SynthParameterIndex::Count) {
+        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
+        seq.setIndexedParameter(seqParmIndex, parmValues);
+      } else {
+        const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+        // For now the synth has no multi-values parameters
+        FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
+        FM4synth.applyParms();
+      }
     }
   }
 }
