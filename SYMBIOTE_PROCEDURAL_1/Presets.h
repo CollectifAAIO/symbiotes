@@ -75,7 +75,25 @@ static const String c_tokens[] = {
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
-String ParseToken(const String & data, unsigned & inOutCursor, const bool allowDigits) {
+bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, const bool allowDigits) {
+  unsigned cursor = inOutCursor;
+  const unsigned dataLength = data.length();
+  String token;
+  token.reserve(dataLength);
+  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && (allowDigits || !isDigit(data[cursor]))) {
+    token += data[cursor];
+    cursor += 1;
+  }
+  const unsigned initialCursor = inOutCursor;
+  inOutCursor = cursor;
+  if (cursor > initialCursor) {
+    outToken = token;
+    Serial.printf("ParseToken: %s\n", token.c_str());
+    return true;
+  }
+  Serial.printf("ParseToken failed on %s", data.c_str());
+  return false;
+}
   unsigned cursor = inOutCursor;
   const unsigned dataLength = data.length();
   String token;
@@ -98,29 +116,31 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _out
       const int stripIndex = stripIndexChar - 48 - 1;
 
       unsigned cursor = 1;
-      String token = ParseToken(data, cursor, false);
-      unsigned tokenIdx = 0;
-      for (; tokenIdx < c_tokensCount; ++tokenIdx) {
-        //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
-        if(token == c_tokens[tokenIdx]) {
-          break;
+      String token;
+      if (ParseToken(data, cursor, token, false)) {
+        unsigned tokenIdx = 0;
+        for (; tokenIdx < c_tokensCount; ++tokenIdx) {
+          //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
+          if(token == c_tokens[tokenIdx]) {
+            break;
+          }
         }
+        if(tokenIdx >= c_tokensCount) {
+          Serial.println("Token not found");
+          return false;
+        }
+        if(cursor == data.length()) {
+          Serial.println("Missing value!");
+          return false;
+        }
+        //Serial.printf("%s",data.substring(cursor).c_str());
+        const float value = data.substring(cursor).toFloat();
+        _outStripIndex = stripIndex;
+        _outParmIndex = tokenIdx;
+        _outParmValue = value;
+        Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, value);
+        return true;
       }
-      if(tokenIdx >= c_tokensCount) {
-        Serial.println("Token not found");
-        return false;
-      }
-      if(cursor == data.length()) {
-        Serial.println("Missing value!");
-        return false;
-      }
-      //Serial.printf("%s",data.substring(cursor).c_str());
-      const float value = data.substring(cursor).toFloat();
-      _outStripIndex = stripIndex;
-      _outParmIndex = tokenIdx;
-      _outParmValue = value;
-      Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, value);
-      return true;
     }
   }
   return false;
