@@ -36,15 +36,20 @@ enum SequencerParameterIndex {
 
 struct SequencerParms {
   SequencerParms(
-    unsigned bpm = 60,
-    unsigned stepsCount = 2,
+    unsigned bpm = 120,
+    unsigned stepsCount = 5,
     bool isLooping = false,
-    unsigned octave = 0) :
+    unsigned octave = 6) :
     bpm_(bpm),
     stepsCount_(stepsCount),
     isLooping_(isLooping),
     octave_(octave),
     arpeg_() {
+      arpeg_.data_[0] = 16.2;
+      arpeg_.data_[1] = 10.2;
+      arpeg_.data_[2] = 6.2;
+      arpeg_.data_[3] = 2.2;
+      arpeg_.data_[4] = 0.2;
   }
 
   void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
