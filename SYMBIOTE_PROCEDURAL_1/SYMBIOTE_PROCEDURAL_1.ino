@@ -36,6 +36,7 @@ void setup() {
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
   FM4synth.init();
+  seq.setBpm(30);
 }
 
 // >>>>> MAIN LOOP <<<<<
@@ -47,7 +48,6 @@ void loop() {
   //MACROExpressivite = Proxi();
   //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
-  seq.setBpm(30);
   seq.update(FM4synth);
 
   // Diagnostic
