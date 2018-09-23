@@ -140,10 +140,6 @@ struct ADSRParms {
 struct SynthStripParms {
   SynthStripParms(
     int WaveformOSC = 0,
-    float ShapeModFreq = 5.0,
-    int ShapeModWaveform = 0,
-    float PWShapeMod = 0.0,
-    const ADSRParms & ShapeModParms = ADSRParms( 100, 100, 1.0, 500, 0 ),
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
     int FreqOsc = 440,
     bool ListenSeq = false,
@@ -160,10 +156,6 @@ struct SynthStripParms {
     int WaveformAM = 0 )
     :
     WaveformOSC_( WaveformOSC ),
-    ShapeModFreq_( ShapeModFreq ),
-    ShapeModWaveform_( ShapeModWaveform ),
-    PWShapeMod_( PWShapeMod ),
-    ShapeModParms_( ShapeModParms ),
     VolParms_( VolParms ),
     FreqOsc_( FreqOsc ),
     ListenSeq_( ListenSeq ),
@@ -181,10 +173,6 @@ struct SynthStripParms {
 
   // OSCs SHAPE
   int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
-  float ShapeModFreq_;  // Rate/frequency of the modulation of the shape of the waveform.
-  int ShapeModWaveform_;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
-  float PWShapeMod_;    // Width of Pulse signal.
-  ADSRParms ShapeModParms_;
 
   // OSC VOLUME
 
@@ -334,8 +322,6 @@ struct SynthStrip {
   AudioEffectEnvelope &      PitchEnvOsc,
   AudioMixer4 &              mixerOSCtoOSC,
   AudioMixer4 &              mixerOSC,
-  AudioSynthWaveform &       waveform,
-  AudioEffectEnvelope &      EnvShapeMod,
   AudioSynthWaveformModulated & OSC,
   AudioSynthWaveform &       WaveAM,
   AudioSynthWaveformDc &     AMdc,
@@ -347,8 +333,6 @@ struct SynthStrip {
   PitchEnvOsc_(PitchEnvOsc),
   mixerOSCtoOSC_(mixerOSCtoOSC),
   mixerOSC_(mixerOSC),
-  waveform_(waveform),
-  EnvShapeMod_(EnvShapeMod),
   OSC_(OSC),
   WaveAM_(WaveAM),
   AMdc_(AMdc),
@@ -382,10 +366,6 @@ struct SynthStrip {
     // OSCs SHAPE
 
     OSC_.begin(WAVEFORM[parms_.WaveformOSC_]);
-
-    waveform_.begin(1, parms_.ShapeModFreq_, WAVEFORM[parms_.ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
-    waveform_.pulseWidth(parms_.PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-    parms_.ShapeModParms_.applyToADSR(EnvShapeMod_);
 
     // OSC VOLUME
 
@@ -441,14 +421,12 @@ struct SynthStrip {
 
     VolEnvOsc_.noteOn();
     PitchEnvOsc_.noteOn();
-    EnvShapeMod_.noteOn();
     EnvNoise_.noteOn();
   }
 
   void noteOff() {
     VolEnvOsc_.noteOff();
     PitchEnvOsc_.noteOff();
-    EnvShapeMod_.noteOff();
     EnvNoise_.noteOff();
   }
 
@@ -459,8 +437,6 @@ struct SynthStrip {
   AudioEffectEnvelope &      PitchEnvOsc_;
   AudioMixer4 &              mixerOSCtoOSC_;
   AudioMixer4 &              mixerOSC_;
-  AudioSynthWaveform &       waveform_;
-  AudioEffectEnvelope &      EnvShapeMod_;
   AudioSynthWaveformModulated & OSC_;
   AudioSynthWaveform &       WaveAM_;
   AudioSynthWaveformDc &     AMdc_;
@@ -478,8 +454,6 @@ class FM4 {
     PitchEnvOsc1,
     mixerOSCtoOSC1,
     mixerOSC1,
-    waveform1,
-    EnvShapeMod1,
     OSC1,
     WaveAM1,
     AMdc1,
@@ -492,8 +466,6 @@ class FM4 {
     PitchEnvOsc2,
     mixerOSCtoOSC2,
     mixerOSC2,
-    waveform2,
-    EnvShapeMod2,
     OSC2,
     WaveAM2,
     AMdc2,
@@ -506,8 +478,6 @@ class FM4 {
     PitchEnvOsc3,
     mixerOSCtoOSC3,
     mixerOSC3,
-    waveform3,
-    EnvShapeMod3,
     OSC3,
     WaveAM3,
     AMdc3,
@@ -520,8 +490,6 @@ class FM4 {
     PitchEnvOsc4,
     mixerOSCtoOSC4,
     mixerOSC4,
-    waveform4,
-    EnvShapeMod4,
     OSC4,
     WaveAM4,
     AMdc4,
@@ -535,10 +503,6 @@ class FM4 {
   void init() {
      SynthStripParms defaultSynth1Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      0.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
       550, /* FreqOsc */
       true, /* ListenSeq */
@@ -557,10 +521,6 @@ class FM4 {
 
      SynthStripParms defaultSynth2Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
       false, /* ListenSeq */
@@ -578,10 +538,6 @@ class FM4 {
 
      SynthStripParms defaultSynth3Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
       false, /* ListenSeq */
@@ -599,10 +555,6 @@ class FM4 {
 
      SynthStripParms defaultSynth4Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
       false, /* ListenSeq */
