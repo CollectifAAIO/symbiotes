@@ -361,12 +361,15 @@ struct SynthStrip {
   void initialise() {
     AudioNoInterrupts();
 
-    OSC_.amplitude(0.5);
-    VolEnvOsc_.releaseNoteOn(30);
+    OSC_.amplitude(1.0);
+    OSC_.frequencyModulation(1.0);
+    // Set null values for parameters we won't touch
+    VolEnvOsc_.hold( 0 );
+    PitchEnvOsc_.hold( 0 );
     AMdc_.amplitude(1);
     WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
     mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-    mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
+    mixerOSC_.gain(2, 0);  // Depth of FM OSCILLATORS
 
     AudioInterrupts();
   }
