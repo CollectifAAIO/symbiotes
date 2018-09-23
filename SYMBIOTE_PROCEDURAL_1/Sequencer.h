@@ -19,6 +19,8 @@
 
 #include "FM4_synth.h"
 
+//#define SEQ_DEBUG
+
 enum SequencerParameterIndex {
   seq_randomizeSeqOrSound,
   seq_loop,
@@ -53,7 +55,9 @@ struct SequencerParms {
   }
 
   void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
+#ifdef SEQ_DEBUG
     Serial.printf("Sequencer: set parameter %d\n", (int)parmIndex);
+#endif // SEQ_DEBUG
     switch(parmIndex) {
     case seq_randomizeSeqOrSound:{
       break;
@@ -132,7 +136,9 @@ class Sequencer {
         } else {
           noteOff(synth_);
         }
+#ifdef SEQ_DEBUG
         Serial.printf("Steps count: %d\n", stepsCounter_);
+#endif // SEQ_DEBUG
       } else if(isNoteOn_) {
         noteOff(synth_);
       }
@@ -149,7 +155,9 @@ class Sequencer {
 
   void noteOn(FM4 & synth_) {
     const float midiNote = computeNextNote();
+#ifdef SEQ_DEBUG
     Serial.printf("noteOn: %f\n", midiNote);
+#endif // SEQ_DEBUG
     synth_.noteOn(midiNote);
     applyParms();
     isNoteOn_ = true;
