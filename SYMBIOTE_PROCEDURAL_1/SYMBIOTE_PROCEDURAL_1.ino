@@ -80,8 +80,8 @@ void loop() {
   parameterIndex parmIndex = waveform;
   float parmValue = -1.0f;
   if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
-    FM4synth.SetIndexedParameter(synthStripIndex, parmIndex, parmValue);
-    FM4synth.ApplyParms();
+    FM4synth.setIndexedParameter(synthStripIndex, parmIndex, parmValue);
+    FM4synth.applyParms();
   }
 }
 

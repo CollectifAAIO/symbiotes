@@ -35,7 +35,7 @@ struct ADSRParms {
     RlsMs_( RlsMs ),
     DelayMs_( DelayMs ) {}
 
-    void ApplyToADSR( AudioEffectEnvelope & instance ) const {
+    void applyToADSR( AudioEffectEnvelope & instance ) const {
       instance.attack(AtkMs_);
       instance.decay(DcayMs_);
       instance.sustain(Sus_);
@@ -43,7 +43,7 @@ struct ADSRParms {
       instance.delay(DelayMs_);
     }
 
-    void SetIndexedParameter(const int parmIndex, const float parmValue ) {
+    void setIndexedParameter(const int parmIndex, const float parmValue ) {
       // Note there is a mismatch between Arduino and the pd patch parameters orde
       // The pd patch saves as follows:
       // 0 - Delay
@@ -170,7 +170,7 @@ struct SynthStripParms {
   int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
   int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
-  void SetIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
     switch(parmIndex) {
     case waveform:{
       WaveformOSC_ = static_cast<int>(parmValue);
@@ -231,7 +231,7 @@ struct SynthStripParms {
     case PADSR_Sus:
     case PADSR_Rel:{
       const int adsrParmIndex = parmIndex - PADSR_Dlay;
-      PitchParms_.SetIndexedParameter(adsrParmIndex, parmValue);
+      PitchParms_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
     case PADSR_Amp: {
@@ -252,7 +252,7 @@ struct SynthStripParms {
     case LADSR_Sus:
     case LADSR_Rel:{
       const int adsrParmIndex = parmIndex - LADSR_Dlay;
-      VolParms_.SetIndexedParameter(adsrParmIndex, parmValue);
+      VolParms_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
     case LADSR_Dlay_rand:
@@ -304,7 +304,7 @@ struct SynthStrip {
   EnvNoise_(EnvNoise)
   {}
 
-  void Initialise() {
+  void initialise() {
     AudioNoInterrupts();
 
     OSC_.amplitude(0.5);
@@ -317,7 +317,7 @@ struct SynthStrip {
     AudioInterrupts();
   }
 
-  void ApplyParms() {
+  void applyParms() {
     AudioNoInterrupts();
 
     // COMMAND SYNTH
@@ -328,12 +328,12 @@ struct SynthStrip {
 
     waveform_.begin(1, parms_.ShapeModFreq_, WAVEFORM[parms_.ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
     waveform_.pulseWidth(parms_.PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-    parms_.ShapeModParms_.ApplyToADSR(EnvShapeMod_);
+    parms_.ShapeModParms_.applyToADSR(EnvShapeMod_);
 
     // OSC VOLUME
 
     // Envelop
-    parms_.VolParms_.ApplyToADSR(VolEnvOsc_);
+    parms_.VolParms_.applyToADSR(VolEnvOsc_);
 
     // OSC PITCH
 
@@ -342,7 +342,7 @@ struct SynthStrip {
 
     // Envelop
     PitchEnvDepthOsc_.amplitude(parms_.PitchDepth_); // Depth of Pitch enveloppe
-    parms_.PitchParms_.ApplyToADSR( PitchEnvOsc_ );
+    parms_.PitchParms_.applyToADSR( PitchEnvOsc_ );
 
     // MODULATION
 
@@ -356,7 +356,7 @@ struct SynthStrip {
 
     // Noise enveloppe
     mixerOSC_.gain(2, parms_.DepthNoiseMod_);       // Depth of noise modulation
-    parms_.NoiseParms_.ApplyToADSR( EnvNoise_ );
+    parms_.NoiseParms_.applyToADSR( EnvNoise_ );
 
     // AM
     mixerAM_.gain(0, parms_.AMdepth_);
@@ -367,23 +367,23 @@ struct SynthStrip {
     AudioInterrupts();
   }
 
-  void SetAllParms(const SynthStripParms & parms) {
+  void setAllParms(const SynthStripParms & parms) {
     parms_ = parms;
   }
 
-  void SetIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
-    parms_.SetIndexedParameter(parmIndex, parmValue);
+  void setIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
+    parms_.setIndexedParameter(parmIndex, parmValue);
     Serial.printf("Parm  %d - %f\n", parmIndex, parmValue);
   }
 
-  void NoteOn() {
+  void noteOn() {
     VolEnvOsc_.noteOn();
     PitchEnvOsc_.noteOn();
     EnvShapeMod_.noteOn();
     EnvNoise_.noteOn();
   }
 
-  void NoteOff() {
+  void noteOff() {
     VolEnvOsc_.noteOff();
     PitchEnvOsc_.noteOff();
     EnvShapeMod_.noteOff();
@@ -551,17 +551,17 @@ class FM4 {
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-    strip1_.SetAllParms(defaultSynth1Parms);
-    strip2_.SetAllParms(defaultSynth2Parms);
-    strip3_.SetAllParms(defaultSynth3Parms);
-    strip4_.SetAllParms(defaultSynth4Parms);
+    strip1_.setAllParms(defaultSynth1Parms);
+    strip2_.setAllParms(defaultSynth2Parms);
+    strip3_.setAllParms(defaultSynth3Parms);
+    strip4_.setAllParms(defaultSynth4Parms);
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).ApplyParms();
-      GetStrip(i).Initialise();
+      getStrip(i).applyParms();
+      getStrip(i).initialise();
     }
   }
 
-  void NoteOn() {
+  void noteOn() {
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
     float VolOsc1 = 1.0;  // Oscillator 1 Level
     float VolOsc2 = 0.0;  // Oscillator 2 Level
@@ -576,42 +576,42 @@ class FM4 {
 
     AudioInterrupts();
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOn();
+      getStrip(i).noteOn();
     }
   }
 
-  void NoteOff() {
+  void noteOff() {
     Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOff();
+      getStrip(i).noteOff();
     }
   }
 
-  void SetIndexedParameter(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
     if(stripIndex > 3) {
       for (int i = 0; i < 4; ++i) {
-        SetIndexedParameterOnStrip(i, parmIndex, parmValue);
+        setIndexedParameterOnStrip(i, parmIndex, parmValue);
       }
     } else {
-        SetIndexedParameterOnStrip(stripIndex, parmIndex, parmValue);
+        setIndexedParameterOnStrip(stripIndex, parmIndex, parmValue);
     }
   }
 
-  void ApplyParms() {
+  void applyParms() {
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).ApplyParms();
+      getStrip(i).applyParms();
     }
   }
 
  private:
-  SynthStrip & GetStrip( int index ) {
+  SynthStrip & getStrip( int index ) {
     // We expect indices from 0 to 3
     return *all_synth_strips_[index];
   }
 
-  void SetIndexedParameterOnStrip(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameterOnStrip(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
     Serial.printf("Set Strip %d - ", stripIndex);
-    GetStrip(stripIndex).SetIndexedParameter(parmIndex, parmValue);
+    getStrip(stripIndex).setIndexedParameter(parmIndex, parmValue);
   }
 
   SynthStrip strip1_;
