@@ -62,11 +62,12 @@ void loop() {
 
   // Debug presets management
   int synthStripIndex = 0;
-  parameterIndex parmIndex = waveform;
+  unsigned parmIndex = 0;
   float parmValue = -1.0f;
   if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
-    FM4synth.setIndexedParameter(synthStripIndex, parmIndex, parmValue);
-    FM4synth.applyParms();
+      const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+      FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValue);
+      FM4synth.applyParms();
   }
 }
 

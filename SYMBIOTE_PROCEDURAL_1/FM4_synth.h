@@ -18,9 +18,54 @@
 #ifndef _FM4_SYNTH_H_
 #define _FM4_SYNTH_H_
 
-#include "Presets.h"
-
 static const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
+
+enum SynthParameterIndex {
+  waveform,
+  glide,
+  Pitch,
+  glide_rand,
+  Pitch_rand,
+  FM_Osc1,
+  FM_Osc2,
+  FM_Osc3,
+  FM_Osc4,
+  FM_Osc1_rand,
+  FM_Osc2_rand,
+  FM_Osc3_rand,
+  FM_Osc4_rand,
+  AM_Waveform,
+  AM_Depth,
+  AM_Freq,
+  AM_Depth_rand,
+  AM_Freq_rand,
+  PADSR_Dlay,
+  PADSR_Amp,
+  PADSR_Atk,
+  PADSR_Dcay,
+  PADSR_Sus,
+  PADSR_Rel,
+  PADSR_Dlay_rand,
+  PADSR_Amp_rand,
+  PADSR_Atk_rand,
+  PADSR_Dcay_rand,
+  PADSR_Sus_rand,
+  PADSR_Rel_rand,
+  LADSR_Dlay,
+  LADSR_Amp,
+  LADSR_Atk,
+  LADSR_Dcay,
+  LADSR_Sus,
+  LADSR_Rel,
+  LADSR_Dlay_rand,
+  LADSR_Amp_rand,
+  ADSR_Atk_rand,
+  LADSR_Dcay_rand,
+  LADSR_Sus_rand,
+  LADSR_Rel_rand,
+  Vol,
+  Count
+};
 
 // Struct defining an envelope generator parameters
 struct ADSRParms {
