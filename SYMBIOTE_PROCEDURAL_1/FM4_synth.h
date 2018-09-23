@@ -18,6 +18,8 @@
 #ifndef _FM4_SYNTH_H_
 #define _FM4_SYNTH_H_
 
+//#define SYNTH_DEBUG
+
 static const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
 
 enum SynthParameterIndex {
@@ -410,7 +412,9 @@ struct SynthStrip {
 
   void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     parms_.setIndexedParameter(parmIndex, parmValue);
-    Serial.printf("Parm  %d - %f\n", parmIndex, parmValue);
+#ifdef SYNTH_DEBUG
+    Serial.printf("Parm %d - %f\n", parmIndex, parmValue);
+#endif // SYNTH_DEBUG
   }
 
   void noteOn(const float noteFreqHz) {
@@ -581,7 +585,9 @@ class FM4 {
   }
 
   void noteOn(const float midiNote) {
+#ifdef SYNTH_DEBUG
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
+#endif // SYNTH_DEBUG
     float VolOsc1 = 1.0;  // Oscillator 1 Level
     float VolOsc2 = 0.0;  // Oscillator 2 Level
     float VolOsc3 = 0.0;  // Oscillator 3 Level
@@ -595,14 +601,18 @@ class FM4 {
 
     AudioInterrupts();
     const float noteFreqHz = mtof(midiNote);
+#ifdef SYNTH_DEBUG
     Serial.printf("noteOn: frequency %f\n", noteFreqHz);
+#endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
       getStrip(i).noteOn(noteFreqHz);
     }
   }
 
   void noteOff() {
+#ifdef SYNTH_DEBUG
     Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
+#endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
       getStrip(i).noteOff();
     }
