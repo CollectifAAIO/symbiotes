@@ -20,6 +20,8 @@
 
 #include "Presets.h"
 
+static const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
+
 // Struct defining an envelope generator parameters
 struct ADSRParms {
   ADSRParms( int AtkMs = 100,
