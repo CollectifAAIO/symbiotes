@@ -69,14 +69,15 @@ void loop() {
   // Debug presets management
   int synthStripIndex = 0;
   unsigned parmIndex = 0;
-  float parmValue = -1.0f;
-  if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
+  ParameterValues parmValues;
+  if ( ParseParameter(synthStripIndex, parmIndex, parmValues) ) {
     if (parmIndex > SynthParameterIndex::Count) {
       const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
-      seq.setIndexedParameter(seqParmIndex, parmValue);
+      seq.setIndexedParameter(seqParmIndex, parmValues);
     } else {
       const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
-      FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValue);
+      // For now the synth has no multi-values parameters
+      FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
       FM4synth.applyParms();
     }
   }

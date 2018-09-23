@@ -94,20 +94,31 @@ bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, 
   Serial.printf("ParseToken failed on %s", data.c_str());
   return false;
 }
+
+unsigned ParseNumberTokens(const String & data, unsigned & inOutCursor, ParameterValues & out) {
   unsigned cursor = inOutCursor;
   const unsigned dataLength = data.length();
   String token;
-  token.reserve(dataLength);
-  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && (allowDigits || !isDigit(data[cursor]))) {
-    token += data[cursor];
+  token.reserve(16); // arbitrary value, should be enough for the numbers we use
+  int valueIndex = 0;
+
+  while(data[cursor] == ' ') {
     cursor += 1;
   }
-  inOutCursor = cursor;
-  Serial.printf("ParseToken: %s\n", token.c_str());
-  return token;
+
+  while (cursor < dataLength && data[cursor] != '\n' && ParseToken(data, cursor, token, true)) {
+    const float value = token.toFloat();
+    out.data_[valueIndex++] = value;
+    Serial.printf("ParseNumberToken: %s %f\n", token.c_str(), value);
+    token = "";
+    while(data[cursor] == ' ') {
+      cursor += 1;
+    }
+  }
+  return valueIndex;
 }
 
-bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _outParmValue) {
+bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, ParameterValues & _outParmValues) {
   if(Serial.available()) {
     const String data = Serial.readString();
     char stripIndexChar = data[0];
@@ -133,13 +144,14 @@ bool ParseParameter(int & _outStripIndex, unsigned & _outParmIndex, float & _out
           Serial.println("Missing value!");
           return false;
         }
-        //Serial.printf("%s",data.substring(cursor).c_str());
-        const float value = data.substring(cursor).toFloat();
-        _outStripIndex = stripIndex;
-        _outParmIndex = tokenIdx;
-        _outParmValue = value;
-        Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, value);
-        return true;
+        ParameterValues values;
+        if (0 < ParseNumberTokens(data, cursor, values)) {
+          _outStripIndex = stripIndex;
+          _outParmIndex = tokenIdx;
+          _outParmValues = values;
+          Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, values.data_[0]);
+          return true;
+        }
       }
     }
   }

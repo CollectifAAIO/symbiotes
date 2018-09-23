@@ -51,5 +51,17 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
+struct ParameterValues{
+  ParameterValues() : data_{} {
+  }
+
+  const ParameterValues & operator=(const ParameterValues & rhs) {
+    memcpy(&data_[0], &rhs.data_[0], sizeof(data_));
+    return *this;
+  }
+
+  float data_[16];
+};
+
 #endif // _GLOBAL_VARIABLES_H_
 

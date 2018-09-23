@@ -41,38 +41,40 @@ struct SequencerParms {
     bpm_(bpm),
     stepsCount_(stepsCount),
     isLooping_(isLooping),
-    octave_(octave) {
+    octave_(octave),
+    arpeg_() {
   }
 
-  void setIndexedParameter(const SequencerParameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
     Serial.printf("Sequencer: set parameter %d\n", (int)parmIndex);
     switch(parmIndex) {
     case seq_randomizeSeqOrSound:{
       break;
     }
     case seq_loop:{
-      isLooping_ = parmValue > 0.0f;
+      isLooping_ = parmValues.data_[0] > 0.0f;
       break;
     }
     case seq_bpm:{
-      bpm_ = static_cast<unsigned>(parmValue);
+      bpm_ = static_cast<unsigned>(parmValues.data_[0]);
       break;
     }
     case seq_RestartFrom0:{
       break;
     }
     case seq_StepNumber:{
-      stepsCount_ = static_cast<unsigned>(parmValue);
+      stepsCount_ = static_cast<unsigned>(parmValues.data_[0]);
       break;
     }
     case seq_RandomSpeed:{
       break;
     }
     case seq_octave:{
-      octave_ = static_cast<unsigned>(parmValue);
+      octave_ = static_cast<unsigned>(parmValues.data_[0]);
       break;
     }
     case seq_arpeg:{
+      arpeg_ = parmValues;
       break;
     }
     case seq_random_trig:{
@@ -95,6 +97,7 @@ struct SequencerParms {
   unsigned stepsCount_;
   bool isLooping_;
   unsigned octave_;
+  ParameterValues arpeg_;
 };
 
 class Sequencer {
@@ -135,8 +138,8 @@ class Sequencer {
     periodMs_ = static_cast<unsigned>(1000.0 * 60.0 / static_cast<float>(parms_.bpm_));
   }
 
-  void setIndexedParameter(const SequencerParameterIndex parmIndex, const float parmValue ) {
-    parms_.setIndexedParameter(parmIndex, parmValue);
+  void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
+    parms_.setIndexedParameter(parmIndex, parmValues);
   }
 
   void noteOn(FM4 & synth_) {
