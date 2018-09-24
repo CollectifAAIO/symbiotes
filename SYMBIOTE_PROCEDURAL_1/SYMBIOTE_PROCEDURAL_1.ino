@@ -82,8 +82,8 @@ void loop() {
     ParameterValues parmValues;
     const String data = Serial.readString();
     if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
-      if (parmIndex > SynthParameterIndex::Count) {
-        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::Count);
+      if (parmIndex > SynthParameterIndex::synth_Count) {
+        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
         seq.setIndexedParameter(seqParmIndex, parmValues);
       } else {
         const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);

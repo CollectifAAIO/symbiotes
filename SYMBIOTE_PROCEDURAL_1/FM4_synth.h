@@ -23,51 +23,51 @@
 static const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
 
 enum SynthParameterIndex {
-  waveform,
-  glide,
-  Pitch,
-  glide_rand,
-  Pitch_rand,
-  ListenSeq,
-  FM_Osc1,
-  FM_Osc2,
-  FM_Osc3,
-  FM_Osc4,
-  FM_Osc1_rand,
-  FM_Osc2_rand,
-  FM_Osc3_rand,
-  FM_Osc4_rand,
-  AM_Waveform,
-  AM_Depth,
-  AM_Freq,
-  AM_Depth_rand,
-  AM_Freq_rand,
-  PADSR_Dlay,
-  PADSR_Amp,
-  PADSR_Atk,
-  PADSR_Dcay,
-  PADSR_Sus,
-  PADSR_Rel,
-  PADSR_Dlay_rand,
-  PADSR_Amp_rand,
-  PADSR_Atk_rand,
-  PADSR_Dcay_rand,
-  PADSR_Sus_rand,
-  PADSR_Rel_rand,
-  LADSR_Dlay,
-  LADSR_Amp,
-  LADSR_Atk,
-  LADSR_Dcay,
-  LADSR_Sus,
-  LADSR_Rel,
-  LADSR_Dlay_rand,
-  LADSR_Amp_rand,
-  ADSR_Atk_rand,
-  LADSR_Dcay_rand,
-  LADSR_Sus_rand,
-  LADSR_Rel_rand,
-  Vol,
-  Count
+  synth_waveform,
+  synth_glide,
+  synth_Pitch,
+  synth_glide_rand,
+  synth_Pitch_rand,
+  synth_ListenSeq,
+  synth_FM_Osc1,
+  synth_FM_Osc2,
+  synth_FM_Osc3,
+  synth_FM_Osc4,
+  synth_FM_Osc1_rand,
+  synth_FM_Osc2_rand,
+  synth_FM_Osc3_rand,
+  synth_FM_Osc4_rand,
+  synth_AM_Waveform,
+  synth_AM_Depth,
+  synth_AM_Freq,
+  synth_AM_Depth_rand,
+  synth_AM_Freq_rand,
+  synth_PADSR_Dlay,
+  synth_PADSR_Amp,
+  synth_PADSR_Atk,
+  synth_PADSR_Dcay,
+  synth_PADSR_Sus,
+  synth_PADSR_Rel,
+  synth_PADSR_Dlay_rand,
+  synth_PADSR_Amp_rand,
+  synth_PADSR_Atk_rand,
+  synth_PADSR_Dcay_rand,
+  synth_PADSR_Sus_rand,
+  synth_PADSR_Rel_rand,
+  synth_LADSR_Dlay,
+  synth_LADSR_Amp,
+  synth_LADSR_Atk,
+  synth_LADSR_Dcay,
+  synth_LADSR_Sus,
+  synth_LADSR_Rel,
+  synth_LADSR_Dlay_rand,
+  synth_LADSR_Amp_rand,
+  synth_LADSR_Atk_rand,
+  synth_LADSR_Dcay_rand,
+  synth_LADSR_Sus_rand,
+  synth_LADSR_Rel_rand,
+  synth_Vol,
+  synth_Count
 };
 
 // Struct defining an envelope generator parameters
@@ -218,102 +218,103 @@ struct SynthStripParms {
 
   void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     switch(parmIndex) {
-    case waveform:{
+    case synth_waveform:{
       WaveformOSC_ = static_cast<int>(parmValue);
       break;
     }
-    case glide:{
+    case synth_glide:{
       break;
     }
-    case Pitch:{
+    case synth_Pitch:{
       FreqOsc_ = parmValue;
       break;
     }
-    case glide_rand:
-    case Pitch_rand:{
+    case synth_glide_rand:
+    case synth_Pitch_rand:{
       break;
     }
-    case ListenSeq:{
+    case synth_ListenSeq:{
       ListenSeq_ = parmValue > 0.0f;
       break;
     }
-    case FM_Osc1:{
+    case synth_FM_Osc1:{
       FMOsc1toOsc_ = parmValue;
       break;
     }
-    case FM_Osc2:{
+    case synth_FM_Osc2:{
       FMOsc2toOsc_ = parmValue;
       break;
     }
-    case FM_Osc3:{
+    case synth_FM_Osc3:{
       FMOsc3toOsc_ = parmValue;
       break;
     }
-    case FM_Osc4:{
+    case synth_FM_Osc4:{
       FMOsc4toOsc_ = parmValue;
       break;
     }
-    case FM_Osc1_rand:
-    case FM_Osc2_rand:
-    case FM_Osc3_rand:
-    case FM_Osc4_rand:{
+    case synth_FM_Osc1_rand:{
+    case synth_FM_Osc2_rand:{
       break;
     }
-    case AM_Waveform:{
+    case synth_FM_Osc3_rand:{
+    case synth_FM_Osc4_rand:{
+    }
+    case synth_AM_Waveform:{
       WaveformAM_ = parmValue;
       break;
     }
-    case AM_Depth:{
+    case synth_AM_Depth:{
       AMdepth_ = parmValue;
       break;
     }
-    case AM_Freq:{
+    case synth_AM_Freq:{
       AMFreq_ = parmValue;
       break;
     }
-    case AM_Depth_rand:
-    case AM_Freq_rand:{
+    case synth_AM_Depth_rand:{
+    case synth_AM_Freq_rand:{
       break;
     }
-    case PADSR_Dlay:
-    case PADSR_Atk:
-    case PADSR_Dcay:
-    case PADSR_Sus:
-    case PADSR_Rel:{
-      const int adsrParmIndex = parmIndex - PADSR_Dlay;
+    case synth_PADSR_Dlay:
+    case synth_PADSR_Atk:
+    case synth_PADSR_Dcay:
+    case synth_PADSR_Sus:
+    case synth_PADSR_Rel:{
+      const int adsrParmIndex = parmIndex - synth_PADSR_Dlay;
       PitchParms_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
-    case PADSR_Amp: {
+    case synth_PADSR_Amp:{
       PitchDepth_ = parmValue;
     }
-    case PADSR_Dlay_rand:
-    case PADSR_Amp_rand:
-    case PADSR_Atk_rand:
-    case PADSR_Dcay_rand:
-    case PADSR_Sus_rand:
-    case PADSR_Rel_rand:{
+    case synth_PADSR_Amp_rand:{
+    case synth_PADSR_Dlay_rand:
+    case synth_PADSR_Atk_rand:
+    case synth_PADSR_Dcay_rand:
+    case synth_PADSR_Sus_rand:
+    case synth_PADSR_Rel_rand:{
       break;
     }
-    case LADSR_Dlay:
-    case LADSR_Amp:
-    case LADSR_Atk:
-    case LADSR_Dcay:
-    case LADSR_Sus:
-    case LADSR_Rel:{
-      const int adsrParmIndex = parmIndex - LADSR_Dlay;
+    case synth_LADSR_Dlay:
+    case synth_LADSR_Amp:
+    case synth_LADSR_Atk:
+    case synth_LADSR_Dcay:
+    case synth_LADSR_Sus:
+    case synth_LADSR_Rel:{
+      const int adsrParmIndex = parmIndex - synth_LADSR_Dlay;
       VolParms_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
-    case LADSR_Dlay_rand:
-    case LADSR_Amp_rand:
-    case ADSR_Atk_rand:
-    case LADSR_Dcay_rand:
-    case LADSR_Sus_rand:
-    case LADSR_Rel_rand:{
+    case synth_LADSR_Dlay_rand:
+    case synth_LADSR_Amp_rand:
+    case synth_LADSR_Atk_rand:
+    case synth_LADSR_Dcay_rand:
+    case synth_LADSR_Sus_rand:
+    case synth_LADSR_Rel_rand:{
       break;
     }
-    case Vol:{
+    case synth_Vol:{
       break;
     }
     default:{
