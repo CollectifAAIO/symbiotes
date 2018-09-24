@@ -20,7 +20,8 @@
 
 //#define SYNTH_DEBUG
 
-static const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
+constexpr char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
+constexpr int WAVEFORM_NOISE = 5; // From the pd patch
 
 enum SynthParameterIndex {
   synth_waveform,
@@ -157,8 +158,6 @@ struct SynthStripParms {
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
-    float DepthNoiseMod = 0.0,
-    const ADSRParms & NoiseParms = ADSRParms( 1, 50, 0.0, 100, 0 ),
     float AMdepth = 0,
     int AMFreq = 4,
     int WaveformAM = 0 )
@@ -181,9 +180,6 @@ struct SynthStripParms {
     FMOsc3toOscRand_{},
     FMOsc4toOsc_( FMOsc4toOsc ),
     FMOsc4toOscRand_{},
-    DepthNoiseMod_( DepthNoiseMod ),
-    NoiseParms_( NoiseParms ),
-    NoiseParmsRand_{},
     AMdepth_( AMdepth ),
     AMdepthRand_{},
     AMFreq_( AMFreq ),
@@ -321,16 +317,14 @@ struct SynthStripParms {
   }
 
   void dump() const {
-    Serial.println("Vol/Pitch/Noise parms");
+    Serial.println("Vol/Pitch parms");
     VolParms_.dump();
     PitchParms_.dump();
-    NoiseParms_.dump();
-    Serial.println("Vol/Pitch/Noise random parms");
+    Serial.println("Vol/Pitch random parms");
     VolParmsRand_.dump();
     PitchParmsRand_.dump();
-    NoiseParmsRand_.dump();
-    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
   }
 
   // Only accessible through getters so we can implement randomness etc.
@@ -363,12 +357,6 @@ struct SynthStripParms {
   }
   float FMOsc4toOsc() const {
     return getRandom(FMOsc4toOsc_, FMOsc4toOscRand_);
-  }
-  float DepthNoiseMod() const {
-    return DepthNoiseMod_;
-  }
-  ADSRParms NoiseParms() const {
-    return getRandom(NoiseParms_, NoiseParmsRand_);
   }
   float AMdepth() const {
     return getRandom(AMdepth_, AMdepthRand_);
@@ -422,9 +410,6 @@ struct SynthStripParms {
   float FMOsc3toOscRand_;
   float FMOsc4toOsc_;
   float FMOsc4toOscRand_;
-  float DepthNoiseMod_;
-  ADSRParms NoiseParms_;
-  ADSRParms NoiseParmsRand_;
   float AMdepth_;
   float AMdepthRand_;
   int AMFreq_;
@@ -447,8 +432,6 @@ struct SynthStripParmsInstance {
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
-    float DepthNoiseMod = 0.0,
-    const ADSRParms & NoiseParms = ADSRParms( 1, 50, 0.0, 100, 0 ),
     float AMdepth = 0,
     int AMFreq = 4,
     int WaveformAM = 0 )
@@ -463,8 +446,6 @@ struct SynthStripParmsInstance {
     FMOsc2toOsc_( FMOsc2toOsc ),
     FMOsc3toOsc_( FMOsc3toOsc ),
     FMOsc4toOsc_( FMOsc4toOsc ),
-    DepthNoiseMod_( DepthNoiseMod ),
-    NoiseParms_( NoiseParms ),
     AMdepth_( AMdepth ),
     AMFreq_( AMFreq ),
     WaveformAM_( WaveformAM ) {}
@@ -496,10 +477,6 @@ struct SynthStripParmsInstance {
   float FMOsc3toOsc_;     // Depth of FM from OSC3
   float FMOsc4toOsc_;     // Depth of FM from OSC4
 
-  // Noise enveloppe
-  float DepthNoiseMod_;     // Depth of noise modulation
-  ADSRParms NoiseParms_;
-
   // AM
   float AMdepth_;      // Mix between amp
 
@@ -509,9 +486,8 @@ struct SynthStripParmsInstance {
   void dump() const {
     VolParms_.dump();
     PitchParms_.dump();
-    NoiseParms_.dump();
-    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
   }
 };
 
@@ -526,8 +502,7 @@ struct SynthStrip {
   AudioSynthWaveformDc &     AMdc,
   AudioEffectEnvelope &      VolEnvOsc,
   AudioMixer4 &              mixerAM,
-  AudioEffectMultiply &      AM,
-  AudioEffectEnvelope &      EnvNoise) :
+  AudioEffectMultiply &      AM) :
   PitchEnvDepthOsc_(PitchEnvDepthOsc),
   PitchEnvOsc_(PitchEnvOsc),
   mixerOSCtoOSC_(mixerOSCtoOSC),
@@ -537,8 +512,7 @@ struct SynthStrip {
   AMdc_(AMdc),
   VolEnvOsc_(VolEnvOsc),
   mixerAM_(mixerAM),
-  AM_(AM),
-  EnvNoise_(EnvNoise)
+  AM_(AM)
   {}
 
   void initialise() {
@@ -563,8 +537,16 @@ struct SynthStrip {
     // COMMAND SYNTH
 
     // OSCs SHAPE
-
-    OSC_.begin(WAVEFORM[parms_.WaveformOSC_]);
+    if (parms_.WaveformOSC_ == WAVEFORM_NOISE) {
+      //OSC_.amplitude(0.0);
+      mixerOSC_.gain(0, 0.0);
+      mixerOSC_.gain(2, 1.0);
+    } else {
+      OSC_.amplitude(1.0);
+      mixerOSC_.gain(0, 1.0);
+      mixerOSC_.gain(2, 0.0);
+      OSC_.begin(WAVEFORM[parms_.WaveformOSC_]);
+    }
 
     // OSC VOLUME
 
@@ -589,10 +571,6 @@ struct SynthStrip {
     mixerOSCtoOSC_.gain(1, parms_.FMOsc2toOsc_);     // Depth of FM from OSC2
     mixerOSCtoOSC_.gain(2, parms_.FMOsc3toOsc_);     // Depth of FM from OSC3
     mixerOSCtoOSC_.gain(3, parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
-
-    // Noise enveloppe
-    mixerOSC_.gain(2, parms_.DepthNoiseMod_);       // Depth of noise modulation
-    parms_.NoiseParms_.applyToADSR( EnvNoise_ );
 
     // AM
     mixerAM_.gain(0, parms_.AMdepth_);
@@ -620,13 +598,11 @@ struct SynthStrip {
 
     VolEnvOsc_.noteOn();
     PitchEnvOsc_.noteOn();
-    EnvNoise_.noteOn();
   }
 
   void noteOff() {
     VolEnvOsc_.noteOff();
     PitchEnvOsc_.noteOff();
-    EnvNoise_.noteOff();
   }
 
   void dump() const {
@@ -654,8 +630,6 @@ struct SynthStrip {
       parmsTemplate_.FMOsc2toOsc(),
       parmsTemplate_.FMOsc3toOsc(),
       parmsTemplate_.FMOsc4toOsc(),
-      parmsTemplate_.DepthNoiseMod(),
-      parmsTemplate_.NoiseParms(),
       parmsTemplate_.AMdepth(),
       parmsTemplate_.AMFreq(),
       parmsTemplate_.WaveformAM());
@@ -675,7 +649,6 @@ struct SynthStrip {
   AudioEffectEnvelope &      VolEnvOsc_;
   AudioMixer4 &              mixerAM_;
   AudioEffectMultiply &      AM_;
-  AudioEffectEnvelope &      EnvNoise_;
 };
 
 class FM4 {
@@ -691,8 +664,7 @@ class FM4 {
     AMdc1,
     VolEnvOsc1,
     mixerAM1,
-    AM1,
-    EnvNoise1),
+    AM1),
   strip2_(
     PitchEnvDepthOsc2,
     PitchEnvOsc2,
@@ -703,8 +675,7 @@ class FM4 {
     AMdc2,
     VolEnvOsc2,
     mixerAM2,
-    AM2,
-    EnvNoise2),
+    AM2),
   strip3_(
     PitchEnvDepthOsc3,
     PitchEnvOsc3,
@@ -715,8 +686,7 @@ class FM4 {
     AMdc3,
     VolEnvOsc3,
     mixerAM3,
-    AM3,
-    EnvNoise3),
+    AM3),
   strip4_(
     PitchEnvDepthOsc4,
     PitchEnvOsc4,
@@ -727,8 +697,7 @@ class FM4 {
     AMdc4,
     VolEnvOsc4,
     mixerAM4,
-    AM4,
-    EnvNoise4),
+    AM4),
   all_synth_strips_{&strip1_, &strip2_, &strip3_, &strip4_ } {
   }
 
@@ -745,8 +714,6 @@ class FM4 {
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 1, 50, 0.0, 100, 0 ), /* NoiseParms */
       1, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
@@ -762,8 +729,6 @@ class FM4 {
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
@@ -779,8 +744,6 @@ class FM4 {
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
@@ -796,8 +759,6 @@ class FM4 {
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
@@ -810,6 +771,8 @@ class FM4 {
       getStrip(i).applyParms();
       getStrip(i).initialise();
     }
+    // Global initialisations
+    Noise.amplitude(1.0);
   }
 
   void noteOn(const float midiNote) {

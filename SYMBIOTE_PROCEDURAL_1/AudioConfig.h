@@ -122,18 +122,10 @@ AudioOutputI2S           i2s1;           //xy=1371.83349609375,429.3333129882812
 AudioControlSGTL5000     sgtl5000_1;     //xy=1363.1666259765625,490.9999694824219
 
 AudioSynthNoiseWhite     Noise;         //xy=58.33331298828125,390.66668701171875
-AudioEffectEnvelope      EnvNoise1;      //xy=288.5,149.66664123535156
-AudioEffectEnvelope      EnvNoise2;      //xy=293.1665954589844,388.33331298828125
-AudioEffectEnvelope      EnvNoise3;      //xy=298.50006103515625,658.6666870117188
-AudioEffectEnvelope      EnvNoise4;      //xy=303.5,908.6665649414062
-AudioConnection          patchCord1(Noise, EnvNoise1);
-AudioConnection          patchCord2(Noise, EnvNoise2);
-AudioConnection          patchCord3(Noise, EnvNoise3);
-AudioConnection          patchCord4(Noise, EnvNoise4);
-AudioConnection          patchCord22(EnvNoise1, 0, mixerOSC1, 2);
-AudioConnection          patchCord24(EnvNoise2, 0, mixerOSC2, 2);
-AudioConnection          patchCord26(EnvNoise3, 0, mixerOSC3, 2);
-AudioConnection          patchCord27(EnvNoise4, 0, mixerOSC4, 2);
+AudioConnection          patchCord1(Noise, 0, mixerOSC1, 2);
+AudioConnection          patchCord2(Noise, 0, mixerOSC2, 2);
+AudioConnection          patchCord3(Noise, 0, mixerOSC3, 2);
+AudioConnection          patchCord4(Noise, 0, mixerOSC4, 2);
 
 AudioConnection          patchCord53(AM4, 0, mixerMASTER, 3);
 AudioConnection          patchCord54(AM4, 0, mixerOSCtoOSC1, 3);
