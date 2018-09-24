@@ -144,6 +144,7 @@ struct ADSRParms {
     int DelayMs_;
 };
 
+// Parameters that are directly set from the presets
 struct SynthStripParms {
   SynthStripParms(
     int WaveformOSC = 0,
@@ -331,6 +332,89 @@ struct SynthStripParms {
   }
 };
 
+// The actual parameters to be applied on the audio objects as is
+// Qualified as "instance" because it's one specific instantiation of parmeters with "meta" associated
+// Such metas include their randomness or dependencies (e.g. modifying a pitch changes other parameters normalised with the pitch)
+struct SynthStripParmsInstance {
+  SynthStripParmsInstance(
+    int WaveformOSC = 0,
+    const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
+    int FreqOsc = 440,
+    bool ListenSeq = false,
+    float PitchDepth = 0.2,
+    const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
+    float FMOsc1toOsc = 0.4,
+    float FMOsc2toOsc = 0.0,
+    float FMOsc3toOsc = 0.0,
+    float FMOsc4toOsc = 0.0,
+    float DepthNoiseMod = 0.0,
+    const ADSRParms & NoiseParms = ADSRParms( 1, 50, 0.0, 100, 0 ),
+    float AMdepth = 0,
+    int AMFreq = 4,
+    int WaveformAM = 0 )
+    :
+    WaveformOSC_( WaveformOSC ),
+    VolParms_( VolParms ),
+    FreqOsc_( FreqOsc ),
+    ListenSeq_( ListenSeq ),
+    PitchDepth_( PitchDepth ),
+    PitchParms_( PitchParms ),
+    FMOsc1toOsc_( FMOsc1toOsc ),
+    FMOsc2toOsc_( FMOsc2toOsc ),
+    FMOsc3toOsc_( FMOsc3toOsc ),
+    FMOsc4toOsc_( FMOsc4toOsc ),
+    DepthNoiseMod_( DepthNoiseMod ),
+    NoiseParms_( NoiseParms ),
+    AMdepth_( AMdepth ),
+    AMFreq_( AMFreq ),
+    WaveformAM_( WaveformAM ) {}
+
+  // OSCs SHAPE
+  int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
+
+  // OSC VOLUME
+
+  ADSRParms VolParms_;
+
+  // OSC PITCH
+
+  // Note
+  int FreqOsc_;         // frequency of OSC1.
+
+  bool ListenSeq_;
+
+  float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
+  ADSRParms PitchParms_;
+
+  // MODULATIONS
+
+  // FM
+
+  // Osc
+  float FMOsc1toOsc_;     // Depth of FM from OSC1
+  float FMOsc2toOsc_;     // Depth of FM from OSC2
+  float FMOsc3toOsc_;     // Depth of FM from OSC3
+  float FMOsc4toOsc_;     // Depth of FM from OSC4
+
+  // Noise enveloppe
+  float DepthNoiseMod_;     // Depth of noise modulation
+  ADSRParms NoiseParms_;
+
+  // AM
+  float AMdepth_;      // Mix between amp
+
+  int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
+  int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
+
+  void dump() const {
+    VolParms_.dump();
+    PitchParms_.dump();
+    NoiseParms_.dump();
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
+  }
+};
+
 // One synth strip, wrapped for easier global changes
 struct SynthStrip {
   SynthStrip(AudioSynthWaveformDc &     PitchEnvDepthOsc,
@@ -419,21 +503,19 @@ struct SynthStrip {
     AudioInterrupts();
   }
 
-  void setAllParms(const SynthStripParms & parms) {
+  void setAllParms(const SynthStripParmsInstance & parms) {
     parms_ = parms;
   }
 
   void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
-    parms_.setIndexedParameter(parmIndex, parmValue);
+    parmsTemplate_.setIndexedParameter(parmIndex, parmValue);
 #ifdef SYNTH_DEBUG
     Serial.printf("Parm %d - %f\n", parmIndex, parmValue);
 #endif // SYNTH_DEBUG
   }
 
   void noteOn(const float noteFreqHz) {
-    if(parms_.ListenSeq_) {
-      setIndexedParameter(Pitch, noteFreqHz);
-    }
+    instantiateParms(noteFreqHz);
     applyParms();
 
     VolEnvOsc_.noteOn();
@@ -451,7 +533,35 @@ struct SynthStrip {
     parms_.dump();
   }
  private:
-  SynthStripParms parms_;
+  void instantiateParms(const float noteFreqHz) {
+    // Handling parameters dependencies here
+    float FreqOsc = parmsTemplate_.FreqOsc_;
+    if(parmsTemplate_.ListenSeq_) {
+      FreqOsc = noteFreqHz;
+    }
+    const float PitchDepth = parmsTemplate_.PitchDepth_ / FreqOsc;
+
+    SynthStripParmsInstance newInstance(
+      parmsTemplate_.WaveformOSC_,
+      parmsTemplate_.VolParms_,
+      FreqOsc,
+      parmsTemplate_.ListenSeq_,
+      PitchDepth,
+      parmsTemplate_.PitchParms_,
+      parmsTemplate_.FMOsc1toOsc_,
+      parmsTemplate_.FMOsc2toOsc_,
+      parmsTemplate_.FMOsc3toOsc_,
+      parmsTemplate_.FMOsc4toOsc_,
+      parmsTemplate_.DepthNoiseMod_,
+      parmsTemplate_.NoiseParms_,
+      parmsTemplate_.AMdepth_,
+      parmsTemplate_.AMFreq_,
+      parmsTemplate_.WaveformAM_);
+    setAllParms(newInstance);
+  }
+
+  SynthStripParmsInstance parms_;
+  SynthStripParms parmsTemplate_;
 
   AudioSynthWaveformDc &     PitchEnvDepthOsc_;
   AudioEffectEnvelope &      PitchEnvOsc_;
@@ -521,7 +631,7 @@ class FM4 {
   }
 
   void init() {
-     SynthStripParms defaultSynth1Parms(
+     SynthStripParmsInstance defaultSynth1Parms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
       550, /* FreqOsc */
@@ -539,7 +649,7 @@ class FM4 {
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth2Parms(
+     SynthStripParmsInstance defaultSynth2Parms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
@@ -556,7 +666,7 @@ class FM4 {
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth3Parms(
+     SynthStripParmsInstance defaultSynth3Parms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
@@ -573,7 +683,7 @@ class FM4 {
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth4Parms(
+     SynthStripParmsInstance defaultSynth4Parms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.2, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
