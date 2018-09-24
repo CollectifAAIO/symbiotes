@@ -25,7 +25,7 @@
 static FM4 FM4synth;
 static Sequencer seq;
 
-//#define PARMS_DUMP
+#define PARMS_DUMP
 
 const BinaryPreset c_presets[] = {
   #include "preset_data.h"
@@ -75,13 +75,6 @@ void loop() {
     AudioMemoryUsageMaxReset();
   }
 
-#ifdef PARMS_DUMP
-  if(Serial.available()) {
-    FM4synth.dumpParms();
-    seq.dumpParms();
-  }
-#endif // PARMS_DUMP
-
   // Debug presets management
   if(Serial.available()) {
     int synthStripIndex = 0;
@@ -98,6 +91,11 @@ void loop() {
         FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
         FM4synth.applyParms();
       }
+    } else {
+#ifdef PARMS_DUMP
+      FM4synth.dumpParms();
+      seq.dumpParms();
+#endif // PARMS_DUMP
     }
   }
 }
