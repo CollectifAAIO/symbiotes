@@ -165,56 +165,30 @@ struct SynthStripParms {
     :
     WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
+    VolParmsRand_{},
     FreqOsc_( FreqOsc ),
+    FreqOscRand_{},
     ListenSeq_( ListenSeq ),
     PitchDepth_( PitchDepth ),
+    PitchDepthRand_{},
     PitchParms_( PitchParms ),
+    PitchParmsRand_{},
     FMOsc1toOsc_( FMOsc1toOsc ),
+    FMOsc1toOscRand_{},
     FMOsc2toOsc_( FMOsc2toOsc ),
+    FMOsc2toOscRand_{},
     FMOsc3toOsc_( FMOsc3toOsc ),
+    FMOsc3toOscRand_{},
     FMOsc4toOsc_( FMOsc4toOsc ),
+    FMOsc4toOscRand_{},
     DepthNoiseMod_( DepthNoiseMod ),
     NoiseParms_( NoiseParms ),
+    NoiseParmsRand_{},
     AMdepth_( AMdepth ),
+    AMdepthRand_{},
     AMFreq_( AMFreq ),
+    AMFreqRand_{},
     WaveformAM_( WaveformAM ) {}
-
-  // OSCs SHAPE
-  int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
-
-  // OSC VOLUME
-
-  ADSRParms VolParms_;
-
-  // OSC PITCH
-
-  // Note
-  int FreqOsc_;         // frequency of OSC1.
-
-  bool ListenSeq_;
-
-  float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
-  ADSRParms PitchParms_;
-
-  // MODULATIONS
-
-  // FM
-
-  // Osc
-  float FMOsc1toOsc_;     // Depth of FM from OSC1
-  float FMOsc2toOsc_;     // Depth of FM from OSC2
-  float FMOsc3toOsc_;     // Depth of FM from OSC3
-  float FMOsc4toOsc_;     // Depth of FM from OSC4
-
-  // Noise enveloppe
-  float DepthNoiseMod_;     // Depth of noise modulation
-  ADSRParms NoiseParms_;
-
-  // AM
-  float AMdepth_;      // Mix between amp
-
-  int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
-  int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
   void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     switch(parmIndex) {
@@ -231,6 +205,7 @@ struct SynthStripParms {
     }
     case synth_glide_rand:
     case synth_Pitch_rand:{
+      FreqOscRand_ = parmValue;
       break;
     }
     case synth_ListenSeq:{
@@ -254,11 +229,20 @@ struct SynthStripParms {
       break;
     }
     case synth_FM_Osc1_rand:{
+      FMOsc1toOscRand_ = parmValue;
+      break;
+    }
     case synth_FM_Osc2_rand:{
+      FMOsc2toOscRand_ = parmValue;
       break;
     }
     case synth_FM_Osc3_rand:{
+      FMOsc3toOscRand_ = parmValue;
+      break;
+    }
     case synth_FM_Osc4_rand:{
+      FMOsc4toOscRand_ = parmValue;
+      break;
     }
     case synth_AM_Waveform:{
       WaveformAM_ = parmValue;
@@ -273,7 +257,11 @@ struct SynthStripParms {
       break;
     }
     case synth_AM_Depth_rand:{
+      AMdepthRand_ = parmValue;
+      break;
+    }
     case synth_AM_Freq_rand:{
+      AMFreqRand_ = parmValue;
       break;
     }
     case synth_PADSR_Dlay:
@@ -290,11 +278,16 @@ struct SynthStripParms {
       break;
     }
     case synth_PADSR_Amp_rand:{
+      PitchDepthRand_ = parmValue;
+      break;
+    }
     case synth_PADSR_Dlay_rand:
     case synth_PADSR_Atk_rand:
     case synth_PADSR_Dcay_rand:
     case synth_PADSR_Sus_rand:
     case synth_PADSR_Rel_rand:{
+      const int adsrParmIndex = parmIndex - synth_PADSR_Dlay_rand;
+      PitchParmsRand_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
     case synth_LADSR_Dlay:
@@ -313,6 +306,8 @@ struct SynthStripParms {
     case synth_LADSR_Dcay_rand:
     case synth_LADSR_Sus_rand:
     case synth_LADSR_Rel_rand:{
+      const int adsrParmIndex = parmIndex - synth_LADSR_Dlay_rand;
+      VolParmsRand_.setIndexedParameter(adsrParmIndex, parmValue);
       break;
     }
     case synth_Vol:{
@@ -332,6 +327,104 @@ struct SynthStripParms {
     Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
                   WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
   }
+
+  // Only accessible through getters so we can implement randomness etc.
+  int WaveformOSC() const {
+    return WaveformOSC_;
+  }
+  ADSRParms VolParms() const {
+    return getRandom(VolParms_, VolParmsRand_);
+  }
+  float FreqOsc() const {
+    return FreqOsc_;
+  }
+  bool ListenSeq() const {
+    return ListenSeq_;
+  }
+  float PitchDepth() const {
+    return getRandom(PitchDepth_, PitchDepthRand_);
+  }
+  ADSRParms PitchParms() const {
+    return getRandom(PitchParms_, PitchParmsRand_);
+  }
+  float FMOsc1toOsc() const {
+    return getRandom(FMOsc1toOsc_, FMOsc1toOscRand_);
+  }
+  float FMOsc2toOsc() const {
+    return getRandom(FMOsc2toOsc_, FMOsc2toOscRand_);
+  }
+  float FMOsc3toOsc() const {
+    return getRandom(FMOsc3toOsc_, FMOsc3toOscRand_);
+  }
+  float FMOsc4toOsc() const {
+    return getRandom(FMOsc4toOsc_, FMOsc4toOscRand_);
+  }
+  float DepthNoiseMod() const {
+    return DepthNoiseMod_;
+  }
+  ADSRParms NoiseParms() const {
+    return getRandom(NoiseParms_, NoiseParmsRand_);
+  }
+  float AMdepth() const {
+    return getRandom(AMdepth_, AMdepthRand_);
+  }
+  float AMFreq() const {
+    return getRandom(AMFreq_, AMFreqRand_);
+  }
+  int WaveformAM() const {
+    return WaveformAM_;
+  }
+
+ private:
+  float getRandom(float mean, float halfRange) const {
+    if(halfRange == 0.0f) {
+      return mean;
+    }
+    const float rnd = static_cast<float>(random(2 * halfRange + 1));
+    const float val = (mean - halfRange) + rnd;
+    return abs(val);
+  }
+
+  int getRandom(int mean, int halfRange) const {
+    return getRandom(static_cast<float>(mean), static_cast<float>(halfRange));
+  }
+
+  ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) const {
+    ADSRParms out;
+    out.AtkMs_ = getRandom(meanADSR.AtkMs_, halfRangeADSR.AtkMs_);
+    out.DcayMs_ = getRandom(meanADSR.DcayMs_, halfRangeADSR.DcayMs_);
+    out.Sus_ = getRandom(meanADSR.Sus_, halfRangeADSR.Sus_);
+    out.RlsMs_ = getRandom(meanADSR.RlsMs_, halfRangeADSR.RlsMs_);
+    out.DelayMs_ = getRandom(meanADSR.DelayMs_, halfRangeADSR.DelayMs_);
+    return out;
+  }
+
+  int WaveformOSC_;
+  ADSRParms VolParms_;
+  ADSRParms VolParmsRand_;
+  int FreqOsc_;
+  float FreqOscRand_;
+  bool ListenSeq_;
+  float PitchDepth_;
+  float PitchDepthRand_;
+  ADSRParms PitchParms_;
+  ADSRParms PitchParmsRand_;
+  float FMOsc1toOsc_;
+  float FMOsc1toOscRand_;
+  float FMOsc2toOsc_;
+  float FMOsc2toOscRand_;
+  float FMOsc3toOsc_;
+  float FMOsc3toOscRand_;
+  float FMOsc4toOsc_;
+  float FMOsc4toOscRand_;
+  float DepthNoiseMod_;
+  ADSRParms NoiseParms_;
+  ADSRParms NoiseParmsRand_;
+  float AMdepth_;
+  float AMdepthRand_;
+  int AMFreq_;
+  int AMFreqRand_;
+  int WaveformAM_;
 };
 
 // The actual parameters to be applied on the audio objects as is
@@ -537,28 +630,28 @@ struct SynthStrip {
  private:
   void instantiateParms(const float noteFreqHz) {
     // Handling parameters dependencies here
-    float FreqOsc = parmsTemplate_.FreqOsc_;
-    if(parmsTemplate_.ListenSeq_) {
+    float FreqOsc = parmsTemplate_.FreqOsc();
+    if(parmsTemplate_.ListenSeq()) {
       FreqOsc = noteFreqHz;
     }
-    const float PitchDepth = parmsTemplate_.PitchDepth_ / FreqOsc;
+    const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
 
     SynthStripParmsInstance newInstance(
-      parmsTemplate_.WaveformOSC_,
-      parmsTemplate_.VolParms_,
+      parmsTemplate_.WaveformOSC(),
+      parmsTemplate_.VolParms(),
       FreqOsc,
-      parmsTemplate_.ListenSeq_,
+      parmsTemplate_.ListenSeq(),
       PitchDepth,
-      parmsTemplate_.PitchParms_,
-      parmsTemplate_.FMOsc1toOsc_,
-      parmsTemplate_.FMOsc2toOsc_,
-      parmsTemplate_.FMOsc3toOsc_,
-      parmsTemplate_.FMOsc4toOsc_,
-      parmsTemplate_.DepthNoiseMod_,
-      parmsTemplate_.NoiseParms_,
-      parmsTemplate_.AMdepth_,
-      parmsTemplate_.AMFreq_,
-      parmsTemplate_.WaveformAM_);
+      parmsTemplate_.PitchParms(),
+      parmsTemplate_.FMOsc1toOsc(),
+      parmsTemplate_.FMOsc2toOsc(),
+      parmsTemplate_.FMOsc3toOsc(),
+      parmsTemplate_.FMOsc4toOsc(),
+      parmsTemplate_.DepthNoiseMod(),
+      parmsTemplate_.NoiseParms(),
+      parmsTemplate_.AMdepth(),
+      parmsTemplate_.AMFreq(),
+      parmsTemplate_.WaveformAM());
     setAllParms(newInstance);
   }
 
