@@ -321,9 +321,14 @@ struct SynthStripParms {
   }
 
   void dump() const {
+    Serial.println("Vol/Pitch/Noise parms");
     VolParms_.dump();
     PitchParms_.dump();
     NoiseParms_.dump();
+    Serial.println("Vol/Pitch/Noise random parms");
+    VolParmsRand_.dump();
+    PitchParmsRand_.dump();
+    NoiseParmsRand_.dump();
     Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; DepthNoiseMod_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
                   WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, DepthNoiseMod_, AMdepth_, AMFreq_, WaveformAM_);
   }
@@ -625,7 +630,7 @@ struct SynthStrip {
   }
 
   void dump() const {
-    parms_.dump();
+    parmsTemplate_.dump();
   }
  private:
   void instantiateParms(const float noteFreqHz) {
