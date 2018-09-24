@@ -287,6 +287,7 @@ struct SynthStripParms {
     }
     case synth_PADSR_Amp:{
       PitchDepth_ = parmValue;
+      break;
     }
     case synth_PADSR_Amp_rand:{
     case synth_PADSR_Dlay_rand:
