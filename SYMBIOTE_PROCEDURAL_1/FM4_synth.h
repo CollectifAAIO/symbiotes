@@ -325,6 +325,8 @@ struct SynthStripParms {
     PitchParmsRand_.dump();
     Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
                   WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("FreqOscRand_: %d; FMOsc1toOscRand_: %f; FMOsc2toOscRand_: %f; FMOsc3toOscRand_: %f; FMOsc4toOscRand_: %f; AMdepthRand_: %f; AMFreqRand_: %d;\n",
+                  FreqOscRand_, FMOsc1toOscRand_, FMOsc2toOscRand_, FMOsc3toOscRand_, FMOsc4toOscRand_, AMdepthRand_, AMFreqRand_);
   }
 
   // Only accessible through getters so we can implement randomness etc.
@@ -606,6 +608,7 @@ struct SynthStrip {
   }
 
   void dump() const {
+    parms_.dump();
     parmsTemplate_.dump();
   }
  private:
