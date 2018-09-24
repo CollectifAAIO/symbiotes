@@ -640,6 +640,8 @@ struct SynthStrip {
       FreqOsc = noteFreqHz;
     }
     const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
+    ADSRParms PitchParms = parmsTemplate_.PitchParms();
+    PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
 
     SynthStripParmsInstance newInstance(
       parmsTemplate_.WaveformOSC(),
@@ -647,7 +649,7 @@ struct SynthStrip {
       FreqOsc,
       parmsTemplate_.ListenSeq(),
       PitchDepth,
-      parmsTemplate_.PitchParms(),
+      PitchParms,
       parmsTemplate_.FMOsc1toOsc(),
       parmsTemplate_.FMOsc2toOsc(),
       parmsTemplate_.FMOsc3toOsc(),
