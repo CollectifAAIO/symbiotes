@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #N canvas 302 23 1172 762 10;
 #X obj 875 2 waveform;
 #X obj 817 266 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
@@ -77,7 +78,105 @@
 #X restore 817 201 pd store-pst;
 #X obj 1 1 cnv 15 805 250 empty empty PLAY_MODES 20 12 0 14 -162280
 -262144 0;
+#N canvas 618 96 588 640 sequencer 0;
+#X obj 126 177 i;
+#X obj 125 292 tgl 20 0 empty play-seq Play/Stop 25 10 0 10 -27631
 -1 -1 0 1;
+#X floatatom 384 470 3 0 300 1 - - -, f 3;
+#X text 384 488 BPM;
+#X obj 126 131 metro;
+#X obj 158 102 expr 60000/$i1/4;
+#X obj 160 176 + 1;
+#X obj 126 221 sel 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16;
+#X obj 129 200 sel 16;
+#X msg 80 178 1;
+#X obj 57 77 loadbang;
+#X obj 80 146 sel 0;
+#X obj 142 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 126 471 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 174 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 158 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 206 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 190 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 238 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 222 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 126 252 i;
+#X obj 153 252 i;
+#X obj 180 252 i;
+#X obj 207 252 i;
+#X obj 234 252 i;
+#X obj 261 252 i;
+#X obj 288 252 i;
+#X obj 315 252 i;
+#X obj 270 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 254 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 302 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 286 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 334 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 318 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 365 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 350 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 342 252 i;
+#X obj 369 252 i;
+#X obj 396 252 i;
+#X obj 423 252 i;
+#X obj 450 252 i;
+#X obj 477 252 i;
+#X obj 504 252 i;
+#X obj 531 252 i;
+#X obj 531 279 s seq;
+#N canvas 0 23 450 278 (subpatch) 0;
+#X array Arpeg 16 float 3;
+#A 0 4.69286 4.69286 4.77143 4.85 4.85 4.85 4.92857 4.85 4.85 4.85
+4.85 4.85 4.85 4.85 4.85 4.85;
+#X coords 1 12 17 1 255 140 1 0 0;
+#X restore 126 330 graph;
+#X obj 6 453 array get Arpeg;
+#X msg 57 425 1, f 2;
+#X obj 129 486 hsl 250 15 1 16 0 0 empty empty empty -2 -8 0 10 -66577
+<<<<<<< HEAD
+-20480 -1 13280 1;
+=======
+>>>>>>> fdd00f14166d3355d22d1d2afaa82682dfe0b9f1
+#X obj 6 475 int;
+#X obj 6 542 mtof;
+#X obj 6 514 expr $i1 + 12 * $i2;
+#X obj 381 332 vsl 25 135 0 11 0 0 empty empty OCTAVE 0 -9 0 10 -27631
+<<<<<<< HEAD
+-1 -1 0 1;
+=======
+>>>>>>> fdd00f14166d3355d22d1d2afaa82682dfe0b9f1
+#X obj 6 568 outlet;
+#X msg 70 248 0;
+#X obj 225 292 tgl 20 0 empty empty Loop 25 10 0 10 -27631 -1 -1 0
+1;
+#X obj 521 318 * -1;
+#X obj 521 340 + 1;
+#X obj 69 225 spigot 0;
+#X connect 0 0 6 0;
+#X connect 0 0 8 0;
+#X connect 0 0 7 0;
+#X connect 0 0 46 0;
+#X connect 0 0 48 0;
+#X connect 1 0 4 0;
+#X connect 1 0 11 0;
+=======
 #X obj 57 77 loadbang;
 #X obj 142 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 #X obj 174 470 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
@@ -152,6 +251,7 @@
 #X obj 435 82 r octave;
 #X connect 1 0 6 0;
 #X connect 1 0 9 0;
+>>>>>>> e929dcf48949919c055a66f1dd56489a32d39b7e
 #X connect 2 0 5 0;
 #X connect 2 0 8 0;
 #X connect 3 0 4 2;
@@ -276,6 +376,48 @@
 #X connect 18 0 42 0;
 #X connect 19 0 43 0;
 #X connect 20 0 44 0;
+<<<<<<< HEAD
+#X connect 21 0 44 0;
+#X connect 22 0 44 0;
+#X connect 23 0 44 0;
+#X connect 24 0 44 0;
+#X connect 25 0 44 0;
+#X connect 26 0 44 0;
+#X connect 27 0 44 0;
+#X connect 28 0 37 1;
+#X connect 29 0 36 1;
+#X connect 30 0 39 1;
+#X connect 31 0 38 1;
+#X connect 32 0 41 1;
+#X connect 33 0 40 1;
+#X connect 34 0 43 1;
+#X connect 35 0 42 1;
+#X connect 36 0 44 0;
+#X connect 37 0 44 0;
+#X connect 38 0 44 0;
+#X connect 39 0 44 0;
+#X connect 40 0 44 0;
+#X connect 41 0 44 0;
+#X connect 42 0 44 0;
+#X connect 43 0 44 0;
+#X connect 46 0 49 0;
+#X connect 47 0 46 1;
+#X connect 49 0 51 0;
+#X connect 50 0 53 0;
+#X connect 51 0 50 0;
+#X connect 52 0 51 1;
+#X connect 54 0 1 0;
+#X connect 55 0 56 0;
+#X connect 56 0 57 0;
+#X connect 57 0 58 1;
+#X connect 58 0 54 0;
+#X coords 0 -1 1 1 300 215 2 123 290;
+<<<<<<< HEAD
+#X restore 232 4 pd sequencer;
+#N canvas 567 254 695 572 toneTelSeq 0;
+=======
+>>>>>>> fdd00f14166d3355d22d1d2afaa82682dfe0b9f1
+=======
 #X connect 21 0 45 0;
 #X connect 22 0 46 0;
 #X connect 23 0 47 0;
@@ -405,6 +547,7 @@
 #X connect 38 0 33 0;
 #X coords 0 -1 1 1 300 240 2 150 250;
 #X restore 382 8 pd sequencer;
+>>>>>>> e929dcf48949919c055a66f1dd56489a32d39b7e
 #X msg 277 263 513;
 #X msg 355 263 508;
 #X msg 278 309 1255;
@@ -510,6 +653,7 @@
 #X connect 43 2 2 0;
 #X connect 43 3 40 0;
 #X connect 43 3 31 0;
+<<<<<<< HEAD
 #X connect 44 0 41 1;
 #X connect 45 0 19 1;
 #X connect 47 0 31 1;
@@ -518,7 +662,66 @@
 #X coords 0 -1 1 1 202 90 1 20 300;
 #X restore 5 38 pd toneTelSeq;
 #X obj 549 14 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+<<<<<<< HEAD
 #N canvas 0 23 450 300 rambom-seq-trigger 0;
+=======
+>>>>>>> fdd00f14166d3355d22d1d2afaa82682dfe0b9f1
+#X obj 132 68 metro 1000;
+#X obj 132 112 + 1000;
+#X obj 75 142 metro 5000;
+#X obj 75 210 + 1000;
+#X obj 75 164 t b b;
+#X obj 154 188 s play-seq;
+#X obj 132 90 random 9000;
+#X obj 75 188 random 9000;
+#X obj 75 25 inlet;
+#X connect 0 0 6 0;
+#X connect 1 0 2 1;
+#X connect 2 0 4 0;
+#X connect 3 0 0 1;
+#X connect 4 0 7 0;
+#X connect 4 1 5 0;
+#X connect 6 0 1 0;
+#X connect 7 0 3 0;
+#X connect 8 0 2 0;
+#X connect 8 0 0 0;
+#X restore 549 35 pd rambom-seq-trigger;
+#X obj 232 231 s 1-set-Pitch;
+#X obj 335 231 s 2-set-Pitch;
+#X obj 437 231 s 3-set-Pitch;
+#X obj 540 231 s 4-set-Pitch;
+#X obj 2 264 FM_Osc 1;
+#X obj 721 27 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 721 50 s 1-TrigOsc;
+#X obj 721 74 s 2-TrigOsc;
+#X obj 721 98 s 3-TrigOsc;
+#X obj 721 122 s 4-TrigOsc;
+#X obj 721 4 r seq;
+#X obj 406 264 FM_Osc 2;
+#X obj 2 466 FM_Osc 3;
+#X obj 406 466 FM_Osc 4;
+#X connect 3 0 2 0;
+#X connect 5 0 4 0;
+#X connect 5 0 4 1;
+#X connect 6 0 4 0;
+#X connect 6 0 4 1;
+#X connect 7 0 4 0;
+#X connect 7 0 4 1;
+#X connect 8 0 4 0;
+#X connect 8 0 4 1;
+#X connect 13 0 17 0;
+#X connect 13 0 18 0;
+#X connect 13 0 19 0;
+#X connect 13 0 20 0;
+#X connect 15 0 16 0;
+#X connect 22 0 23 0;
+#X connect 22 0 24 0;
+#X connect 22 0 26 0;
+#X connect 22 0 25 0;
+#X connect 27 0 22 0;
+=======
 #X connect 18 0 13 0;
 #X connect 18 1 21 0;
 #X restore 549 35 pd rambom-seq-trigger;
@@ -545,7 +748,7 @@
 #X connect 7 0 4 0;
 #X connect 7 0 4 1;
 #X connect 8 0 4 0;
-#X connect 8 0 4 1;
+>>>>>>> e929dcf48949919c055a66f1dd56489a32d39b7e
 #X connect 13 0 17 0;
 #X connect 13 0 18 0;
 #X connect 13 0 19 0;
