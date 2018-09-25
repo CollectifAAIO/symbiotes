@@ -147,6 +147,24 @@ struct ADSRParms {
     int DelayMs_;
 };
 
+static float Lerp(const float lhs, const float rhs, const float interpolationFactor) {
+  return lhs * interpolationFactor + (1.0f - interpolationFactor) * rhs;
+}
+static int Lerp(const int lhs, const int rhs, const float interpolationFactor) {
+  return static_cast<int>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
+}
+static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor) {
+  return static_cast<bool>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
+}
+static ADSRParms Lerp(const ADSRParms & lhs, const ADSRParms & rhs, const float interpolationFactor) {
+  return ADSRParms(
+    Lerp(lhs.AtkMs_, rhs.AtkMs_, interpolationFactor),
+    Lerp(lhs.DcayMs_, rhs.DcayMs_, interpolationFactor),
+    Lerp(lhs.Sus_, rhs.Sus_, interpolationFactor),
+    Lerp(lhs.RlsMs_, rhs.RlsMs_, interpolationFactor),
+    Lerp(lhs.DelayMs_, rhs.DelayMs_, interpolationFactor));
+}
+
 // Parameters that are directly set from the presets
 struct SynthStripParms {
   SynthStripParms(
@@ -512,6 +530,22 @@ struct SynthStripParmsInstance {
     Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
                   WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
   }
+
+  void LerpWith(const SynthStripParmsInstance & rhs, const float interpolationFactor) {
+    WaveformOSC_ = Lerp(WaveformOSC_, rhs.WaveformOSC_, interpolationFactor);
+    VolParms_ = Lerp(VolParms_, rhs.VolParms_, interpolationFactor);
+    FreqOsc_ = Lerp(FreqOsc_, rhs.FreqOsc_, interpolationFactor);
+    ListenSeq_ = Lerp(ListenSeq_, rhs.ListenSeq_, interpolationFactor);
+    PitchDepth_ = Lerp(PitchDepth_, rhs.PitchDepth_, interpolationFactor);
+    PitchParms_ = Lerp(PitchParms_, rhs.PitchParms_, interpolationFactor);
+    FMOsc1toOsc_ = Lerp(FMOsc1toOsc_, rhs.FMOsc1toOsc_, interpolationFactor);
+    FMOsc2toOsc_ = Lerp(FMOsc2toOsc_, rhs.FMOsc2toOsc_, interpolationFactor);
+    FMOsc3toOsc_ = Lerp(FMOsc3toOsc_, rhs.FMOsc3toOsc_, interpolationFactor);
+    FMOsc4toOsc_ = Lerp(FMOsc4toOsc_, rhs.FMOsc4toOsc_, interpolationFactor);
+    AMdepth_ = Lerp(AMdepth_, rhs.AMdepth_, interpolationFactor);
+    AMFreq_ = Lerp(AMFreq_, rhs.AMFreq_, interpolationFactor);
+    WaveformAM_ = Lerp(WaveformAM_, rhs.WaveformAM_, interpolationFactor);
+  }
 };
 
 // One synth strip, wrapped for easier global changes
@@ -526,6 +560,8 @@ struct SynthStrip {
   AudioEffectEnvelope &      VolEnvOsc,
   AudioMixer4 &              mixerAM,
   AudioEffectMultiply &      AM) :
+  parms_{},
+  parmsTemplate_{},
   PitchEnvDepthOsc_(PitchEnvDepthOsc),
   PitchEnvOsc_(PitchEnvOsc),
   mixerOSCtoOSC_(mixerOSCtoOSC),
@@ -608,15 +644,15 @@ struct SynthStrip {
     parms_ = parms;
   }
 
-  void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
-    parmsTemplate_.setIndexedParameter(parmIndex, parmValue);
+  void setIndexedParameter(const unsigned templateIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
+    parmsTemplate_[templateIndex].setIndexedParameter(parmIndex, parmValue);
 #ifdef SYNTH_DEBUG
     Serial.printf("Parm %d - %f\n", parmIndex, parmValue);
 #endif // SYNTH_DEBUG
   }
 
-  void noteOn(const float noteFreqHz) {
-    instantiateParms(noteFreqHz);
+  void noteOn(const float noteFreqHz, const float interpolationFactor) {
+    instantiateParms(noteFreqHz, interpolationFactor);
     applyParms();
 
     VolEnvOsc_.noteOn();
@@ -630,39 +666,46 @@ struct SynthStrip {
 
   void dump() const {
     parms_.dump();
-    parmsTemplate_.dump();
+    parmsTemplate_[0].dump();
   }
  private:
-  void instantiateParms(const float noteFreqHz) {
-    // Handling parameters dependencies here
-    const float FreqOsc = parmsTemplate_.FreqOsc(noteFreqHz);
-    const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
-    ADSRParms PitchParms = parmsTemplate_.PitchParms();
-    PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
+  static constexpr unsigned c_templatesCount = 2;
+
+  void instantiateParms(const float noteFreqHz, const float interpolationFactor) {
+    SynthStripParmsInstance newInstances[c_templatesCount];
+    for (int i = 0; i < c_templatesCount; ++i) {
+      // Handling parameters dependencies here
+      const float FreqOsc = parmsTemplate_[i].FreqOsc(noteFreqHz);
+      const float PitchDepth = parmsTemplate_[i].PitchDepth() / FreqOsc;
+      ADSRParms PitchParms = parmsTemplate_[i].PitchParms();
+      PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
 
 #ifdef SYNTH_DEBUG
-    Serial.printf("New freq %f\n", FreqOsc);
+      Serial.printf("New freq %f\n", FreqOsc);
 #endif // SYNTH_DEBUG
 
-    SynthStripParmsInstance newInstance(
-      parmsTemplate_.WaveformOSC(),
-      parmsTemplate_.VolParms(),
-      FreqOsc,
-      parmsTemplate_.ListenSeq(),
-      PitchDepth,
-      PitchParms,
-      parmsTemplate_.FMOsc1toOsc(),
-      parmsTemplate_.FMOsc2toOsc(),
-      parmsTemplate_.FMOsc3toOsc(),
-      parmsTemplate_.FMOsc4toOsc(),
-      parmsTemplate_.AMdepth(),
-      parmsTemplate_.AMFreq(),
-      parmsTemplate_.WaveformAM());
-    setAllParms(newInstance);
+      newInstances[i] = SynthStripParmsInstance(
+        parmsTemplate_[i].WaveformOSC(),
+        parmsTemplate_[i].VolParms(),
+        FreqOsc,
+        parmsTemplate_[i].ListenSeq(),
+        PitchDepth,
+        PitchParms,
+        parmsTemplate_[i].FMOsc1toOsc(),
+        parmsTemplate_[i].FMOsc2toOsc(),
+        parmsTemplate_[i].FMOsc3toOsc(),
+        parmsTemplate_[i].FMOsc4toOsc(),
+        parmsTemplate_[i].AMdepth(),
+        parmsTemplate_[i].AMFreq(),
+        parmsTemplate_[i].WaveformAM());
+    }
+    SynthStripParmsInstance morphed(newInstances[0]);
+    morphed.LerpWith(newInstances[1], interpolationFactor);
+    setAllParms(morphed);
   }
 
   SynthStripParmsInstance parms_;
-  SynthStripParms parmsTemplate_;
+  SynthStripParms parmsTemplate_[c_templatesCount];
 
   AudioSynthWaveformDc &     PitchEnvDepthOsc_;
   AudioEffectEnvelope &      PitchEnvOsc_;
@@ -723,7 +766,8 @@ class FM4 {
     VolEnvOsc4,
     mixerAM4,
     AM4),
-  all_synth_strips_{&strip1_, &strip2_, &strip3_, &strip4_ } {
+  all_synth_strips_{&strip1_, &strip2_, &strip3_, &strip4_ },
+  interpolationFactor_(0.0f) {
   }
 
   void init() {
@@ -821,7 +865,7 @@ class FM4 {
     Serial.printf("noteOn: frequency %f\n", noteFreqHz);
 #endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).noteOn(noteFreqHz);
+      getStrip(i).noteOn(noteFreqHz, interpolationFactor_);
     }
   }
 
@@ -834,13 +878,13 @@ class FM4 {
     }
   }
 
-  void setIndexedParameter(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const int stripIndex, const unsigned templateIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
     if(stripIndex > 3) {
       for (int i = 0; i < 4; ++i) {
-        setIndexedParameterOnStrip(i, parmIndex, parmValue);
+        setIndexedParameterOnStrip(i, templateIndex, parmIndex, parmValue);
       }
     } else {
-        setIndexedParameterOnStrip(stripIndex, parmIndex, parmValue);
+        setIndexedParameterOnStrip(stripIndex, templateIndex, parmIndex, parmValue);
     }
   }
 
@@ -848,6 +892,10 @@ class FM4 {
     for (int i = 0; i < 4; ++i) {
       getStrip(i).applyParms();
     }
+  }
+
+  void setInterpolationFactor( const float value) {
+    interpolationFactor_ = value;
   }
 
   void dumpParms() const {
@@ -869,11 +917,11 @@ class FM4 {
     return freqValueHz;
   }
 
-  void setIndexedParameterOnStrip(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameterOnStrip(const int stripIndex, const unsigned templateIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
 #ifdef SYNTH_DEBUG
     Serial.printf("Set Strip %d - \n", stripIndex);
 #endif // SYNTH_DEBUG
-    getStrip(stripIndex).setIndexedParameter(parmIndex, parmValue);
+    getStrip(stripIndex).setIndexedParameter(templateIndex, parmIndex, parmValue);
   }
 
   SynthStrip strip1_;
@@ -881,6 +929,7 @@ class FM4 {
   SynthStrip strip3_;
   SynthStrip strip4_;
   SynthStrip * all_synth_strips_[4];
+  float interpolationFactor_;
 };
 
 #endif // _FM4_SYNTH_H_

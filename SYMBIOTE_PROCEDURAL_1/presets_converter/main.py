@@ -82,9 +82,9 @@ def DumpFloatArrayValues(data):
   out = str(data).strip('[]').replace(' ', ',')
   return (out.count(',') + 1,out)
 
-def ParseInputFile(path):
+def ParseInputFile(path, index):
   thisScriptDir = os.path.dirname(os.path.realpath(__file__))
-  outFilePath = os.path.join(os.path.dirname(thisScriptDir), "preset_data.h")
+  outFilePath = os.path.join(os.path.dirname(thisScriptDir), "preset_data_{0}.h".format(index))
   if os.path.exists(path):
     reference = re.compile(r'([1-4]*)\-?pst\-([a-zA-Z\_\-0-9]+) ([0-9\.\- ]+)')
     out = []
@@ -105,4 +105,4 @@ def ParseInputFile(path):
 if __name__ == "__main__":
   import sys
 
-  ParseInputFile(sys.argv[1])
+  ParseInputFile(sys.argv[1], sys.argv[2])

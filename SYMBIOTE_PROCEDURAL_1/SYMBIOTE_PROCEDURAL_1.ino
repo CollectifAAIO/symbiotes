@@ -27,10 +27,13 @@ static Sequencer seq;
 
 #define PARMS_DUMP
 
-const BinaryPreset c_presets[] = {
-  #include "preset_data.h"
+const BinaryPreset c_presets_1[] = {
+  #include "preset_data_1.h"
 };
-constexpr unsigned c_presetsCount = sizeof(c_presets)/sizeof(*c_presets);
+const BinaryPreset c_presets_2[] = {
+  #include "preset_data_2.h"
+};
+constexpr unsigned c_presetSize = sizeof(c_presets_1)/sizeof(*c_presets_1);
 
 void setup() {
   Serial.begin(9600);
@@ -44,7 +47,7 @@ void setup() {
 
   FM4synth.init();
   seq.start();
-  ParseBinaryPresets(c_presets, c_presetsCount, FM4synth, seq);
+  ParseBinaryPresets(c_presets_1, c_presets_2, c_presetSize, FM4synth, seq);
 }
 
 // >>>>> MAIN LOOP <<<<<
@@ -77,6 +80,7 @@ void loop() {
 
   // Debug presets management
   if(Serial.available()) {
+    const unsigned templateIndex = 0;
     int synthStripIndex = 0;
     unsigned parmIndex = 0;
     ParameterValues parmValues;
@@ -84,11 +88,11 @@ void loop() {
     if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
       if (parmIndex > SynthParameterIndex::synth_Count) {
         const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
-        seq.setIndexedParameter(seqParmIndex, parmValues);
+        seq.setIndexedParameter(templateIndex, seqParmIndex, parmValues);
       } else {
         const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
         // For now the synth has no multi-values parameters
-        FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
+        FM4synth.setIndexedParameter(synthStripIndex, templateIndex, synthParmIndex, parmValues.data_[0]);
         FM4synth.applyParms();
       }
     } else {

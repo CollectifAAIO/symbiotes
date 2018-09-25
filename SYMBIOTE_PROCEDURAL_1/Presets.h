@@ -195,32 +195,36 @@ bool ParseParameterLine(const String & data, int & _outStripIndex, unsigned & _o
   return false;
 }
 
-void ParseBinaryPresets(const BinaryPreset * data, const unsigned dataLength, FM4 & synth, Sequencer & seq) {
-  unsigned index = 0;
-
+void ParseBinaryPresets(const BinaryPreset * data_1, const BinaryPreset * data_2, const unsigned presetLength, FM4 & synth, Sequencer & seq) {
 #ifdef PRESET_DEBUG
-  Serial.printf("ParseBinaryPresets: %d presets\n", dataLength);
+    Serial.printf("ParseBinaryPresets: %d presets\n", presetLength);
 #endif // PRESET_DEBUG
 
-  while (index < dataLength) {
-    const BinaryPreset * presetItem = data + index;
+  const BinaryPreset * allPresets[] = {data_1, data_2};
+  for (int presetIndex = 0; presetIndex < 2; ++presetIndex) {
+    const BinaryPreset * currentPreset = allPresets[presetIndex];
+    unsigned itemIndex = 0;
 
-    int synthStripIndex = presetItem->SynthStripIndex_ - 1;
-    unsigned parmIndex = presetItem->ParameterIndex_;
-    ParameterValues parmValues(presetItem->ParameterValuesCount_, presetItem->ParameterValues_);
+    while (itemIndex < presetLength) {
+      const BinaryPreset * presetItem = currentPreset + itemIndex;
+
+      int synthStripIndex = presetItem->SynthStripIndex_ - 1;
+      unsigned parmIndex = presetItem->ParameterIndex_;
+      ParameterValues parmValues(presetItem->ParameterValuesCount_, presetItem->ParameterValues_);
 #ifdef PRESET_DEBUG
-    //parmValues.dump();
+      //parmValues.dump();
 #endif // PRESET_DEBUG
-    if (parmIndex > SynthParameterIndex::synth_Count) {
-      const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
-      seq.setIndexedParameter(seqParmIndex, parmValues);
-    } else {
-      const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
-      // For now the synth has no multi-values parameters
-      synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
-      synth.applyParms();
+      if (parmIndex > SynthParameterIndex::synth_Count) {
+        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
+        seq.setIndexedParameter(presetIndex, seqParmIndex, parmValues);
+      } else {
+        const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+        // For now the synth has no multi-values parameters
+        synth.setIndexedParameter(synthStripIndex, presetIndex, synthParmIndex, parmValues.data_[0]);
+        synth.applyParms();
+      }
+      index += 1;
     }
-    index += 1;
   }
 }
 
