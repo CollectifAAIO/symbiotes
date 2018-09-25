@@ -17,12 +17,16 @@
 #ifndef _PRESETS_H_
 #define _PRESETS_H_
 
+#include "FM4_synth.h"
+#include "Sequencer.h"
+
 static const String c_tokens[] = {
   "waveform",
   "glide",
   "Pitch",
   "glide_rand",
   "Pitch_rand",
+  "ListenSeq",
   "FM_Osc1",
   "FM_Osc2",
   "FM_Osc3",
@@ -60,97 +64,161 @@ static const String c_tokens[] = {
   "LADSR_Dcay_rand",
   "LADSR_Sus_rand",
   "LADSR_Rel_rand",
-  "Vol"
-};
-enum parameterIndex {
-  waveform,
-  glide,
-  Pitch,
-  glide_rand,
-  Pitch_rand,
-  FM_Osc1,
-  FM_Osc2,
-  FM_Osc3,
-  FM_Osc4,
-  FM_Osc1_rand,
-  FM_Osc2_rand,
-  FM_Osc3_rand,
-  FM_Osc4_rand,
-  AM_Waveform,
-  AM_Depth,
-  AM_Freq,
-  AM_Depth_rand,
-  AM_Freq_rand,
-  PADSR_Dlay,
-  PADSR_Amp,
-  PADSR_Atk,
-  PADSR_Dcay,
-  PADSR_Sus,
-  PADSR_Rel,
-  PADSR_Dlay_rand,
-  PADSR_Amp_rand,
-  PADSR_Atk_rand,
-  PADSR_Dcay_rand,
-  PADSR_Sus_rand,
-  PADSR_Rel_rand,
-  LADSR_Dlay,
-  LADSR_Amp,
-  LADSR_Atk,
-  LADSR_Dcay,
-  LADSR_Sus,
-  LADSR_Rel,
-  LADSR_Dlay_rand,
-  LADSR_Amp_rand,
-  ADSR_Atk_rand,
-  LADSR_Dcay_rand,
-  LADSR_Sus_rand,
-  LADSR_Rel_rand,
-  Vol
+  "Vol",
+  "randomizeSeqOrSound",
+  "loop",
+  "bpm",
+  "RestartFrom0",
+  "StepNumber",
+  "RandomSpeed",
+  "octave",
+  "arpeg",
+  "random-trig",
+  "min-trigger-time",
+  "max-trigger-time"
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
-bool ParseParameter(int & _outStripIndex, parameterIndex & _outParmIndex, float & _outParmValue) {
-  if(Serial.available()) {
-    const String data = Serial.readString();
-    char stripIndexChar = data[0];
-    if (isDigit(stripIndexChar)) {
-      // 48 => "0" in ASCII
-      const int stripIndex = stripIndexChar - 48;
+//#define PRESET_DEBUG
 
-      int cursor = 1;
-      const int dataLength = data.length();
-      String token;
-      token.reserve(dataLength);
-      while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && !isDigit(data[cursor])) {
-        token += data[cursor];
-        cursor += 1;
-      }
-      //Serial.printf("%d - %s\n", stripIndex, token.c_str());
-      int tokenIdx = 0;
+struct BinaryPreset {
+  unsigned SynthStripIndex_;
+  unsigned ParameterIndex_;
+  unsigned ParameterValuesCount_;
+  float ParameterValues_[16];
+};
+
+bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, const bool allowDigits) {
+  unsigned cursor = inOutCursor;
+  const unsigned dataLength = data.length();
+  String token;
+  token.reserve(dataLength);
+  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && (allowDigits || !isDigit(data[cursor]))) {
+    token += data[cursor];
+    cursor += 1;
+  }
+  const unsigned initialCursor = inOutCursor;
+  inOutCursor = cursor;
+  if (cursor > initialCursor) {
+    outToken = token;
+#ifdef PRESET_DEBUG
+    Serial.printf("ParseToken: %s\n", token.c_str());
+#endif // PRESET_DEBUG
+    return true;
+  }
+#ifdef PRESET_DEBUG
+  Serial.printf("ParseToken failed on %s", data.c_str());
+#endif // PRESET_DEBUG
+  return false;
+}
+
+unsigned ParseNumberTokens(const String & data, unsigned & inOutCursor, ParameterValues & out) {
+  unsigned cursor = inOutCursor;
+  const unsigned dataLength = data.length();
+  String token;
+  token.reserve(16); // arbitrary value, should be enough for the numbers we use
+  int valueIndex = 0;
+
+  while(data[cursor] == ' ') {
+    cursor += 1;
+  }
+
+  while (cursor < dataLength && data[cursor] != '\n' && ParseToken(data, cursor, token, true)) {
+    const float value = token.toFloat();
+    out.data_[valueIndex++] = value;
+#ifdef PRESET_DEBUG
+    Serial.printf("ParseNumberToken: %s %f\n", token.c_str(), value);
+#endif // PRESET_DEBUG
+    token = "";
+    while(data[cursor] == ' ') {
+      cursor += 1;
+    }
+  }
+  return valueIndex;
+}
+
+void CleanIdToken(String & _inOutToken, const bool isSynthPreset) {
+  constexpr const char * c_synthPrefix = "-pst-";
+  constexpr const char * c_seqPrefix = "pst-";
+
+  _inOutToken = _inOutToken.substring( isSynthPreset ? sizeof(c_synthPrefix) + 1 : sizeof(c_seqPrefix));
+#ifdef PRESET_DEBUG
+  Serial.printf("CleanIdToken: %s\n", _inOutToken.c_str());
+#endif // PRESET_DEBUG
+}
+
+bool ParseParameterLine(const String & data, int & _outStripIndex, unsigned & _outParmIndex, ParameterValues & _outParmValues) {
+  char firstChar = data[0];
+  const bool isSynthPreset = isDigit(firstChar);
+  const bool isSeqPreset = firstChar == 'p';
+  if (isSynthPreset || isSeqPreset) {
+    // 48 => "0" in ASCII
+    const int stripIndex = firstChar - 48 - 1;
+
+    unsigned cursor = isSynthPreset? 1 : 0;
+    String token;
+    if (ParseToken(data, cursor, token, false)) {
+      CleanIdToken(token, isSynthPreset);
+      unsigned tokenIdx = 0;
       for (; tokenIdx < c_tokensCount; ++tokenIdx) {
-        //Serial.printf("%s %s %d\n", token.c_str(), c_tokens[tokenIdx].c_str(), tokenIdx);
         if(token == c_tokens[tokenIdx]) {
           break;
         }
       }
       if(tokenIdx >= c_tokensCount) {
+#ifdef PRESET_DEBUG
         Serial.println("Token not found");
+#endif // PRESET_DEBUG
         return false;
       }
-      if(cursor == dataLength) {
+      if(cursor == data.length()) {
+#ifdef PRESET_DEBUG
         Serial.println("Missing value!");
+#endif // PRESET_DEBUG
         return false;
       }
-      //Serial.printf("%s",data.substring(cursor).c_str());
-      const float value = data.substring(cursor).toFloat();
-      _outStripIndex = stripIndex;
-      _outParmIndex = static_cast<parameterIndex>(tokenIdx);
-      _outParmValue = value;
-      Serial.printf("%d - %s - %d - %f\n", stripIndex, token.c_str(), tokenIdx, value);
-      return true;
+      ParameterValues values;
+      if (0 < ParseNumberTokens(data, cursor, values)) {
+        _outStripIndex = stripIndex;
+        _outParmIndex = tokenIdx;
+        _outParmValues = values;
+#ifdef PRESET_DEBUG
+        Serial.printf("%d - %s - %u - %f\n", stripIndex, token.c_str(), tokenIdx, values.data_[0]);
+#endif // PRESET_DEBUG
+        return true;
+      }
     }
   }
   return false;
+}
+
+void ParseBinaryPresets(const BinaryPreset * data, const unsigned dataLength, FM4 & synth, Sequencer & seq) {
+  unsigned index = 0;
+
+#ifdef PRESET_DEBUG
+  Serial.printf("ParseBinaryPresets: %d presets\n", dataLength);
+#endif // PRESET_DEBUG
+
+  while (index < dataLength) {
+    const BinaryPreset * presetItem = data + index;
+
+    int synthStripIndex = presetItem->SynthStripIndex_ - 1;
+    unsigned parmIndex = presetItem->ParameterIndex_;
+    ParameterValues parmValues(presetItem->ParameterValuesCount_, presetItem->ParameterValues_);
+#ifdef PRESET_DEBUG
+    //parmValues.dump();
+#endif // PRESET_DEBUG
+    if (parmIndex > SynthParameterIndex::synth_Count) {
+      const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
+      seq.setIndexedParameter(seqParmIndex, parmValues);
+    } else {
+      const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+      // For now the synth has no multi-values parameters
+      synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
+      synth.applyParms();
+    }
+    index += 1;
+  }
 }
 
 #endif // _PRESETS_H_

@@ -18,7 +18,58 @@
 #ifndef _FM4_SYNTH_H_
 #define _FM4_SYNTH_H_
 
-#include "Presets.h"
+//#define SYNTH_DEBUG
+
+constexpr char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
+constexpr int WAVEFORM_NOISE = 5; // From the pd patch
+
+enum SynthParameterIndex {
+  synth_waveform,
+  synth_glide,
+  synth_Pitch,
+  synth_glide_rand,
+  synth_Pitch_rand,
+  synth_ListenSeq,
+  synth_FM_Osc1,
+  synth_FM_Osc2,
+  synth_FM_Osc3,
+  synth_FM_Osc4,
+  synth_FM_Osc1_rand,
+  synth_FM_Osc2_rand,
+  synth_FM_Osc3_rand,
+  synth_FM_Osc4_rand,
+  synth_AM_Waveform,
+  synth_AM_Depth,
+  synth_AM_Freq,
+  synth_AM_Depth_rand,
+  synth_AM_Freq_rand,
+  synth_PADSR_Dlay,
+  synth_PADSR_Amp,
+  synth_PADSR_Atk,
+  synth_PADSR_Dcay,
+  synth_PADSR_Sus,
+  synth_PADSR_Rel,
+  synth_PADSR_Dlay_rand,
+  synth_PADSR_Amp_rand,
+  synth_PADSR_Atk_rand,
+  synth_PADSR_Dcay_rand,
+  synth_PADSR_Sus_rand,
+  synth_PADSR_Rel_rand,
+  synth_LADSR_Dlay,
+  synth_LADSR_Amp,
+  synth_LADSR_Atk,
+  synth_LADSR_Dcay,
+  synth_LADSR_Sus,
+  synth_LADSR_Rel,
+  synth_LADSR_Dlay_rand,
+  synth_LADSR_Amp_rand,
+  synth_LADSR_Atk_rand,
+  synth_LADSR_Dcay_rand,
+  synth_LADSR_Sus_rand,
+  synth_LADSR_Rel_rand,
+  synth_Vol,
+  synth_Count
+};
 
 // Struct defining an envelope generator parameters
 struct ADSRParms {
@@ -33,7 +84,7 @@ struct ADSRParms {
     RlsMs_( RlsMs ),
     DelayMs_( DelayMs ) {}
 
-    void ApplyToADSR( AudioEffectEnvelope & instance ) const {
+    void applyToADSR( AudioEffectEnvelope & instance ) const {
       instance.attack(AtkMs_);
       instance.decay(DcayMs_);
       instance.sustain(Sus_);
@@ -41,33 +92,50 @@ struct ADSRParms {
       instance.delay(DelayMs_);
     }
 
-    void SetIndexedParameter(const int parmIndex, const float parmValue ) {
+    void setIndexedParameter(const int parmIndex, const float parmValue ) {
+      // Note there is a mismatch between Arduino and the pd patch parameters orde
+      // The pd patch saves as follows:
+      // 0 - Delay
+      // 1 - Amplitude (which does not exist in Teensy ADSR)
+      // 2 - Attack
+      // 3 - Decay
+      // 4 - Sustain
+      // 5 - Release
       switch(parmIndex) {
       case 0:{
-          AtkMs_ = parmValue;
-          break;
-        }
-      case 1:{
-          DcayMs_ = parmValue;
-          break;
-        }
-      case 2:{
-          Sus_ = parmValue;
-          break;
-        }
-      case 3:{
-          RlsMs_ = parmValue;
-          break;
-        }
-      case 4:{
           DelayMs_ = parmValue;
           break;
         }
+      case 1:{
+          // Nothing here!
+          break;
+        }
+      case 2:{
+          AtkMs_ = parmValue;
+          break;
+        }
+      case 3:{
+          DcayMs_ = parmValue;
+          break;
+        }
+      case 4:{
+          Sus_ = parmValue;
+          break;
+        }
+      case 5:{
+          RlsMs_ = parmValue;
+          break;
+        }
       default: {
-        Serial.println("Bad parameter index.");
+        Serial.printf("ADSR: Bad parameter index %d.\n", parmIndex);
         break;
       }
       }
+    }
+
+    void dump() const {
+      Serial.printf("AtkMs_: %d; DcayMs_: %d; Sus_: %f; RlsMs_: %d; DelayMs_: %d\n",
+                    AtkMs_, DcayMs_, Sus_, RlsMs_, DelayMs_);
     }
 
     int AtkMs_;
@@ -77,52 +145,315 @@ struct ADSRParms {
     int DelayMs_;
 };
 
+// Parameters that are directly set from the presets
 struct SynthStripParms {
   SynthStripParms(
     int WaveformOSC = 0,
-    float ShapeModFreq = 5.0,
-    int ShapeModWaveform = 0,
-    float PWShapeMod = 0.0,
-    const ADSRParms & ShapeModParms = ADSRParms( 100, 100, 1.0, 500, 0 ),
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
     int FreqOsc = 440,
+    bool ListenSeq = false,
     float PitchDepth = 0.2,
     const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
     float FMOsc1toOsc = 0.4,
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
-    float DepthNoiseMod = 0.0,
-    const ADSRParms & NoiseParms = ADSRParms( 1, 50, 0.0, 100, 0 ),
     float AMdepth = 0,
     int AMFreq = 4,
     int WaveformAM = 0 )
     :
     WaveformOSC_( WaveformOSC ),
-    ShapeModFreq_( ShapeModFreq ),
-    ShapeModWaveform_( ShapeModWaveform ),
-    PWShapeMod_( PWShapeMod ),
-    ShapeModParms_( ShapeModParms ),
+    VolParms_( VolParms ),
+    VolParmsRand_{},
+    FreqOsc_( FreqOsc ),
+    FreqOscRand_{},
+    ListenSeq_( ListenSeq ),
+    PitchDepth_( PitchDepth ),
+    PitchDepthRand_{},
+    PitchParms_( PitchParms ),
+    PitchParmsRand_{},
+    FMOsc1toOsc_( FMOsc1toOsc ),
+    FMOsc1toOscRand_{},
+    FMOsc2toOsc_( FMOsc2toOsc ),
+    FMOsc2toOscRand_{},
+    FMOsc3toOsc_( FMOsc3toOsc ),
+    FMOsc3toOscRand_{},
+    FMOsc4toOsc_( FMOsc4toOsc ),
+    FMOsc4toOscRand_{},
+    AMdepth_( AMdepth ),
+    AMdepthRand_{},
+    AMFreq_( AMFreq ),
+    AMFreqRand_{},
+    WaveformAM_( WaveformAM ) {}
+
+  void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
+    switch(parmIndex) {
+    case synth_waveform:{
+      WaveformOSC_ = static_cast<int>(parmValue);
+      break;
+    }
+    case synth_glide:{
+      break;
+    }
+    case synth_Pitch:{
+      FreqOsc_ = parmValue;
+      break;
+    }
+    case synth_glide_rand:
+    case synth_Pitch_rand:{
+      FreqOscRand_ = parmValue;
+      break;
+    }
+    case synth_ListenSeq:{
+      ListenSeq_ = parmValue > 0.0f;
+      break;
+    }
+    case synth_FM_Osc1:{
+      FMOsc1toOsc_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc2:{
+      FMOsc2toOsc_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc3:{
+      FMOsc3toOsc_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc4:{
+      FMOsc4toOsc_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc1_rand:{
+      FMOsc1toOscRand_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc2_rand:{
+      FMOsc2toOscRand_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc3_rand:{
+      FMOsc3toOscRand_ = parmValue;
+      break;
+    }
+    case synth_FM_Osc4_rand:{
+      FMOsc4toOscRand_ = parmValue;
+      break;
+    }
+    case synth_AM_Waveform:{
+      WaveformAM_ = parmValue;
+      break;
+    }
+    case synth_AM_Depth:{
+      AMdepth_ = parmValue;
+      break;
+    }
+    case synth_AM_Freq:{
+      AMFreq_ = parmValue;
+      break;
+    }
+    case synth_AM_Depth_rand:{
+      AMdepthRand_ = parmValue;
+      break;
+    }
+    case synth_AM_Freq_rand:{
+      AMFreqRand_ = parmValue;
+      break;
+    }
+    case synth_PADSR_Dlay:
+    case synth_PADSR_Atk:
+    case synth_PADSR_Dcay:
+    case synth_PADSR_Sus:
+    case synth_PADSR_Rel:{
+      const int adsrParmIndex = parmIndex - synth_PADSR_Dlay;
+      PitchParms_.setIndexedParameter(adsrParmIndex, parmValue);
+      break;
+    }
+    case synth_PADSR_Amp:{
+      PitchDepth_ = parmValue;
+      break;
+    }
+    case synth_PADSR_Amp_rand:{
+      PitchDepthRand_ = parmValue;
+      break;
+    }
+    case synth_PADSR_Dlay_rand:
+    case synth_PADSR_Atk_rand:
+    case synth_PADSR_Dcay_rand:
+    case synth_PADSR_Sus_rand:
+    case synth_PADSR_Rel_rand:{
+      const int adsrParmIndex = parmIndex - synth_PADSR_Dlay_rand;
+      PitchParmsRand_.setIndexedParameter(adsrParmIndex, parmValue);
+      break;
+    }
+    case synth_LADSR_Dlay:
+    case synth_LADSR_Amp:
+    case synth_LADSR_Atk:
+    case synth_LADSR_Dcay:
+    case synth_LADSR_Sus:
+    case synth_LADSR_Rel:{
+      const int adsrParmIndex = parmIndex - synth_LADSR_Dlay;
+      VolParms_.setIndexedParameter(adsrParmIndex, parmValue);
+      break;
+    }
+    case synth_LADSR_Dlay_rand:
+    case synth_LADSR_Amp_rand:
+    case synth_LADSR_Atk_rand:
+    case synth_LADSR_Dcay_rand:
+    case synth_LADSR_Sus_rand:
+    case synth_LADSR_Rel_rand:{
+      const int adsrParmIndex = parmIndex - synth_LADSR_Dlay_rand;
+      VolParmsRand_.setIndexedParameter(adsrParmIndex, parmValue);
+      break;
+    }
+    case synth_Vol:{
+      break;
+    }
+    default:{
+        Serial.printf("Synth: Bad parameter index %d.\n", parmIndex);
+      break;
+    }
+    }
+  }
+
+  void dump() const {
+    Serial.println("Vol/Pitch parms");
+    VolParms_.dump();
+    PitchParms_.dump();
+    Serial.println("Vol/Pitch random parms");
+    VolParmsRand_.dump();
+    PitchParmsRand_.dump();
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("FreqOscRand_: %d; FMOsc1toOscRand_: %f; FMOsc2toOscRand_: %f; FMOsc3toOscRand_: %f; FMOsc4toOscRand_: %f; AMdepthRand_: %f; AMFreqRand_: %d;\n",
+                  FreqOscRand_, FMOsc1toOscRand_, FMOsc2toOscRand_, FMOsc3toOscRand_, FMOsc4toOscRand_, AMdepthRand_, AMFreqRand_);
+  }
+
+  // Only accessible through getters so we can implement randomness etc.
+  int WaveformOSC() const {
+    return WaveformOSC_;
+  }
+  ADSRParms VolParms() const {
+    return getRandom(VolParms_, VolParmsRand_);
+  }
+  float FreqOsc() const {
+    return FreqOsc_;
+  }
+  bool ListenSeq() const {
+    return ListenSeq_;
+  }
+  float PitchDepth() const {
+    return getRandom(PitchDepth_, PitchDepthRand_);
+  }
+  ADSRParms PitchParms() const {
+    return getRandom(PitchParms_, PitchParmsRand_);
+  }
+  float FMOsc1toOsc() const {
+    return getRandom(FMOsc1toOsc_, FMOsc1toOscRand_);
+  }
+  float FMOsc2toOsc() const {
+    return getRandom(FMOsc2toOsc_, FMOsc2toOscRand_);
+  }
+  float FMOsc3toOsc() const {
+    return getRandom(FMOsc3toOsc_, FMOsc3toOscRand_);
+  }
+  float FMOsc4toOsc() const {
+    return getRandom(FMOsc4toOsc_, FMOsc4toOscRand_);
+  }
+  float AMdepth() const {
+    return getRandom(AMdepth_, AMdepthRand_);
+  }
+  float AMFreq() const {
+    return getRandom(AMFreq_, AMFreqRand_);
+  }
+  int WaveformAM() const {
+    return WaveformAM_;
+  }
+
+ private:
+  float getRandom(float mean, float halfRange) const {
+    if(halfRange == 0.0f) {
+      return mean;
+    }
+    const float rnd = static_cast<float>(random(2 * halfRange + 1));
+    const float val = (mean - halfRange) + rnd;
+    return abs(val);
+  }
+
+  int getRandom(int mean, int halfRange) const {
+    return getRandom(static_cast<float>(mean), static_cast<float>(halfRange));
+  }
+
+  ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) const {
+    ADSRParms out;
+    out.AtkMs_ = getRandom(meanADSR.AtkMs_, halfRangeADSR.AtkMs_);
+    out.DcayMs_ = getRandom(meanADSR.DcayMs_, halfRangeADSR.DcayMs_);
+    out.Sus_ = getRandom(meanADSR.Sus_, halfRangeADSR.Sus_);
+    out.RlsMs_ = getRandom(meanADSR.RlsMs_, halfRangeADSR.RlsMs_);
+    out.DelayMs_ = getRandom(meanADSR.DelayMs_, halfRangeADSR.DelayMs_);
+    return out;
+  }
+
+  int WaveformOSC_;
+  ADSRParms VolParms_;
+  ADSRParms VolParmsRand_;
+  int FreqOsc_;
+  float FreqOscRand_;
+  bool ListenSeq_;
+  float PitchDepth_;
+  float PitchDepthRand_;
+  ADSRParms PitchParms_;
+  ADSRParms PitchParmsRand_;
+  float FMOsc1toOsc_;
+  float FMOsc1toOscRand_;
+  float FMOsc2toOsc_;
+  float FMOsc2toOscRand_;
+  float FMOsc3toOsc_;
+  float FMOsc3toOscRand_;
+  float FMOsc4toOsc_;
+  float FMOsc4toOscRand_;
+  float AMdepth_;
+  float AMdepthRand_;
+  int AMFreq_;
+  int AMFreqRand_;
+  int WaveformAM_;
+};
+
+// The actual parameters to be applied on the audio objects as is
+// Qualified as "instance" because it's one specific instantiation of parmeters with "meta" associated
+// Such metas include their randomness or dependencies (e.g. modifying a pitch changes other parameters normalised with the pitch)
+struct SynthStripParmsInstance {
+  SynthStripParmsInstance(
+    int WaveformOSC = 0,
+    const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
+    int FreqOsc = 440,
+    bool ListenSeq = false,
+    float PitchDepth = 0.2,
+    const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
+    float FMOsc1toOsc = 0.4,
+    float FMOsc2toOsc = 0.0,
+    float FMOsc3toOsc = 0.0,
+    float FMOsc4toOsc = 0.0,
+    float AMdepth = 0,
+    int AMFreq = 4,
+    int WaveformAM = 0 )
+    :
+    WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
     FreqOsc_( FreqOsc ),
+    ListenSeq_( ListenSeq ),
     PitchDepth_( PitchDepth ),
     PitchParms_( PitchParms ),
     FMOsc1toOsc_( FMOsc1toOsc ),
     FMOsc2toOsc_( FMOsc2toOsc ),
     FMOsc3toOsc_( FMOsc3toOsc ),
     FMOsc4toOsc_( FMOsc4toOsc ),
-    DepthNoiseMod_( DepthNoiseMod ),
-    NoiseParms_( NoiseParms ),
     AMdepth_( AMdepth ),
     AMFreq_( AMFreq ),
     WaveformAM_( WaveformAM ) {}
 
   // OSCs SHAPE
   int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
-  float ShapeModFreq_;  // Rate/frequency of the modulation of the shape of the waveform.
-  int ShapeModWaveform_;  // Waveform modulating the shape of OSC1. It's selected in an array between 0 & 7.
-  float PWShapeMod_;    // Width of Pulse signal.
-  ADSRParms ShapeModParms_;
 
   // OSC VOLUME
 
@@ -132,6 +463,8 @@ struct SynthStripParms {
 
   // Note
   int FreqOsc_;         // frequency of OSC1.
+
+  bool ListenSeq_;
 
   float PitchDepth_;         // Depth of Pitch enveloppe (between 0.0 & 1.0)
   ADSRParms PitchParms_;
@@ -146,115 +479,17 @@ struct SynthStripParms {
   float FMOsc3toOsc_;     // Depth of FM from OSC3
   float FMOsc4toOsc_;     // Depth of FM from OSC4
 
-  // Noise enveloppe
-  float DepthNoiseMod_;     // Depth of noise modulation
-  ADSRParms NoiseParms_;
-
   // AM
   float AMdepth_;      // Mix between amp
 
   int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
   int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
-  void SetIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
-    switch(parmIndex) {
-    case waveform:{
-      WaveformOSC_ = static_cast<int>(parmValue);
-      break;
-    }
-    case glide:{
-      break;
-    }
-    case Pitch:{
-      FreqOsc_ = parmValue;
-      break;
-    }
-    case glide_rand:
-    case Pitch_rand:{
-      break;
-    }
-    case FM_Osc1:{
-      FMOsc1toOsc_ = parmValue;
-      break;
-    }
-    case FM_Osc2:{
-      FMOsc2toOsc_ = parmValue;
-      break;
-    }
-    case FM_Osc3:{
-      FMOsc3toOsc_ = parmValue;
-      break;
-    }
-    case FM_Osc4:{
-      FMOsc4toOsc_ = parmValue;
-      break;
-    }
-    case FM_Osc1_rand:
-    case FM_Osc2_rand:
-    case FM_Osc3_rand:
-    case FM_Osc4_rand:{
-      break;
-    }
-    case AM_Waveform:{
-      WaveformAM_ = parmValue;
-      break;
-    }
-    case AM_Depth:{
-      AMdepth_ = parmValue;
-      break;
-    }
-    case AM_Freq:{
-      AMFreq_ = parmValue;
-      break;
-    }
-    case AM_Depth_rand:
-    case AM_Freq_rand:{
-      break;
-    }
-    case PADSR_Dlay:
-    case PADSR_Amp:
-    case PADSR_Atk:
-    case PADSR_Dcay:
-    case PADSR_Sus:
-    case PADSR_Rel:{
-      const int adsrParmIndex = parmIndex - PADSR_Dlay;
-      PitchParms_.SetIndexedParameter(adsrParmIndex, parmValue);
-      break;
-    }
-    case PADSR_Dlay_rand:
-    case PADSR_Amp_rand:
-    case PADSR_Atk_rand:
-    case PADSR_Dcay_rand:
-    case PADSR_Sus_rand:
-    case PADSR_Rel_rand:{
-      break;
-    }
-    case LADSR_Dlay:
-    case LADSR_Amp:
-    case LADSR_Atk:
-    case LADSR_Dcay:
-    case LADSR_Sus:
-    case LADSR_Rel:{
-      const int adsrParmIndex = parmIndex - LADSR_Dlay;
-      VolParms_.SetIndexedParameter(adsrParmIndex, parmValue);
-      break;
-    }
-    case LADSR_Dlay_rand:
-    case LADSR_Amp_rand:
-    case ADSR_Atk_rand:
-    case LADSR_Dcay_rand:
-    case LADSR_Sus_rand:
-    case LADSR_Rel_rand:{
-      break;
-    }
-    case Vol:{
-      break;
-    }
-    default:{
-      Serial.println("Bad parameter index.");
-      break;
-    }
-    }
+  void dump() const {
+    VolParms_.dump();
+    PitchParms_.dump();
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
   }
 };
 
@@ -264,60 +499,61 @@ struct SynthStrip {
   AudioEffectEnvelope &      PitchEnvOsc,
   AudioMixer4 &              mixerOSCtoOSC,
   AudioMixer4 &              mixerOSC,
-  AudioSynthWaveform &       waveform,
-  AudioEffectEnvelope &      EnvShapeMod,
   AudioSynthWaveformModulated & OSC,
   AudioSynthWaveform &       WaveAM,
   AudioSynthWaveformDc &     AMdc,
   AudioEffectEnvelope &      VolEnvOsc,
   AudioMixer4 &              mixerAM,
-  AudioEffectMultiply &      AM,
-  AudioEffectEnvelope &      EnvNoise) :
+  AudioEffectMultiply &      AM) :
   PitchEnvDepthOsc_(PitchEnvDepthOsc),
   PitchEnvOsc_(PitchEnvOsc),
   mixerOSCtoOSC_(mixerOSCtoOSC),
   mixerOSC_(mixerOSC),
-  waveform_(waveform),
-  EnvShapeMod_(EnvShapeMod),
   OSC_(OSC),
   WaveAM_(WaveAM),
   AMdc_(AMdc),
   VolEnvOsc_(VolEnvOsc),
   mixerAM_(mixerAM),
-  AM_(AM),
-  EnvNoise_(EnvNoise)
+  AM_(AM)
   {}
 
-  void Initialise() {
+  void initialise() {
     AudioNoInterrupts();
 
-    OSC_.amplitude(0.5);
-    VolEnvOsc_.releaseNoteOn(30);
+    OSC_.amplitude(1.0);
+    OSC_.frequencyModulation(1.0);
+    // Set null values for parameters we won't touch
+    VolEnvOsc_.hold( 0 );
+    PitchEnvOsc_.hold( 0 );
     AMdc_.amplitude(1);
     WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
     mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
-    mixerOSC_.gain(2, 1);  // Depth of FM OSCILLATORS
+    mixerOSC_.gain(2, 0);  // Depth of FM OSCILLATORS
 
     AudioInterrupts();
   }
 
-  void ApplyParms() {
+  void applyParms() {
     AudioNoInterrupts();
 
     // COMMAND SYNTH
 
     // OSCs SHAPE
-
-    OSC_.begin(WAVEFORM[parms_.WaveformOSC_]);
-
-    waveform_.begin(1, parms_.ShapeModFreq_, WAVEFORM[parms_.ShapeModWaveform_]); // Waveform parameters which modulate the shape of the OSC.
-    waveform_.pulseWidth(parms_.PWShapeMod_); //If not any modulation is desired, switch the waveform to pulse mode and setup the pulse width to 0.
-    parms_.ShapeModParms_.ApplyToADSR(EnvShapeMod_);
+    if (parms_.WaveformOSC_ == WAVEFORM_NOISE) {
+      //OSC_.amplitude(0.0);
+      mixerOSC_.gain(0, 0.0);
+      mixerOSC_.gain(2, 1.0);
+    } else {
+      OSC_.amplitude(1.0);
+      mixerOSC_.gain(0, 1.0);
+      mixerOSC_.gain(2, 0.0);
+      OSC_.begin(WAVEFORM[parms_.WaveformOSC_]);
+    }
 
     // OSC VOLUME
 
     // Envelop
-    parms_.VolParms_.ApplyToADSR(VolEnvOsc_);
+    parms_.VolParms_.applyToADSR(VolEnvOsc_);
 
     // OSC PITCH
 
@@ -326,7 +562,7 @@ struct SynthStrip {
 
     // Envelop
     PitchEnvDepthOsc_.amplitude(parms_.PitchDepth_); // Depth of Pitch enveloppe
-    parms_.PitchParms_.ApplyToADSR( PitchEnvOsc_ );
+    parms_.PitchParms_.applyToADSR( PitchEnvOsc_ );
 
     // MODULATION
 
@@ -338,10 +574,6 @@ struct SynthStrip {
     mixerOSCtoOSC_.gain(2, parms_.FMOsc3toOsc_);     // Depth of FM from OSC3
     mixerOSCtoOSC_.gain(3, parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
 
-    // Noise enveloppe
-    mixerOSC_.gain(2, parms_.DepthNoiseMod_);       // Depth of noise modulation
-    parms_.NoiseParms_.ApplyToADSR( EnvNoise_ );
-
     // AM
     mixerAM_.gain(0, parms_.AMdepth_);
     mixerAM_.gain(1, 1.0 - parms_.AMdepth_);
@@ -351,45 +583,75 @@ struct SynthStrip {
     AudioInterrupts();
   }
 
-  void SetAllParms(const SynthStripParms & parms) {
+  void setAllParms(const SynthStripParmsInstance & parms) {
     parms_ = parms;
   }
 
-  void SetIndexedParameter(const parameterIndex parmIndex, const float parmValue ) {
-    parms_.SetIndexedParameter(parmIndex, parmValue);
-    Serial.printf("Parm  %d - %f\n", parmIndex, parmValue);
+  void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
+    parmsTemplate_.setIndexedParameter(parmIndex, parmValue);
+#ifdef SYNTH_DEBUG
+    Serial.printf("Parm %d - %f\n", parmIndex, parmValue);
+#endif // SYNTH_DEBUG
   }
 
-  void NoteOn() {
+  void noteOn(const float noteFreqHz) {
+    instantiateParms(noteFreqHz);
+    applyParms();
+
     VolEnvOsc_.noteOn();
     PitchEnvOsc_.noteOn();
-    EnvShapeMod_.noteOn();
-    EnvNoise_.noteOn();
   }
 
-  void NoteOff() {
+  void noteOff() {
     VolEnvOsc_.noteOff();
     PitchEnvOsc_.noteOff();
-    EnvShapeMod_.noteOff();
-    EnvNoise_.noteOff();
   }
 
+  void dump() const {
+    parms_.dump();
+    parmsTemplate_.dump();
+  }
  private:
-  SynthStripParms parms_;
+  void instantiateParms(const float noteFreqHz) {
+    // Handling parameters dependencies here
+    float FreqOsc = parmsTemplate_.FreqOsc();
+    if(parmsTemplate_.ListenSeq()) {
+      FreqOsc = noteFreqHz;
+    }
+    const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
+    ADSRParms PitchParms = parmsTemplate_.PitchParms();
+    PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
+
+    SynthStripParmsInstance newInstance(
+      parmsTemplate_.WaveformOSC(),
+      parmsTemplate_.VolParms(),
+      FreqOsc,
+      parmsTemplate_.ListenSeq(),
+      PitchDepth,
+      PitchParms,
+      parmsTemplate_.FMOsc1toOsc(),
+      parmsTemplate_.FMOsc2toOsc(),
+      parmsTemplate_.FMOsc3toOsc(),
+      parmsTemplate_.FMOsc4toOsc(),
+      parmsTemplate_.AMdepth(),
+      parmsTemplate_.AMFreq(),
+      parmsTemplate_.WaveformAM());
+    setAllParms(newInstance);
+  }
+
+  SynthStripParmsInstance parms_;
+  SynthStripParms parmsTemplate_;
 
   AudioSynthWaveformDc &     PitchEnvDepthOsc_;
   AudioEffectEnvelope &      PitchEnvOsc_;
   AudioMixer4 &              mixerOSCtoOSC_;
   AudioMixer4 &              mixerOSC_;
-  AudioSynthWaveform &       waveform_;
-  AudioEffectEnvelope &      EnvShapeMod_;
   AudioSynthWaveformModulated & OSC_;
   AudioSynthWaveform &       WaveAM_;
   AudioSynthWaveformDc &     AMdc_;
   AudioEffectEnvelope &      VolEnvOsc_;
   AudioMixer4 &              mixerAM_;
   AudioEffectMultiply &      AM_;
-  AudioEffectEnvelope &      EnvNoise_;
 };
 
 class FM4 {
@@ -400,153 +662,126 @@ class FM4 {
     PitchEnvOsc1,
     mixerOSCtoOSC1,
     mixerOSC1,
-    waveform1,
-    EnvShapeMod1,
     OSC1,
     WaveAM1,
     AMdc1,
     VolEnvOsc1,
     mixerAM1,
-    AM1,
-    EnvNoise1),
+    AM1),
   strip2_(
     PitchEnvDepthOsc2,
     PitchEnvOsc2,
     mixerOSCtoOSC2,
     mixerOSC2,
-    waveform2,
-    EnvShapeMod2,
     OSC2,
     WaveAM2,
     AMdc2,
     VolEnvOsc2,
     mixerAM2,
-    AM2,
-    EnvNoise2),
+    AM2),
   strip3_(
     PitchEnvDepthOsc3,
     PitchEnvOsc3,
     mixerOSCtoOSC3,
     mixerOSC3,
-    waveform3,
-    EnvShapeMod3,
     OSC3,
     WaveAM3,
     AMdc3,
     VolEnvOsc3,
     mixerAM3,
-    AM3,
-    EnvNoise3),
+    AM3),
   strip4_(
     PitchEnvDepthOsc4,
     PitchEnvOsc4,
     mixerOSCtoOSC4,
     mixerOSC4,
-    waveform4,
-    EnvShapeMod4,
     OSC4,
     WaveAM4,
     AMdc4,
     VolEnvOsc4,
     mixerAM4,
-    AM4,
-    EnvNoise4),
+    AM4),
   all_synth_strips_{&strip1_, &strip2_, &strip3_, &strip4_ } {
   }
 
   void init() {
-     SynthStripParms defaultSynth1Parms(
+     SynthStripParmsInstance defaultSynth1Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      0.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
-      440, /* FreqOsc */
-      0.2, /* PitchDepth */
-      ADSRParms( 100, 220, 0.0, 200, 100 ), /* PitchParms */
-      0.4, /* FMOsc1toOsc */
+      550, /* FreqOsc */
+      true, /* ListenSeq */
+      1.0, /* PitchDepth */
+      ADSRParms( 100, 200, 0.25, 200, 0 ), /* PitchParms */
+      //ADSRParms( 100, 220, 0.0, 200, 100 ), /* PitchParms */
+      0.0, /* FMOsc1toOsc */
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 1, 50, 0.0, 100, 0 ), /* NoiseParms */
-      0, /* AMdepth */
+      1, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth2Parms(
+     SynthStripParmsInstance defaultSynth2Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth3Parms(
+     SynthStripParmsInstance defaultSynth3Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParms defaultSynth4Parms(
+     SynthStripParmsInstance defaultSynth4Parms(
       0, /* WaveformOSC */
-      5.0, /* ShapeModFreq */
-      0, /* ShapeModWaveform */
-      1.0, /* PWShapeMod */
-      ADSRParms( 100, 100, 1.0, 500, 0 ), /* ShapeModParms */
       ADSRParms( 1, 200, 0.2, 500, 0 ), /* VolParms */
       440, /* FreqOsc */
+      false, /* ListenSeq */
       0.0, /* PitchDepth */
       ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
       0.0, /* FMOsc1toOsc */
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
-      0.0, /* DepthNoiseMod */
-      ADSRParms( 250, 100, 0.5, 100, 0 ), /* NoiseParms */
       0, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-    strip1_.SetAllParms(defaultSynth1Parms);
-    strip2_.SetAllParms(defaultSynth2Parms);
-    strip3_.SetAllParms(defaultSynth3Parms);
-    strip4_.SetAllParms(defaultSynth4Parms);
+    strip1_.setAllParms(defaultSynth1Parms);
+    strip2_.setAllParms(defaultSynth2Parms);
+    strip3_.setAllParms(defaultSynth3Parms);
+    strip4_.setAllParms(defaultSynth4Parms);
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).ApplyParms();
-      GetStrip(i).Initialise();
+      getStrip(i).applyParms();
+      getStrip(i).initialise();
     }
+    // Global initialisations
+    Noise.amplitude(1.0);
   }
 
-  void NoteOn() {
+  void noteOn(const float midiNote) {
+#ifdef SYNTH_DEBUG
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
+#endif // SYNTH_DEBUG
     float VolOsc1 = 1.0;  // Oscillator 1 Level
     float VolOsc2 = 0.0;  // Oscillator 2 Level
     float VolOsc3 = 0.0;  // Oscillator 3 Level
@@ -559,44 +794,64 @@ class FM4 {
     mixerMASTER.gain(3, VolOsc4);
 
     AudioInterrupts();
+    const float noteFreqHz = mtof(midiNote);
+#ifdef SYNTH_DEBUG
+    Serial.printf("noteOn: frequency %f\n", noteFreqHz);
+#endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOn();
+      getStrip(i).noteOn(noteFreqHz);
     }
   }
 
-  void NoteOff() {
+  void noteOff() {
+#ifdef SYNTH_DEBUG
     Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
+#endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOff();
+      getStrip(i).noteOff();
     }
   }
 
-  void SetIndexedParameter(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
+  void setIndexedParameter(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
     if(stripIndex > 3) {
       for (int i = 0; i < 4; ++i) {
-        SetIndexedParameterOnStrip(i, parmIndex, parmValue);
+        setIndexedParameterOnStrip(i, parmIndex, parmValue);
       }
     } else {
-        SetIndexedParameterOnStrip(stripIndex, parmIndex, parmValue);
+        setIndexedParameterOnStrip(stripIndex, parmIndex, parmValue);
     }
   }
 
-  void ApplyParms() {
-    Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
+  void applyParms() {
     for (int i = 0; i < 4; ++i) {
-      GetStrip(i).NoteOff();
+      getStrip(i).applyParms();
     }
   }
 
+  void dumpParms() const {
+    getConstStrip(0).dump();
+  }
  private:
-  SynthStrip & GetStrip( int index ) {
+  const SynthStrip & getConstStrip( int index ) const {
     // We expect indices from 0 to 3
     return *all_synth_strips_[index];
   }
 
-  void SetIndexedParameterOnStrip(const int stripIndex, const parameterIndex parmIndex, const float parmValue ) {
-    Serial.printf("Set Strip %d - ", stripIndex);
-    GetStrip(stripIndex).SetIndexedParameter(parmIndex, parmValue);
+  SynthStrip & getStrip( int index ) {
+    // We expect indices from 0 to 3
+    return *all_synth_strips_[index];
+  }
+
+  float mtof(const float midiNote) {
+    const float freqValueHz = 8.17579891564 * exp(0.0577622650 * midiNote);
+    return freqValueHz;
+  }
+
+  void setIndexedParameterOnStrip(const int stripIndex, const SynthParameterIndex parmIndex, const float parmValue ) {
+#ifdef SYNTH_DEBUG
+    Serial.printf("Set Strip %d - \n", stripIndex);
+#endif // SYNTH_DEBUG
+    getStrip(stripIndex).setIndexedParameter(parmIndex, parmValue);
   }
 
   SynthStrip strip1_;
@@ -607,3 +862,4 @@ class FM4 {
 };
 
 #endif // _FM4_SYNTH_H_
+

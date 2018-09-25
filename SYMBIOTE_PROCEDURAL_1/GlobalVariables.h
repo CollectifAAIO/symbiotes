@@ -14,23 +14,16 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#define SDCARD_CS_PIN    10
-#define SDCARD_MOSI_PIN  7
-#define SDCARD_SCK_PIN   14
+#ifndef _GLOBAL_VARIABLES_H_
+#define _GLOBAL_VARIABLES_H_
 
 // Def In & Out
-#define LED              13
 #define PROXI_PIN        A3
 
 // Include Lib
 #include <MedianFilter.h>   // https://github.com/daPhoosa/MedianFilter
 #include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
 #include <elapsedMillis.h>
-
-// DECLARATION FONCTIONS
-
-float Proxi();
-void FM4_synth (bool Note_on, bool Note_off, int Macro);
 
 // DECLARATION & INIT VARIABLES
 
@@ -58,40 +51,28 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
-bool isNoteOn = false;
-// Time variables
+struct ParameterValues{
+  ParameterValues() : data_{} {
+  }
 
-elapsedMillis TimeNoteElapsed = 0;
-elapsedMillis RandomDensiteTimeElapsed = 0;
-elapsedMillis MonitorTimeElapsed = 0;
+  ParameterValues(const unsigned count, const float data[16] ) : data_{} {
+    for(unsigned i = 0; i < count; ++i) {
+      data_[i] = data[i];
+    }
+  }
 
-bool Note_On = false;
-bool Note_Off = false;
-bool ChangeNoteOn = false;
+  const ParameterValues & operator=(const ParameterValues & rhs) {
+    memcpy(&data_[0], &rhs.data_[0], sizeof(data_));
+    return *this;
+  }
 
-int MinTimeNoteOn = 40;    // SETTING
-int MaxTimeNoteOnBorneMin = 100 ; // SETTING
-int MaxTimeNoteOnBorneMax = 15000; // SETTING
-int MinTimeNoteOff = 100;   // SETTING
-int MaxTimeNoteOff = 1000; // SETTING
+  void dump() const {
+    Serial.printf("%f %f %f %f\n",
+                  data_[0], data_[1], data_[2], data_[3]);
+  }
 
-int randomNoteOnTime = 0;
-int randomNoteOffTime = MaxTimeNoteOnBorneMax + 1;
+  float data_[16];
+};
 
-int RandomDensiteTimeCycle = 1000; // SETTING (en ms)
-
-
-int RefreshScreen = 100;  // SETTING (en ms)
-
-// FM4_SYNTH GLOBAL VARIABLES
-
-int randDecayValue;
-bool NoteOffStateTime = 0;
-bool NoteOffStateTimePrevious = 0;
-
-uint32_t noteTime;
-uint32_t resetNoteOffTime = 0;
-
-const char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SAWTOOTH, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_SQUARE, WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_PULSE, WAVEFORM_SAMPLE_HOLD};
-
+#endif // _GLOBAL_VARIABLES_H_
 

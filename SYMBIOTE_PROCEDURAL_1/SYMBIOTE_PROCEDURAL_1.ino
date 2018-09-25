@@ -16,12 +16,21 @@
 
 
 #include "AudioConfig.h"
-#include "GlobalVariables.h"
-#include "Sensors.h"
 #include "FM4_synth.h"
+#include "GlobalVariables.h"
 #include "Presets.h"
+#include "Sensors.h"
+#include "Sequencer.h"
 
 static FM4 FM4synth;
+static Sequencer seq;
+
+#define PARMS_DUMP
+
+const BinaryPreset c_presets[] = {
+  #include "preset_data.h"
+};
+constexpr unsigned c_presetsCount = sizeof(c_presets)/sizeof(*c_presets);
 
 void setup() {
   Serial.begin(9600);
@@ -34,39 +43,31 @@ void setup() {
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
   FM4synth.init();
+  seq.start();
+  ParseBinaryPresets(c_presets, c_presetsCount, FM4synth, seq);
 }
 
 // >>>>> MAIN LOOP <<<<<
+
+bool isNoteOn = false;
 
 void loop() {
 
   //MACROExpressivite = Proxi();
   //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
 
-  if (isNoteOn) {
-    if (TimeNoteElapsed > randomNoteOffTime) {
-      Serial.print(MonitorTimeElapsed);
-      FM4synth.NoteOff();
-      isNoteOn = false;
+  if ( peak1.available() ) {
+    if ( peak1.read() > 0.5 ) {
+      seq.start();
+      seq.noteOn(FM4synth);
     }
   }
 
-  if( TimeNoteElapsed > MinTimeNoteOn ) {
-    if ( peak1.available() ) {
-      if ( peak1.read() > 0.5 ) {
-        Serial.print(MonitorTimeElapsed);
-        FM4synth.NoteOn();
-        isNoteOn = true;
-        TimeNoteElapsed = 0;
-        randomNoteOffTime = random(MinTimeNoteOff, MaxTimeNoteOff);
-      }
-    }
-  }
+  seq.update(FM4synth);
 
   // Diagnostic
   if (Serial.available() > 0) {
     // don't care about the actual character that was read
-    Serial.read();
     Serial.println(AudioProcessorUsageMax());
     Serial.println(AudioMemoryUsageMax());
 
@@ -75,12 +76,27 @@ void loop() {
   }
 
   // Debug presets management
-  int synthStripIndex = 0;
-  parameterIndex parmIndex = waveform;
-  float parmValue = -1.0f;
-  if ( ParseParameter(synthStripIndex, parmIndex, parmValue) ) {
-    FM4synth.SetIndexedParameter(synthStripIndex, parmIndex, parmValue);
-    FM4synth.ApplyParms();
+  if(Serial.available()) {
+    int synthStripIndex = 0;
+    unsigned parmIndex = 0;
+    ParameterValues parmValues;
+    const String data = Serial.readString();
+    if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
+      if (parmIndex > SynthParameterIndex::synth_Count) {
+        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
+        seq.setIndexedParameter(seqParmIndex, parmValues);
+      } else {
+        const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
+        // For now the synth has no multi-values parameters
+        FM4synth.setIndexedParameter(synthStripIndex, synthParmIndex, parmValues.data_[0]);
+        FM4synth.applyParms();
+      }
+    } else {
+#ifdef PARMS_DUMP
+      FM4synth.dumpParms();
+      seq.dumpParms();
+#endif // PARMS_DUMP
+    }
   }
 }
 
