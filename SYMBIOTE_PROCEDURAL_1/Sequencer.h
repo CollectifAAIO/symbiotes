@@ -28,8 +28,9 @@ enum SequencerParameterIndex {
   seq_RestartFrom0,
   seq_StepNumber,
   seq_RandomSpeed,
-  seq_octave,
+  seq_DutyCycle,
   seq_arpeg,
+  seq_Trigers,
   seq_random_trig,
   seq_min_trigger_time,
   seq_max_trigger_time,
@@ -41,17 +42,22 @@ struct SequencerParms {
     unsigned bpm = 120,
     unsigned stepsCount = 5,
     bool isLooping = false,
-    unsigned octave = 6) :
+    float DutyCycle = 0.5f) :
     bpm_(bpm),
     stepsCount_(stepsCount),
     isLooping_(isLooping),
-    octave_(octave),
-    arpeg_() {
+    DutyCycle_(DutyCycle),
+    arpeg_(),
+    Trigers_() {
       arpeg_.data_[0] = 16.2;
       arpeg_.data_[1] = 10.2;
       arpeg_.data_[2] = 6.2;
       arpeg_.data_[3] = 2.2;
       arpeg_.data_[4] = 0.2;
+      Trigers_.data_[0] = 1;
+      Trigers_.data_[1] = 0;
+      Trigers_.data_[2] = 1;
+      Trigers_.data_[3] = 0;
   }
 
   void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
@@ -80,12 +86,16 @@ struct SequencerParms {
     case seq_RandomSpeed:{
       break;
     }
-    case seq_octave:{
-      octave_ = static_cast<unsigned>(parmValues.data_[0]);
+    case seq_DutyCycle:{
+      DutyCycle_ = parmValues.data_[0];
       break;
     }
     case seq_arpeg:{
       arpeg_ = parmValues;
+      break;
+    }
+    case seq_Trigers:{
+      Trigers_ = parmValues;
       break;
     }
     case seq_random_trig:{
@@ -105,15 +115,16 @@ struct SequencerParms {
   }
 
   void dump() const {
-    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; octave_: %d; arpeg_0: %f;\n",
-                  bpm_, stepsCount_, isLooping_, octave_, arpeg_.data_[0]);
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpeg_0: %f; Trigers_0: %d;\n",
+                  bpm_, stepsCount_, isLooping_, DutyCycle_, arpeg_.data_[0], Trigers_.data_[0]);
   }
 
   unsigned bpm_;
   unsigned stepsCount_;
   bool isLooping_;
-  unsigned octave_;
+  float DutyCycle_;
   ParameterValues arpeg_;
+  ParameterValues Trigers_;
 };
 
 class Sequencer {
@@ -189,7 +200,7 @@ class Sequencer {
  private:
   float computeNextNote() const {
     const float arpegValue = parms_.arpeg_.data_[stepsCounter_];
-    const float midiValue = arpegValue + 12.0 * (11.0 - parms_.octave_);
+    const float midiValue = arpegValue + 12.0;
     return midiValue;
   }
 

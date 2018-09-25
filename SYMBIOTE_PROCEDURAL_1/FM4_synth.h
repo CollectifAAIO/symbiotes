@@ -30,6 +30,8 @@ enum SynthParameterIndex {
   synth_glide_rand,
   synth_Pitch_rand,
   synth_ListenSeq,
+  synth_Transpose,
+  synth_Octave,
   synth_FM_Osc1,
   synth_FM_Osc2,
   synth_FM_Osc3,
@@ -152,6 +154,8 @@ struct SynthStripParms {
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
     int FreqOsc = 440,
     bool ListenSeq = false,
+    unsigned Transpose = 0,
+    unsigned Octave = 0,
     float PitchDepth = 0.2,
     const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
     float FMOsc1toOsc = 0.4,
@@ -168,6 +172,8 @@ struct SynthStripParms {
     FreqOsc_( FreqOsc ),
     FreqOscRand_{},
     ListenSeq_( ListenSeq ),
+    Transpose_( Transpose ),
+    Octave_( Octave ),
     PitchDepth_( PitchDepth ),
     PitchDepthRand_{},
     PitchParms_( PitchParms ),
@@ -206,6 +212,14 @@ struct SynthStripParms {
     }
     case synth_ListenSeq:{
       ListenSeq_ = parmValue > 0.0f;
+      break;
+    }
+    case synth_Transpose:{
+      Transpose_ = static_cast<unsigned>(parmValue);
+      break;
+    }
+    case synth_Octave:{
+      Octave_ = static_cast<unsigned>(parmValue);
       break;
     }
     case synth_FM_Osc1:{
@@ -323,8 +337,8 @@ struct SynthStripParms {
     Serial.println("Vol/Pitch random parms");
     VolParmsRand_.dump();
     PitchParmsRand_.dump();
-    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; Transpose_: %d; Octave_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, FreqOsc_, ListenSeq_, Transpose_, Octave_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
     Serial.printf("FreqOscRand_: %d; FMOsc1toOscRand_: %f; FMOsc2toOscRand_: %f; FMOsc3toOscRand_: %f; FMOsc4toOscRand_: %f; AMdepthRand_: %f; AMFreqRand_: %d;\n",
                   FreqOscRand_, FMOsc1toOscRand_, FMOsc2toOscRand_, FMOsc3toOscRand_, FMOsc4toOscRand_, AMdepthRand_, AMFreqRand_);
   }
@@ -342,8 +356,9 @@ struct SynthStripParms {
   bool ListenSeq() const {
     return ListenSeq_;
   }
-  float PitchDepth() const {
-    return getRandom(PitchDepth_, PitchDepthRand_);
+  float PitchDepth(const float freqHz) const {
+    const float pitchedNoteHz = (freqHz * Transpose_) * pow(2.0f, Octave_);
+    return getRandom(pitchedNoteHz, PitchDepthRand_);
   }
   ADSRParms PitchParms() const {
     return getRandom(PitchParms_, PitchParmsRand_);
@@ -400,6 +415,8 @@ struct SynthStripParms {
   int FreqOsc_;
   float FreqOscRand_;
   bool ListenSeq_;
+  unsigned Transpose_;
+  unsigned Octave_;
   float PitchDepth_;
   float PitchDepthRand_;
   ADSRParms PitchParms_;
@@ -618,7 +635,7 @@ struct SynthStrip {
     if(parmsTemplate_.ListenSeq()) {
       FreqOsc = noteFreqHz;
     }
-    const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
+    const float PitchDepth = parmsTemplate_.PitchDepth(noteFreqHz) / FreqOsc;
     ADSRParms PitchParms = parmsTemplate_.PitchParms();
     PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
 
