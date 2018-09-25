@@ -147,18 +147,23 @@ class Sequencer {
   void update(FM4 & synth_) {
     if (timer_ >= periodMs_) {
       if(cyclesCounter_ == 0 || parms_.isLooping_) {
-        if(stepsCounter_ < parms_.stepsCount_) {
-          if (!isNoteOn_) {
+        if(parms_.Trigers_.data_[stepsCounter_] > 0.0f) {
             noteOn(synth_);
-          } else {
-            noteOff(synth_);
-          }
-#ifdef SEQ_DEBUG
-          Serial.printf("Cycles count %d - Steps count %d\n", cyclesCounter_, stepsCounter_);
-#endif // SEQ_DEBUG
-        } else if(isNoteOn_) {
-          noteOff(synth_);
         }
+#ifdef SEQ_DEBUG
+        Serial.printf("Cycles count %d - Steps count %d\n", cyclesCounter_, stepsCounter_);
+#endif // SEQ_DEBUG
+        stepsCounter_ += 1;
+        stepsCounter_ = stepsCounter_ % parms_.stepsCount_;
+        if (stepsCounter_ == 0) {
+          cyclesCounter_ += 1;
+        }
+        timer_ = 0;
+        noteOffTime_ = static_cast<unsigned>(static_cast<float>(periodMs_) * parms_.DutyCycle_);
+      }
+    } else if (timer_ >= noteOffTime_) {
+      if (isNoteOn_) {
+        noteOff(synth_);
       }
     }
   }
@@ -173,28 +178,23 @@ class Sequencer {
 
   void noteOn(FM4 & synth_) {
     const float midiNote = computeNextNote();
-#ifdef SEQ_DEBUG
-    Serial.printf("noteOn: %f\n", midiNote);
-#endif // SEQ_DEBUG
     synth_.noteOn(midiNote);
     applyParms();
     isNoteOn_ = true;
-    timer_ = 0;
-    stepsCounter_ += 1;
-    stepsCounter_ = stepsCounter_ % parms_.stepsCount_;
+#ifdef SEQ_DEBUG
+    Serial.printf("noteOn: %f - expected note off time: %d\n", midiNote, noteOffTime_);
+#endif // SEQ_DEBUG
   }
 
   void noteOff(FM4 & synth_) {
     synth_.noteOff();
     isNoteOn_ = false;
-    timer_ = 0;
-    if (stepsCounter_ == 0) {
-      cyclesCounter_ += 1;
-    }
   }
 
   void dumpParms() const {
     parms_.dump();
+    Serial.printf("periodMs: %u, noteOffTime: %u\n",
+                  periodMs_, noteOffTime_);
   }
 
  private:
@@ -205,6 +205,7 @@ class Sequencer {
   }
 
   elapsedMillis timer_;
+  unsigned noteOffTime_;
   unsigned stepsCounter_;
   unsigned cyclesCounter_;
   bool isNoteOn_;
