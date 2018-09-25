@@ -455,7 +455,7 @@ Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
 #X obj 176 172 spigot 1;
 #X obj 176 195 delay;
 #X obj 14 500 expr $f1 + 12;
-#X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle
+#X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
 0 -10 0 10 -66577 -20480 -1 0 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
@@ -466,6 +466,11 @@ Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
 #X obj 14 425 t f f;
 #X obj 534 556 r ms-per-beat;
 #X text 496 363 == 4*;
+#X text 29 700 *Duty Cycle is a ratio between the time of note On and
+Note Off. Ex : if the slider is half way \, the note off event will
+occures after half of the time of a step. slider to 1 \, is a legato
+when 2 step are selected consecutively. Slider to 0 means a note on
+of 0.1 ms., f 124;
 #X connect 0 0 62 0;
 #X connect 0 0 63 0;
 #X connect 2 0 16 0;
