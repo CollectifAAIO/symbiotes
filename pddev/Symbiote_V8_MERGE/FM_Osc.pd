@@ -6,7 +6,7 @@
 0 100 0 10 -262144 -1 -1 0;
 #X text 124 10 Saw;
 #X obj 456 -18 vsl 40 100 0 1 0 0 \$0-Vol \$1-set-Vol VOL 10 5 0 10
--99865 -262144 -262144 4200 1;
+-99865 -262144 -262144 0 1;
 #X obj 242 11 hsl 40 15 0 20000 0 0 \$0-FM_Osc2 \$1-set-FM_Osc2 FM_Osc2
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 242 42 hsl 40 15 0 20000 0 0 \$0-FM_Osc3 \$1-set-FM_Osc3 FM_Osc3
@@ -26,15 +26,15 @@ AM_WAVEFORM 0 100 0 10 -262144 -1 -1 0;
 #X obj 173 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dlay \$1-set-LADSR_Dlay
 Dlay 0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 239 110 nbx 4 14 0 1 0 0 \$0-LADSR_Amp \$1-set-LADSR_Amp Atk.Amp
-0 -6 0 10 -36344 -1 -1 1 256;
+0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 304 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Atk \$1-set-LADSR_Atk
-A 0 -6 0 10 -27631 -1 -1 6 256;
+A 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 353 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dcay \$1-set-LADSR_Dcay
 D 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 402 110 nbx 4 14 0 1 0 0 \$0-LADSR_Sus \$1-set-LADSR_Sus S 0
--6 0 10 -27631 -1 -1 1 256;
+-6 0 10 -27631 -1 -1 0 256;
 #X obj 451 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Rel \$1-set-LADSR_Rel
-R 0 -6 0 10 -27631 -1 -1 4 256;
+R 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 173 138 nbx 4 14 0 11880 0 0 \$0-PADSR_Dlay \$1-set-PADSR_Dlay
 empty 48 8 0 10 -56448 -1 -1 0 256;
 #X obj 238 138 nbx 4 14 0 19980 0 0 \$0-PADSR_Amp \$1-set-PADSR_Amp
@@ -59,7 +59,7 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 #X obj 23 507 throw~ \$1-Osc;
 #X obj 118 507 s~ \$1-FMOsc;
 #X obj 173 -20 nbx 5 25 0 20000 0 0 \$0-Pitch \$1-set-Pitch Pitch 0
--7 0 10 -27631 -262144 -1 3729.31 256;
+-7 0 10 -27631 -262144 -1 0 256;
 #X obj 23 164 line;
 #X obj 176 49 hsl 40 15 0 2000 0 0 \$0-glide \$1-set-glide Glide 5
 8 0 10 -4032 -1 -1 0 1;
@@ -1018,7 +1018,7 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 461 350 Randomize;
 #X obj 535 217 Randomize;
 #X obj 153 -20 tgl 14 0 \$0-ListenSeq \$1-set-ListenSeq Seq 0 -7 0
-10 -27631 -1 -1 1 1;
+10 -27631 -1 -1 0 1;
 #X obj 630 135 spigot;
 #X obj 38 350 ADSR, f 18;
 #X obj 41 217 ADSR, f 18;
@@ -1029,13 +1029,13 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 30 7 0 10 -20480 -1 -1 0 256;
 #X obj 687 54 r \$0-Transpose;
 #X obj 173 33 nbx 2 14 0 10 0 0 \$0-Octave \$1-set-Octave Oct 30 7
-0 10 -20480 -1 -1 7 256;
+0 10 -20480 -1 -1 0 256;
 #X obj 791 54 r \$0-Octave;
 #X obj 630 -26 r Note;
 #X obj 538 -26 r TrigNote;
-#X obj 538 5 t i b;
 #X text 582 9 Trig enveloppes & randomize;
 #X text 583 24 Send Note to Osc;
+#X obj 538 5 t f b;
 #X connect 0 0 1 0;
 #X connect 1 0 14 0;
 #X connect 2 0 0 0;
@@ -1128,26 +1128,26 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X connect 107 0 104 0;
 #X connect 109 0 105 0;
 #X connect 110 0 103 0;
-#X connect 111 0 112 0;
-#X connect 112 0 101 0;
-#X connect 112 0 102 0;
-#X connect 112 1 79 0;
-#X connect 112 1 82 0;
-#X connect 112 1 89 0;
-#X connect 112 1 90 0;
-#X connect 112 1 91 0;
-#X connect 112 1 92 0;
-#X connect 112 1 93 0;
-#X connect 112 1 98 0;
-#X connect 112 1 86 0;
-#X connect 112 1 85 0;
-#X connect 112 1 84 0;
-#X connect 112 1 83 0;
-#X connect 112 1 87 0;
-#X connect 112 1 88 0;
-#X connect 112 1 97 0;
-#X connect 112 1 96 0;
-#X connect 112 1 95 0;
-#X connect 112 1 81 0;
-#X connect 112 1 94 0;
+#X connect 111 0 114 0;
+#X connect 114 0 101 0;
+#X connect 114 0 102 0;
+#X connect 114 1 79 0;
+#X connect 114 1 82 0;
+#X connect 114 1 89 0;
+#X connect 114 1 90 0;
+#X connect 114 1 91 0;
+#X connect 114 1 92 0;
+#X connect 114 1 93 0;
+#X connect 114 1 98 0;
+#X connect 114 1 86 0;
+#X connect 114 1 85 0;
+#X connect 114 1 84 0;
+#X connect 114 1 83 0;
+#X connect 114 1 87 0;
+#X connect 114 1 88 0;
+#X connect 114 1 97 0;
+#X connect 114 1 96 0;
+#X connect 114 1 95 0;
+#X connect 114 1 81 0;
+#X connect 114 1 94 0;
 #X coords 0 -1 1 1 400 200 1 100 -35;
