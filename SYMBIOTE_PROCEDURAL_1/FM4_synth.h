@@ -350,15 +350,19 @@ struct SynthStripParms {
   ADSRParms VolParms() const {
     return getRandom(VolParms_, VolParmsRand_);
   }
-  float FreqOsc() const {
-    return FreqOsc_;
+  float FreqOsc(const float freqHz) const {
+    if(ListenSeq_) {
+      const float pitchedNoteHz = (freqHz * Transpose_) * pow(2.0f, Octave_);
+      return pitchedNoteHz;
+    } else {
+      return FreqOsc_;
+    }
   }
   bool ListenSeq() const {
     return ListenSeq_;
   }
-  float PitchDepth(const float freqHz) const {
-    const float pitchedNoteHz = (freqHz * Transpose_) * pow(2.0f, Octave_);
-    return getRandom(pitchedNoteHz, PitchDepthRand_);
+  float PitchDepth() const {
+    return getRandom(PitchDepth_, PitchDepthRand_);
   }
   ADSRParms PitchParms() const {
     return getRandom(PitchParms_, PitchParmsRand_);
@@ -631,13 +635,14 @@ struct SynthStrip {
  private:
   void instantiateParms(const float noteFreqHz) {
     // Handling parameters dependencies here
-    float FreqOsc = parmsTemplate_.FreqOsc();
-    if(parmsTemplate_.ListenSeq()) {
-      FreqOsc = noteFreqHz;
-    }
-    const float PitchDepth = parmsTemplate_.PitchDepth(noteFreqHz) / FreqOsc;
+    const float FreqOsc = parmsTemplate_.FreqOsc(noteFreqHz);
+    const float PitchDepth = parmsTemplate_.PitchDepth() / FreqOsc;
     ADSRParms PitchParms = parmsTemplate_.PitchParms();
     PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
+
+#ifdef SYNTH_DEBUG
+    Serial.printf("New freq %f\n", FreqOsc);
+#endif // SYNTH_DEBUG
 
     SynthStripParmsInstance newInstance(
       parmsTemplate_.WaveformOSC(),
