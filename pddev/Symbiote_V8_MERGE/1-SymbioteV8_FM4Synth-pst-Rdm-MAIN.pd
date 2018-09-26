@@ -95,7 +95,7 @@
 #X obj 539 102 s Play;
 #X obj 539 130 r isPlaying;
 #X obj 779 254 spigot;
-#X obj 824 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 824 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 411 275 FM_Osc 2;
 #X obj 7 477 FM_Osc 3;
