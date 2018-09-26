@@ -653,7 +653,7 @@ struct SynthStrip {
 
   void instantiateParms(const float noteFreqHz, const float interpolationFactor) {
     SynthStripParmsInstance newInstances[c_templatesCount];
-    for (int i = 0; i < c_templatesCount; ++i) {
+    for (unsigned i = 0; i < c_templatesCount; ++i) {
       // Handling parameters dependencies here
       const float FreqOsc = parmsTemplate_[i].FreqOsc(noteFreqHz);
       const float PitchDepth = parmsTemplate_[i].PitchDepth() / FreqOsc;
