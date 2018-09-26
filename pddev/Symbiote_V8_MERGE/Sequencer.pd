@@ -6,7 +6,8 @@
 #X obj 48 359 + 1;
 #N canvas 0 23 450 278 (subpatch) 0;
 #X array arpeg 16 float 3;
-#A 0 5.06667 0 5.00001 0 0 5 0 0 0 0 0 0 0 0 0 0;
+#A 0 6 0 5.13333 0 5.13333 -0.0666609 5.13333 -0.0666609 0 1.90735e-06
+5.2 0 0 0 0 0;
 #X coords 0 12 16 0 240 180 2 0 0;
 #X restore 179 293 graph;
 #X msg 57 425 1, f 2;
@@ -165,7 +166,7 @@
 #X connect 6 1 1 0;
 #X connect 6 2 1 0;
 #X restore 609 241 pd presets;
-#N canvas 0 52 1224 597 pst-routing 0;
+#N canvas 0 52 1224 597 pst-routing 1;
 #X obj 60 44 r pst;
 #X obj 61 315 scale 0 1 0 1;
 #X obj 61 269 r pst-morph;
@@ -181,10 +182,10 @@
 #X obj 326 367 s set-max-trigger-time;
 #X obj 472 397 s set-loop;
 #X obj 684 367 s set-bpm;
-#N canvas 0 23 727 285 arpegs 0;
+#N canvas 0 23 727 285 arpegs 1;
 #X obj 390 70 inlet;
 #X obj 537 70 inlet;
-#N canvas 452 491 836 371 inter 0;
+#N canvas 452 491 836 371 inter 1;
 #X obj 55 149 until;
 #X obj 55 171 i;
 #X obj 85 172 + 1;
@@ -382,7 +383,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 179 490 hradio 15 1 0 16 empty empty empty 0 -8 0 10 -66577
--4032 -1 6;
+-4032 -1 13;
 #X msg 609 123 \; arpeg xticks 0 1 1;
 #N canvas 599 252 612 300 rambom-seq-trigger 0;
 #X obj 75 142 metro 5000;
@@ -433,7 +434,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 135 226 delay;
 #X obj 14 500 expr $f1 + 12;
 #X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
--40 -10 0 10 -66577 -20480 -1 0 1;
+-40 -10 0 10 -66577 -20480 -1 4471 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
 #X obj 14 560 s Note;
@@ -477,9 +478,9 @@ of 0.1 ms., f 124;
 #X floatatom 454 486 5 0 15000 1 RandomTempo(ms) set-RandomSpeed RandomSpeed
 , f 5;
 #X obj 454 466 tgl 15 0 RandomizeSeqOrSound set-RandomizeSeqOrSound
-Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
+Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 1 1;
 #X obj 454 446 tgl 15 0 RestartFrom0 set-RestartFrom0 RestartFrom_0
-25 7 0 10 -262144 -1 -1 0 1;
+25 7 0 10 -262144 -1 -1 2 1;
 #X text 869 367 Loop sets random trigger times to the length of the
 sequence, f 22;
 #X text 186 211 Stops playing at the end of the sequence, f 14;
@@ -488,8 +489,8 @@ sequence, f 22;
 #X obj 16 77 loadbang;
 #X obj 16 99 t b b b;
 #X obj 55 121 s lb-1;
-#X obj 35 141 s lb-1;
-#X obj 16 161 s lb-1;
+#X obj 35 141 s lb-2;
+#X obj 16 161 s lb-3;
 #X connect 0 0 45 0;
 #X connect 0 0 46 0;
 #X connect 1 0 11 0;
