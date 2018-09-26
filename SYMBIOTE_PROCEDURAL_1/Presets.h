@@ -224,7 +224,7 @@ void ParseBinaryPresets(const BinaryPreset * data_1, const BinaryPreset * data_2
         synth.setIndexedParameter(synthStripIndex, presetIndex, synthParmIndex, parmValues.data_[0]);
         synth.applyParms();
       }
-      index += 1;
+      itemIndex += 1;
     }
   }
 }
