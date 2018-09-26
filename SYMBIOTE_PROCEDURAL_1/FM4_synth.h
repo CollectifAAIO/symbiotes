@@ -158,7 +158,7 @@ static ADSRParms Lerp(const ADSRParms & lhs, const ADSRParms & rhs, const float 
     Lerp(lhs.DelayMs_, rhs.DelayMs_, interpolationFactor));
 }
 
-ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) const {
+ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) {
   ADSRParms out;
   out.AtkMs_ = getRandom(meanADSR.AtkMs_, halfRangeADSR.AtkMs_);
   out.DcayMs_ = getRandom(meanADSR.DcayMs_, halfRangeADSR.DcayMs_);

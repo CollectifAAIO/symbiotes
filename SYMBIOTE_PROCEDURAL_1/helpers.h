@@ -53,7 +53,7 @@ static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor
   return static_cast<bool>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
 }
 
-float getRandom(float mean, float halfRange) const {
+float getRandom(float mean, float halfRange) {
   if(halfRange == 0.0f) {
     return mean;
   }
@@ -62,7 +62,7 @@ float getRandom(float mean, float halfRange) const {
   return abs(val);
 }
 
-int getRandom(int mean, int halfRange) const {
+int getRandom(int mean, int halfRange) {
   return getRandom(static_cast<float>(mean), static_cast<float>(halfRange));
 }
 
