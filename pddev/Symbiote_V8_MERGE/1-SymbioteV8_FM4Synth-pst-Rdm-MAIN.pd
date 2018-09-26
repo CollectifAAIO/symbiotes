@@ -1,4 +1,4 @@
-#N canvas 396 37 1224 766 10;
+#N canvas 216 37 1224 766 10;
 #X obj 817 276 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
 #X obj 171 712 dac~;
@@ -94,7 +94,7 @@
 #X obj 539 102 s Play;
 #X obj 539 130 r isPlaying;
 #X obj 779 254 spigot;
-#X obj 824 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 824 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 411 275 FM_Osc 2;
 #X obj 7 477 FM_Osc 3;
@@ -109,6 +109,7 @@
 #X text 781 177 Data-flow can be stopped while playing with settings
 , f 15;
 #X obj 649 101 s Play;
+#X text 967 460 Developed by Collectif AAIO;
 #X connect 2 0 1 0;
 #X connect 2 0 1 1;
 #X connect 2 0 26 0;
