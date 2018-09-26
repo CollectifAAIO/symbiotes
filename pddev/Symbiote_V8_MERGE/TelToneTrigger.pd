@@ -20,7 +20,7 @@
 #X text 367 184 2 - Call;
 #X text 367 152 0 - No sound;
 #X obj 24 162 metro 513;
-#X obj 21 320 tgl 20 0 empty empty Play 25 10 0 10 -36344 -1 -1 1 1
+#X obj 21 320 tgl 20 0 empty empty Play 25 10 0 10 -36344 -1 -1 0 1
 ;
 #X obj 85 6 metro;
 #X obj 24 69 onebang;

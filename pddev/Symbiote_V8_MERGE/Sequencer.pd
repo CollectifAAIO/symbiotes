@@ -6,8 +6,7 @@
 #X obj 48 359 + 1;
 #N canvas 0 23 450 278 (subpatch) 0;
 #X array arpeg 16 float 3;
-#A 0 6 0 5.13333 0 5.13333 -0.0666609 5.13333 -0.0666609 0 1.90735e-06
-5.2 0 0 0 0 0;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
 #X coords 0 12 16 0 240 180 2 0 0;
 #X restore 179 293 graph;
 #X msg 57 425 1, f 2;
@@ -434,7 +433,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 135 226 delay;
 #X obj 14 500 expr $f1 + 12;
 #X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
--40 -10 0 10 -66577 -20480 -1 12283 1;
+-40 -10 0 10 -66577 -20480 -1 0 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
 #X obj 14 560 s Note;

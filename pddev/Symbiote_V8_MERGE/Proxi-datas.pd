@@ -1,24 +1,10 @@
-#N canvas 1363 209 893 674 10;
-#X obj 376 139 change;
-#X obj 376 163 sel 1;
-#X msg 9 25 close;
-#X obj 221 152 hsl 115 15 0 1 0 0 empty empty Proxi_value -2 -8 0 10
--262144 -1 -1 0 1;
-#X obj 221 183 hsl 115 15 0 1 0 0 empty empty proxi-average -2 -8 0
-10 -262144 -1 -1 0 1;
+#N canvas 1154 336 893 674 10;
+#X obj 452 139 change;
+#X obj 452 163 sel 1;
 #X obj 218 28 * -1;
 #X obj 218 52 + 1;
-#X obj 218 120 tgl 15 0 empty empty SENSOR_ACTIVE 17 7 0 10 -262144
--1 -1 0 1;
-#X floatatom 376 95 5 0 0 0 - - -, f 5;
-#X obj 9 78 spigot 1;
-#X msg 41 9 devices;
-#X obj 9 50 comport 1 9600;
-#X msg 66 25 open 1;
+#X floatatom 452 95 5 0 0 0 - - -, f 5;
 #X obj 218 3 r stopInput;
-#X obj 376 117 <= 20;
-#X obj 331 121 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
 #X obj 453 261 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 376 241 f 1;
@@ -27,21 +13,15 @@
 #X obj 453 281 t b b;
 #X obj 361 305 f;
 #X msg 453 303 0;
-#X obj 219 216 hradio 15 1 0 8 empty empty Threshold-crossings 0 -8
-0 10 -262144 -1 -1 0;
 #X text 495 271 Nr of threshold crossings in a given time period;
 #X text 495 284 Sensitivity is set using threshold message;
 #X text 495 297 Time period is set using del;
 #X obj 453 237 del 5000;
-#X obj 9 235 average 50;
+#X obj 9 236 average 50;
 #X obj 361 343 s proxi-threshold-crossings;
-#X obj 452 213 s proxi-bang;
-#X obj 9 100 moses 101;
-#X floatatom 60 132 5 0 0 0 - - -, f 5;
-#X text 82 72 split signals from proxi (0-100) and mic (101-200),
-f 17;
-#X obj 9 258 s proxi-average;
-#X obj 9 183 expr $f1/50*(-1)+1;
+#X obj 452 188 s proxi-bang;
+#X obj 9 268 s proxi-average;
+#X obj 9 137 expr $f1/50*(-1)+1;
 #N canvas 0 22 450 300 auto-calibrate 0;
 #X obj 54 29 inlet;
 #X obj 54 94 scale 0 1 0 100;
@@ -80,41 +60,84 @@ f 17;
 #X connect 1 0 2 0;
 #X connect 3 0 1 1;
 #X connect 3 1 1 2;
-#X restore 9 154 pd auto-calibrate;
-#X msg 116 25 open 2;
+#X restore 9 108 pd auto-calibrate;
+#X obj 9 31 r proxi-raw;
+#X obj 9 53 spigot 1;
+#X text 491 118 Crossing the threshold;
+#X obj 452 117 >= 0.6;
+#X obj 207 110 cnv 15 140 130 empty empty Monitoring 5 10 0 10 -106496
+-66577 0;
+#X obj 207 250 cnv 15 140 75 empty empty Settings 5 10 0 10 -204800
+-66577 0;
+#X obj 220 149 hsl 115 15 0 1 0 0 empty empty Proxi_value 0 8 0 10
+-262144 -1 -1 9859 1;
+#X obj 220 168 hsl 115 15 0 1 0 0 empty empty proxi-average 0 8 0 10
+-262144 -1 -1 9859 1;
+#X obj 217 130 tgl 15 0 empty empty PROXI_IS_ACTIVE 17 7 0 10 -262144
+-1 -1 1 1;
+#X obj 217 220 hradio 15 1 0 8 empty empty Nr_of_crossings 0 -8 0 10
+-262144 -1 -1 0;
+#X obj 220 286 hsl 83 14 0 1 0 1 empty empty Sensitivity 0 8 0 10 -262144
+-1 -1 3000 1;
+#X floatatom 305 286 5 0 0 0 - - -, f 5;
+#X obj 220 306 hsl 83 14 100 10000 0 1 empty empty Time_period 0 8
+0 10 -262144 -1 -1 4100 1;
+#X floatatom 305 306 5 0 0 0 - - -, f 5;
+#X obj 217 188 bng 15 250 50 0 empty empty CROSSED_THRESHOLD 17 7 0
+10 -262144 -1 -1;
+#X obj 9 75 spigot;
+#X obj 217 268 tgl 15 1 empty empty ENABLE_PROXI 17 7 0 10 -262144
+-1 -1 1 1;
+#X obj 346 34 t b f;
+#X obj 316 57 ||;
+#X text 383 22 Check if active;
+#X obj 316 12 == 1;
+#X obj 346 12 == 1;
+#X text 78 236 Smoothing of values;
+#X obj 495 70 * -1;
+#X obj 495 92 + 1;
 #X connect 0 0 1 0;
-#X connect 1 0 15 0;
-#X connect 2 0 11 0;
-#X connect 4 0 34 0;
-#X connect 5 0 6 0;
-#X connect 6 0 7 0;
-#X connect 8 0 14 0;
-#X connect 9 0 31 0;
-#X connect 10 0 11 0;
-#X connect 11 0 9 0;
-#X connect 12 0 11 0;
-#X connect 13 0 5 0;
-#X connect 14 0 0 0;
-#X connect 15 0 17 0;
-#X connect 15 0 27 0;
-#X connect 15 0 30 0;
-#X connect 16 0 20 0;
-#X connect 17 0 18 0;
-#X connect 17 0 19 0;
-#X connect 18 0 21 1;
-#X connect 19 0 17 1;
-#X connect 20 0 22 0;
-#X connect 20 1 21 0;
-#X connect 21 0 23 0;
-#X connect 22 0 17 1;
-#X connect 23 0 29 0;
-#X connect 27 0 16 0;
-#X connect 28 0 4 0;
-#X connect 31 0 36 0;
-#X connect 31 1 32 0;
-#X connect 35 0 28 0;
-#X connect 35 0 3 0;
-#X connect 36 0 35 0;
-#X connect 36 0 8 0;
-#X connect 37 0 11 0;
-#X coords 0 -1 1 1 170 140 1 200 100;
+#X connect 1 0 37 0;
+#X connect 2 0 3 0;
+#X connect 3 0 24 1;
+#X connect 3 0 43 0;
+#X connect 4 0 26 0;
+#X connect 5 0 2 0;
+#X connect 6 0 10 0;
+#X connect 7 0 8 0;
+#X connect 7 0 9 0;
+#X connect 8 0 11 1;
+#X connect 9 0 7 1;
+#X connect 10 0 12 0;
+#X connect 10 1 11 0;
+#X connect 11 0 32 0;
+#X connect 12 0 7 1;
+#X connect 16 0 6 0;
+#X connect 17 0 30 0;
+#X connect 21 0 17 0;
+#X connect 21 0 4 0;
+#X connect 21 0 29 0;
+#X connect 22 0 21 0;
+#X connect 23 0 24 0;
+#X connect 24 0 38 0;
+#X connect 26 0 0 0;
+#X connect 30 0 20 0;
+#X connect 32 0 18 0;
+#X connect 33 0 34 0;
+#X connect 34 0 46 0;
+#X connect 35 0 36 0;
+#X connect 36 0 16 1;
+#X connect 37 0 19 0;
+#X connect 37 0 16 0;
+#X connect 37 0 7 0;
+#X connect 38 0 22 0;
+#X connect 39 0 38 1;
+#X connect 39 0 44 0;
+#X connect 40 0 41 0;
+#X connect 40 1 41 1;
+#X connect 41 0 31 0;
+#X connect 43 0 41 0;
+#X connect 44 0 40 0;
+#X connect 46 0 47 0;
+#X connect 47 0 26 1;
+#X coords 0 -1 1 1 155 230 2 200 100;
