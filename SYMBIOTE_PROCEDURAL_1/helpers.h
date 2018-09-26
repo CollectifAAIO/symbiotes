@@ -19,10 +19,12 @@
 #define _HELPERS_H_
 
 struct ParameterValues{
+  static constexpr unsigned c_itemsCount = 16;
+
   ParameterValues() : data_{} {
   }
 
-  ParameterValues(const unsigned count, const float data[16] ) : data_{} {
+  ParameterValues(const unsigned count, const float data[c_itemsCount] ) : data_{} {
     for(unsigned i = 0; i < count; ++i) {
       data_[i] = data[i];
     }
@@ -38,7 +40,7 @@ struct ParameterValues{
                   data_[0], data_[1], data_[2], data_[3]);
   }
 
-  float data_[16];
+  float data_[c_itemsCount];
 };
 
 static float Lerp(const float lhs, const float rhs, const float interpolationFactor) {

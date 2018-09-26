@@ -89,7 +89,7 @@ struct BinaryPreset {
   unsigned SynthStripIndex_;
   unsigned ParameterIndex_;
   unsigned ParameterValuesCount_;
-  float ParameterValues_[16];
+  float ParameterValues_[ParameterValues::c_itemsCount];
 };
 
 bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, const bool allowDigits) {
