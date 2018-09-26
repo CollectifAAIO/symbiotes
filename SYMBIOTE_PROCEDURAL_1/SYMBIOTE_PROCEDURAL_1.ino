@@ -18,6 +18,7 @@
 #include "AudioConfig.h"
 #include "FM4_synth.h"
 #include "GlobalVariables.h"
+#include "helpers.h"
 #include "Presets.h"
 #include "Sensors.h"
 #include "Sequencer.h"

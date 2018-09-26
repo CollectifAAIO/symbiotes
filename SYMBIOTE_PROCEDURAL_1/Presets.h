@@ -18,6 +18,7 @@
 #define _PRESETS_H_
 
 #include "FM4_synth.h"
+#include "helpers.h"
 #include "Sequencer.h"
 
 static const String c_tokens[] = {

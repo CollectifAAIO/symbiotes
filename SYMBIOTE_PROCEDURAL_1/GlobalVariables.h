@@ -51,28 +51,5 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
-struct ParameterValues{
-  ParameterValues() : data_{} {
-  }
-
-  ParameterValues(const unsigned count, const float data[16] ) : data_{} {
-    for(unsigned i = 0; i < count; ++i) {
-      data_[i] = data[i];
-    }
-  }
-
-  const ParameterValues & operator=(const ParameterValues & rhs) {
-    memcpy(&data_[0], &rhs.data_[0], sizeof(data_));
-    return *this;
-  }
-
-  void dump() const {
-    Serial.printf("%f %f %f %f\n",
-                  data_[0], data_[1], data_[2], data_[3]);
-  }
-
-  float data_[16];
-};
-
 #endif // _GLOBAL_VARIABLES_H_
 

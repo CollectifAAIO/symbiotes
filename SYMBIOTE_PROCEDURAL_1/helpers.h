@@ -18,6 +18,29 @@
 #ifndef _HELPERS_H_
 #define _HELPERS_H_
 
+struct ParameterValues{
+  ParameterValues() : data_{} {
+  }
+
+  ParameterValues(const unsigned count, const float data[16] ) : data_{} {
+    for(unsigned i = 0; i < count; ++i) {
+      data_[i] = data[i];
+    }
+  }
+
+  const ParameterValues & operator=(const ParameterValues & rhs) {
+    memcpy(&data_[0], &rhs.data_[0], sizeof(data_));
+    return *this;
+  }
+
+  void dump() const {
+    Serial.printf("%f %f %f %f\n",
+                  data_[0], data_[1], data_[2], data_[3]);
+  }
+
+  float data_[16];
+};
+
 static float Lerp(const float lhs, const float rhs, const float interpolationFactor) {
   return lhs * interpolationFactor + (1.0f - interpolationFactor) * rhs;
 }
