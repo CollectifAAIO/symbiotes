@@ -46,7 +46,7 @@ struct ParameterValues{
 static float Lerp(const float lhs, const float rhs, const float interpolationFactor) {
   return lhs * interpolationFactor + (1.0f - interpolationFactor) * rhs;
 }
-static int Lerp(const int lhs, const int rhs, const float interpolationFactor) {
+static unsigned Lerp(const unsigned lhs, const unsigned rhs, const float interpolationFactor) {
   return static_cast<int>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
 }
 static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor) {
@@ -62,7 +62,7 @@ float getRandom(float mean, float halfRange) {
   return abs(val);
 }
 
-int getRandom(int mean, int halfRange) {
+unsigned getRandom(unsigned mean, unsigned halfRange) {
   return getRandom(static_cast<float>(mean), static_cast<float>(halfRange));
 }
 

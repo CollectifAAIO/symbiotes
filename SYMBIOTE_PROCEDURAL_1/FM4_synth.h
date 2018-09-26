@@ -77,11 +77,11 @@ enum SynthParameterIndex {
 
 // Struct defining an envelope generator parameters
 struct ADSRParms {
-  ADSRParms( int AtkMs = 100,
-    int DcayMs = 100,
+  ADSRParms( unsigned AtkMs = 100,
+    unsigned DcayMs = 100,
     float Sus = 1.0,
-    int RlsMs = 500,
-    int DelayMs = 0 ) :
+    unsigned RlsMs = 500,
+    unsigned DelayMs = 0 ) :
     AtkMs_( AtkMs ),
     DcayMs_( DcayMs ),
     Sus_( Sus ),
@@ -142,11 +142,11 @@ struct ADSRParms {
                     AtkMs_, DcayMs_, Sus_, RlsMs_, DelayMs_);
     }
 
-    int AtkMs_;
-    int DcayMs_;
+    unsigned AtkMs_;
+    unsigned DcayMs_;
     float Sus_;
-    int RlsMs_;
-    int DelayMs_;
+    unsigned RlsMs_;
+    unsigned DelayMs_;
 };
 
 static ADSRParms Lerp(const ADSRParms & lhs, const ADSRParms & rhs, const float interpolationFactor) {
@@ -171,9 +171,9 @@ ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR)
 // Parameters that are directly set from the presets
 struct SynthStripParms {
   SynthStripParms(
-    int WaveformOSC = 0,
+    unsigned WaveformOSC = 0,
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
-    int FreqOsc = 440,
+    unsigned FreqOsc = 440,
     bool ListenSeq = false,
     unsigned Transpose = 0,
     unsigned Octave = 0,
@@ -184,8 +184,8 @@ struct SynthStripParms {
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
     float AMdepth = 0,
-    int AMFreq = 4,
-    int WaveformAM = 0 )
+    unsigned AMFreq = 4,
+    unsigned WaveformAM = 0 )
     :
     WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
@@ -216,7 +216,7 @@ struct SynthStripParms {
   void setIndexedParameter(const SynthParameterIndex parmIndex, const float parmValue ) {
     switch(parmIndex) {
     case synth_waveform:{
-      WaveformOSC_ = static_cast<int>(parmValue);
+      WaveformOSC_ = static_cast<unsigned>(parmValue);
       break;
     }
     case synth_glide:{
@@ -365,7 +365,7 @@ struct SynthStripParms {
   }
 
   // Only accessible through getters so we can implement randomness etc.
-  int WaveformOSC() const {
+  unsigned WaveformOSC() const {
     return WaveformOSC_;
   }
   ADSRParms VolParms() const {
@@ -406,15 +406,15 @@ struct SynthStripParms {
   float AMFreq() const {
     return getRandom(AMFreq_, AMFreqRand_);
   }
-  int WaveformAM() const {
+  unsigned WaveformAM() const {
     return WaveformAM_;
   }
 
  private:
-  int WaveformOSC_;
+  unsigned WaveformOSC_;
   ADSRParms VolParms_;
   ADSRParms VolParmsRand_;
-  int FreqOsc_;
+  unsigned FreqOsc_;
   float FreqOscRand_;
   bool ListenSeq_;
   unsigned Transpose_;
@@ -433,9 +433,9 @@ struct SynthStripParms {
   float FMOsc4toOscRand_;
   float AMdepth_;
   float AMdepthRand_;
-  int AMFreq_;
-  int AMFreqRand_;
-  int WaveformAM_;
+  unsigned AMFreq_;
+  unsigned AMFreqRand_;
+  unsigned WaveformAM_;
 };
 
 // The actual parameters to be applied on the audio objects as is
@@ -443,9 +443,9 @@ struct SynthStripParms {
 // Such metas include their randomness or dependencies (e.g. modifying a pitch changes other parameters normalised with the pitch)
 struct SynthStripParmsInstance {
   SynthStripParmsInstance(
-    int WaveformOSC = 0,
+    unsigned WaveformOSC = 0,
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
-    int FreqOsc = 440,
+    unsigned FreqOsc = 440,
     bool ListenSeq = false,
     float PitchDepth = 0.2,
     const ADSRParms & PitchParms = ADSRParms( 100, 220, 0.0, 200, 100 ),
@@ -454,8 +454,8 @@ struct SynthStripParmsInstance {
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
     float AMdepth = 0,
-    int AMFreq = 4,
-    int WaveformAM = 0 )
+    unsigned AMFreq = 4,
+    unsigned WaveformAM = 0 )
     :
     WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
@@ -472,7 +472,7 @@ struct SynthStripParmsInstance {
     WaveformAM_( WaveformAM ) {}
 
   // OSCs SHAPE
-  int WaveformOSC_;       // Waveform selected in the array between 0 & 7.
+  unsigned WaveformOSC_;       // Waveform selected in the array between 0 & 7.
 
   // OSC VOLUME
 
@@ -481,7 +481,7 @@ struct SynthStripParmsInstance {
   // OSC PITCH
 
   // Note
-  int FreqOsc_;         // frequency of OSC1.
+  unsigned FreqOsc_;         // frequency of OSC1.
 
   bool ListenSeq_;
 
@@ -501,8 +501,8 @@ struct SynthStripParmsInstance {
   // AM
   float AMdepth_;      // Mix between amp
 
-  int AMFreq_;         // Frequency of Amplitude Modulation (Hz)
-  int WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
+  unsigned AMFreq_;         // Frequency of Amplitude Modulation (Hz)
+  unsigned WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
   void dump() const {
     VolParms_.dump();
