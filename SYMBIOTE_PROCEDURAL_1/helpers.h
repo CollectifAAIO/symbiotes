@@ -52,6 +52,13 @@ static unsigned Lerp(const unsigned lhs, const unsigned rhs, const float interpo
 static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor) {
   return static_cast<bool>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
 }
+static ParameterValues Lerp(const ParameterValues & lhs, const ParameterValues & rhs, const float interpolationFactor) {
+  ParameterValues out;
+  for (unsigned i = 0; i < ParameterValues::c_itemsCount; ++i) {
+    out.data_[i] = Lerp(lhs.data_[i], rhs.data_[i],  interpolationFactor);
+  }
+  return out;
+}
 
 float getRandom(float mean, float halfRange) {
   if(halfRange == 0.0f) {
