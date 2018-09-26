@@ -1,13 +1,13 @@
 #N canvas 364 23 1014 749 10;
 #X obj 446 283 tgl 15 0 isPlaying Play Play/Stop 25 10 0 10 -4032 -1
--1 1 1;
+-1 0 1;
 #X obj 14 310 metro;
 #X obj 534 606 expr 60000/$i1/4;
 #X obj 48 359 + 1;
 #N canvas 0 23 450 278 (subpatch) 0;
 #X array arpeg 16 float 3;
-#A 0 10.9993 9.99865 0.92043 0.168516 10.8067 9.93196 0.976601 0.101851
-9.99865 10.0548 0.818581 0.112344 9.94245 9.94245 0.168516 0;
+#A 0 6 0 5.13333 0 5.13333 -0.0666609 5.13333 -0.0666609 0 1.90735e-06
+5.2 0 0 0 0 0;
 #X coords 0 12 16 0 240 180 2 0 0;
 #X restore 179 293 graph;
 #X msg 57 425 1, f 2;
@@ -383,7 +383,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 179 490 hradio 15 1 0 16 empty empty empty 0 -8 0 10 -66577
--4032 -1 0;
+-4032 -1 6;
 #X msg 609 123 \; arpeg xticks 0 1 1;
 #N canvas 599 252 612 300 rambom-seq-trigger 0;
 #X obj 75 142 metro 5000;
@@ -408,7 +408,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X connect 10 0 9 0;
 #X restore 604 369 pd rambom-seq-trigger;
 #X obj 446 354 tgl 15 0 random-trig set-random-trig Random_trigger
-25 10 0 10 -4032 -1 -1 0.842581 1;
+25 10 0 10 -4032 -1 -1 0 1;
 #X text 739 147 Set array display properties;
 #X msg 609 158 \; arpeg yticks 0 1 2;
 #X msg 609 193 \; arpeg ylabel -0.25 0-rest 1-c 2-c# 3-d 4-d# 5-e 6-f
@@ -434,7 +434,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 135 226 delay;
 #X obj 14 500 expr $f1 + 12;
 #X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
--40 -10 0 10 -66577 -20480 -1 4042 1;
+-40 -10 0 10 -66577 -20480 -1 12283 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
 #X obj 14 560 s Note;
@@ -462,8 +462,7 @@ of 0.1 ms., f 124;
 -4032 -1;
 #X floatatom 454 329 4 30 298 1 BPM set-bpm bpm, f 4;
 #X floatatom 543 329 5 0 15000 1 ms - ms-per-beat, f 5;
-#X floatatom 454 308 5 2 16 1 Step_Number set-StepNumber StepNumber
-, f 5;
+#X floatatom 454 308 5 2 16 1 Step_Number - StepNumber, f 5;
 #X text 503 328 == 4*;
 #X obj 446 371 cnv 15 145 65 empty empty empty 20 12 0 10 -204800 -66577
 0;
@@ -480,7 +479,7 @@ of 0.1 ms., f 124;
 #X obj 454 466 tgl 15 0 RandomizeSeqOrSound set-RandomizeSeqOrSound
 Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
 #X obj 454 446 tgl 15 0 RestartFrom0 set-RestartFrom0 RestartFrom_0
-25 7 0 10 -262144 -1 -1 1 1;
+25 7 0 10 -262144 -1 -1 0 1;
 #X text 869 367 Loop sets random trigger times to the length of the
 sequence, f 22;
 #X text 186 211 Stops playing at the end of the sequence, f 14;
@@ -493,6 +492,11 @@ sequence, f 22;
 #X obj 16 161 s lb-3;
 #X obj 604 390 r set-loop;
 #X obj 604 412 sel 1;
+#X text 606 300 Random trigger doesn't serve if sequence playing is
+mapped to microphone peak, f 16;
+#X obj 488 206 r set-StepNumber;
+#X obj 488 228 + 0.49;
+#X obj 488 250 int;
 #X connect 0 0 45 0;
 #X connect 0 0 46 0;
 #X connect 1 0 11 0;
@@ -568,4 +572,7 @@ sequence, f 22;
 #X connect 78 2 79 0;
 #X connect 82 0 83 0;
 #X connect 83 0 68 0;
+#X connect 85 0 86 0;
+#X connect 86 0 87 0;
+#X connect 87 0 63 0;
 #X coords 0 -1 1 1 465 245 2 135 270;

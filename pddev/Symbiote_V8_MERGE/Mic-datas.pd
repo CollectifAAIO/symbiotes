@@ -14,17 +14,17 @@
 #X obj 489 34 >= 70;
 #X obj 489 56 change;
 #X obj 218 245 hradio 15 1 0 8 empty empty Spent_above_threshold 0
--8 0 10 -262144 -1 -1 1;
+-8 0 10 -262144 -1 -1 8;
 #X obj 9 53 spigot 1;
 #X obj 119 28 * -1;
 #X obj 119 52 + 1;
 #X obj 218 113 tgl 15 0 empty empty ADC_IS_ACTIVE 17 7 0 10 -262144
--1 -1 1 1;
+-1 -1 0 1;
 #X obj 9 144 average-array 50;
 #X obj 221 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
--2 -8 0 10 -262144 -1 -1 10090 1;
+-2 -8 0 10 -262144 -1 -1 11400 1;
 #X obj 221 178 hsl 115 15 0 100 0 0 empty empty Noise_average -2 -8
-0 10 -262144 -1 -1 10236 1;
+0 10 -262144 -1 -1 8344 1;
 #X obj 11 278 bonk~;
 #X msg 463 156 1;
 #X obj 327 114 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
@@ -56,7 +56,6 @@
 ;
 #X text 606 468 Developed by Collectif AAIO;
 #X obj 187 335 s mic-bang;
-#X obj 38 306 spigot 1;
 #N canvas 50 82 450 300 auto-calibrate 0;
 #X obj 54 29 inlet;
 #N canvas 1130 574 450 300 bornes 0;
@@ -96,10 +95,11 @@
 #X connect 1 1 2 2;
 #X connect 2 0 3 0;
 #X restore 9 124 pd auto-calibrate;
+#X obj 38 306 spigot 0;
 #X connect 0 0 1 0;
 #X connect 0 0 21 0;
 #X connect 1 0 14 0;
-#X connect 2 0 49 0;
+#X connect 2 0 48 0;
 #X connect 2 0 11 0;
 #X connect 4 0 6 0;
 #X connect 5 0 7 0;
@@ -116,11 +116,11 @@
 #X connect 14 0 2 0;
 #X connect 15 0 16 0;
 #X connect 16 0 17 0;
-#X connect 17 0 48 1;
 #X connect 17 0 14 1;
+#X connect 17 0 49 1;
 #X connect 18 0 20 0;
 #X connect 20 0 30 0;
-#X connect 21 1 48 0;
+#X connect 21 1 49 0;
 #X connect 22 0 5 1;
 #X connect 23 0 26 0;
 #X connect 23 0 33 0;
@@ -145,9 +145,9 @@
 #X connect 38 0 33 1;
 #X connect 39 0 21 0;
 #X connect 41 0 40 0;
-#X connect 48 0 49 0;
-#X connect 48 0 33 0;
-#X connect 48 0 23 0;
-#X connect 49 0 18 0;
-#X connect 49 0 19 0;
+#X connect 48 0 18 0;
+#X connect 48 0 19 0;
+#X connect 49 0 48 0;
+#X connect 49 0 33 0;
+#X connect 49 0 23 0;
 #X coords 0 -1 1 1 170 170 2 200 100;
