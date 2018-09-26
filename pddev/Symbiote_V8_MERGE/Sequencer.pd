@@ -1,11 +1,9 @@
-#N canvas 364 23 1076 754 10;
-#X obj 447 293 tgl 20 0 isPlaying Play Play/Stop 25 10 0 10 -4032 -1
--1 0 1;
-#X floatatom 447 364 4 30 298 1 BPM set-bpm bpm, f 4;
+#N canvas 364 23 1014 749 10;
+#X obj 446 283 tgl 15 0 isPlaying Play Play/Stop 25 10 0 10 -4032 -1
+-1 1 1;
 #X obj 14 310 metro;
-#X obj 559 578 expr 60000/$i1/4;
+#X obj 534 606 expr 60000/$i1/4;
 #X obj 48 359 + 1;
-#X obj 57 77 loadbang;
 #N canvas 0 23 450 278 (subpatch) 0;
 #X array arpeg 16 float 3;
 #A 0 5.06667 0 5.00001 0 0 5 0 0 0 0 0 0 0 0 0 0;
@@ -14,11 +12,7 @@
 #X msg 57 425 1, f 2;
 #X obj 14 472 int;
 #X obj 14 530 mtof;
-#X msg 176 216 0;
-#X obj 532 293 tgl 20 0 loop set-loop Loop 25 10 0 10 -4032 -1 -1 0
-1;
-#X obj 273 150 * -1;
-#X obj 273 172 + 1;
+#X msg 135 247 0;
 #N canvas 142 23 470 207 presets 0;
 #X obj 236 13 inlet;
 #X obj 23 177 s store-pst;
@@ -233,7 +227,6 @@
 #X restore 108 204 pd inter;
 #X msg 153 171 symbol arpeg;
 #X obj 108 72 inlet;
-#X obj 197 72 loadbang;
 #X text 166 207 Interpolate between two arrays;
 #X text 449 144 Preset storage arrays;
 #X msg 123 116 symbol pst-arpeg-1;
@@ -242,15 +235,17 @@
 #X obj 537 120 table pst-arpeg-2;
 #X obj 390 95 array set pst-arpeg-1;
 #X obj 537 95 array set pst-arpeg-2;
-#X connect 0 0 12 0;
-#X connect 1 0 13 0;
+#X obj 211 72 r lb-2;
+#X obj 157 72 r lb-3;
+#X connect 0 0 11 0;
+#X connect 1 0 12 0;
 #X connect 3 0 2 3;
 #X connect 4 0 2 0;
-#X connect 5 0 8 0;
-#X connect 5 0 9 0;
-#X connect 5 0 3 0;
-#X connect 8 0 2 1;
-#X connect 9 0 2 2;
+#X connect 7 0 2 1;
+#X connect 8 0 2 2;
+#X connect 13 0 3 0;
+#X connect 14 0 7 0;
+#X connect 14 0 8 0;
 #X restore 83 409 pd arpegs;
 #X obj 61 337 change;
 #X obj 177 337 change;
@@ -387,7 +382,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 179 490 hradio 15 1 0 16 empty empty empty 0 -8 0 10 -66577
--4032 -1 15;
+-4032 -1 6;
 #X msg 609 123 \; arpeg xticks 0 1 1;
 #N canvas 599 252 612 300 rambom-seq-trigger 0;
 #X obj 75 142 metro 5000;
@@ -410,132 +405,161 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X connect 7 0 1 1;
 #X connect 8 0 3 1;
 #X connect 10 0 9 0;
-#X restore 609 285 pd rambom-seq-trigger;
-#X obj 447 437 tgl 20 0 random-trig set-random-trig Random_mode 25
-10 0 10 -4032 -1 -1 0 1;
-#X obj 609 307 sel 1;
-#X msg 609 329 0;
+#X restore 604 369 pd rambom-seq-trigger;
+#X obj 446 354 tgl 15 0 random-trig set-random-trig Random_trigger
+25 10 0 10 -4032 -1 -1 0 1;
 #X text 739 147 Set array display properties;
 #X msg 609 158 \; arpeg yticks 0 1 2;
 #X msg 609 193 \; arpeg ylabel -0.25 0-rest 1-c 2-c# 3-d 4-d# 5-e 6-f
 7-f# 8-g 9-g# 10-a 11-a# 12-b;
-#X text 656 314 Random automatically deactivates loopmode;
-#X floatatom 447 460 5 0 0 1 Rand_min_time set-min-trigger-time min-trigger-time
-, f 5;
-#X floatatom 447 479 5 0 0 1 Rand_max_time set-max-trigger-time max-trigger-time
-, f 5;
-#X floatatom 536 364 5 0 15000 1 ms - ms-per-beat, f 5;
 #X obj 471 578 bb_sync2gui;
 #X obj 471 556 r bpm;
 #X obj 471 633 expr 60000/$i1/4;
-#X text 678 578 Syncing 2 GUI without creating a loop.;
 #X obj 471 655 s set-bpm;
-#X floatatom 447 340 5 2 16 1 Step_Number set-StepNumber StepNumber
-, f 5;
-#X obj 215 80 r StepNumber;
+#X obj 168 163 r StepNumber;
 #X obj 379 655 Randomize, f 10;
-#X floatatom 447 391 5 0 15000 1 RandomTempo(ms) set-RandomSpeed RandomSpeed
-, f 5;
 #X obj 379 594 sel 1;
-#X obj 176 150 sel 15;
-#X obj 215 128 - 1;
-#X obj 613 440 spigot 0;
-#X obj 447 318 tgl 15 0 RestartFrom0 set-RestartFrom0 RestartFrom_0
-25 7 0 10 -4032 -1 -1 0 1;
-#X obj 669 369 sel 0;
-#X msg 669 391 0;
-#X msg 613 414 0;
-#X obj 446 529 r RandomSpeed;
-#X obj 613 369 change;
-#X obj 447 409 tgl 15 0 RandomizeSeqOrSound set-RandomizeSeqOrSound
-Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
+#X obj 135 205 sel 15;
+#X obj 168 184 - 1;
+#X obj 604 512 spigot 0;
+#X obj 650 448 sel 0;
+#X msg 650 470 0;
+#X msg 604 491 0;
+#X obj 436 534 r RandomSpeed;
+#X obj 604 448 change;
 #X obj 379 572 spigot;
 #X obj 379 631 t b f;
-#X obj 613 391 t b f;
-#X obj 176 172 spigot 1;
-#X obj 176 195 delay;
+#X obj 604 470 t b f;
+#X obj 135 226 delay;
 #X obj 14 500 expr $f1 + 12;
 #X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
-0 -10 0 10 -66577 -20480 -1 0 1;
+-40 -10 0 10 -66577 -20480 -1 0 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
-#X obj 14 587 s Note;
+#X obj 14 560 s Note;
 #X obj 14 284 t f f;
 #X obj 305 571 t b f;
 #X obj 179 594 expr if ($f2 == 0 \, 0 \, $f1);
 #X obj 14 425 t f f;
 #X obj 534 556 r ms-per-beat;
-#X text 496 363 == 4*;
 #X text 29 700 *Duty Cycle is a ratio between the time of note On and
 Note Off. Ex : if the slider is half way \, the note off event will
 occures after half of the time of a step. slider to 1 \, is a legato
 when 2 step are selected consecutively. Slider to 0 means a note on
 of 0.1 ms., f 124;
-#X connect 0 0 62 0;
-#X connect 0 0 63 0;
-#X connect 2 0 16 0;
-#X connect 3 0 31 0;
-#X connect 3 0 53 0;
-#X connect 4 0 16 1;
-#X connect 5 0 7 0;
-#X connect 5 0 20 0;
-#X connect 5 0 26 0;
-#X connect 5 0 14 0;
-#X connect 5 0 27 0;
-#X connect 7 0 18 1;
-#X connect 8 0 57 0;
-#X connect 9 0 61 0;
-#X connect 10 0 0 0;
+#X obj 828 305 r StepNumber;
+#X obj 838 325 r ms-per-beat;
+#X obj 828 369 *;
+#X floatatom 828 391 5 0 0 0 - - -, f 5;
+#X obj 838 347 t b f;
+#X obj 813 414 f;
+#X obj 813 454 s set-min-trigger-time;
+#X obj 823 434 s set-max-trigger-time;
+#X obj 446 300 cnv 15 145 50 empty empty empty 20 12 0 10 -204800 -66577
+0;
+#X obj 813 287 bng 15 250 50 0 empty set-loop EZ_Loop 17 7 0 10 -262144
+-4032 -1;
+#X floatatom 454 329 4 30 298 1 BPM set-bpm bpm, f 4;
+#X floatatom 543 329 5 0 15000 1 ms - ms-per-beat, f 5;
+#X floatatom 454 308 5 2 16 1 Step_Number set-StepNumber StepNumber
+, f 5;
+#X text 503 328 == 4*;
+#X obj 446 371 cnv 15 145 65 empty empty empty 20 12 0 10 -204800 -66577
+0;
+#X floatatom 454 398 5 0 0 1 Rand_min_time set-min-trigger-time min-trigger-time
+, f 5;
+#X floatatom 454 417 5 0 0 1 Rand_max_time set-max-trigger-time max-trigger-time
+, f 5;
+#X obj 454 378 bng 15 250 50 0 set-loop empty EZ_Loop 17 7 0 10 -262144
+-4032 -1;
+#X obj 446 441 cnv 15 145 65 empty empty empty 20 12 0 10 -204800 -66577
+0;
+#X floatatom 454 486 5 0 15000 1 RandomTempo(ms) set-RandomSpeed RandomSpeed
+, f 5;
+#X obj 454 466 tgl 15 0 RandomizeSeqOrSound set-RandomizeSeqOrSound
+Randomize_SoundOrSeq 17 7 0 10 -262144 -1 -1 0 1;
+#X obj 454 446 tgl 15 0 RestartFrom0 set-RestartFrom0 RestartFrom_0
+25 7 0 10 -262144 -1 -1 0 1;
+#X text 869 367 Loop sets random trigger times to the length of the
+sequence, f 22;
+#X text 186 211 Stops playing at the end of the sequence, f 14;
+#X text 543 579 Syncs 2 GUI without creating a loop.;
+#X obj 107 106 r lb-1;
+#X obj 16 77 loadbang;
+#X obj 16 99 t b b b;
+#X obj 55 121 s lb-1;
+#X obj 35 141 s lb-1;
+#X obj 16 161 s lb-1;
+#X connect 0 0 45 0;
+#X connect 0 0 46 0;
+#X connect 1 0 11 0;
+#X connect 2 0 37 0;
+#X connect 3 0 11 1;
+#X connect 5 0 13 1;
+#X connect 6 0 40 0;
+#X connect 7 0 44 0;
+#X connect 8 0 0 0;
+#X connect 11 0 3 0;
 #X connect 11 0 12 0;
-#X connect 12 0 13 0;
-#X connect 13 0 55 1;
-#X connect 16 0 4 0;
-#X connect 16 0 17 0;
-#X connect 17 0 19 0;
-#X connect 17 0 59 0;
-#X connect 17 0 65 0;
-#X connect 18 0 8 0;
+#X connect 12 0 14 0;
+#X connect 12 0 42 0;
+#X connect 12 0 48 0;
+#X connect 13 0 6 0;
+#X connect 17 0 16 0;
+#X connect 21 0 23 0;
+#X connect 21 0 37 0;
+#X connect 21 1 2 0;
 #X connect 22 0 21 0;
-#X connect 22 0 23 0;
 #X connect 23 0 24 0;
-#X connect 24 0 11 0;
-#X connect 32 0 34 0;
-#X connect 32 0 53 0;
-#X connect 32 1 3 0;
-#X connect 33 0 32 0;
-#X connect 34 0 36 0;
-#X connect 38 0 17 1;
-#X connect 38 0 43 0;
-#X connect 39 0 2 1;
-#X connect 39 0 56 1;
-#X connect 41 0 39 0;
-#X connect 42 0 39 0;
-#X connect 42 0 55 0;
-#X connect 43 0 42 1;
-#X connect 44 0 16 1;
-#X connect 45 0 50 0;
+#X connect 25 0 12 1;
+#X connect 25 0 29 0;
+#X connect 26 0 1 1;
+#X connect 26 0 39 1;
+#X connect 27 0 26 0;
+#X connect 28 0 26 0;
+#X connect 28 0 39 0;
+#X connect 29 0 28 1;
+#X connect 30 0 11 1;
+#X connect 31 0 32 0;
+#X connect 32 0 30 0;
+#X connect 33 0 30 0;
+#X connect 34 0 26 2;
+#X connect 35 0 38 0;
+#X connect 36 0 27 0;
+#X connect 37 0 26 0;
+#X connect 37 1 26 1;
+#X connect 38 0 33 0;
+#X connect 38 1 30 1;
+#X connect 39 0 8 0;
+#X connect 40 0 7 0;
+#X connect 42 0 36 0;
+#X connect 42 0 47 0;
+#X connect 45 0 1 0;
+#X connect 45 1 31 0;
 #X connect 46 0 47 0;
-#X connect 47 0 44 0;
-#X connect 48 0 44 0;
-#X connect 49 0 39 2;
-#X connect 50 0 54 0;
-#X connect 51 0 52 1;
-#X connect 52 0 41 0;
-#X connect 53 0 39 0;
-#X connect 53 1 39 1;
-#X connect 54 0 48 0;
-#X connect 54 1 44 1;
-#X connect 55 0 56 0;
-#X connect 56 0 10 0;
-#X connect 57 0 9 0;
-#X connect 59 0 52 0;
-#X connect 59 0 64 0;
-#X connect 62 0 2 0;
-#X connect 62 1 46 0;
-#X connect 63 0 64 0;
-#X connect 63 1 64 1;
-#X connect 64 0 60 0;
-#X connect 65 0 42 0;
-#X connect 65 1 18 0;
-#X connect 66 0 32 1;
-#X coords 0 -1 1 1 450 240 2 145 270;
+#X connect 46 1 47 1;
+#X connect 47 0 43 0;
+#X connect 48 0 28 0;
+#X connect 48 1 13 0;
+#X connect 49 0 21 1;
+#X connect 51 0 53 0;
+#X connect 52 0 55 0;
+#X connect 53 0 54 0;
+#X connect 54 0 56 1;
+#X connect 55 0 53 0;
+#X connect 55 1 53 1;
+#X connect 56 0 57 0;
+#X connect 56 0 58 0;
+#X connect 60 0 56 0;
+#X connect 71 0 36 1;
+#X connect 72 0 35 0;
+#X connect 76 0 5 0;
+#X connect 76 0 15 0;
+#X connect 76 0 19 0;
+#X connect 76 0 9 0;
+#X connect 76 0 20 0;
+#X connect 77 0 78 0;
+#X connect 78 0 81 0;
+#X connect 78 1 80 0;
+#X connect 78 2 79 0;
+#X coords 0 -1 1 1 465 245 2 135 270;

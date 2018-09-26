@@ -22,9 +22,9 @@
 -1 -1 0 1;
 #X obj 9 144 average-array 50;
 #X obj 221 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
--2 -8 0 10 -262144 -1 -1 7487 1;
+-2 -8 0 10 -262144 -1 -1 11400 1;
 #X obj 221 178 hsl 115 15 0 100 0 0 empty empty Noise_average -2 -8
-0 10 -262144 -1 -1 10144 1;
+0 10 -262144 -1 -1 11374 1;
 #X obj 11 278 bonk~;
 #X msg 463 156 1;
 #X obj 327 114 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
@@ -48,7 +48,7 @@
 #X msg 80 248 thresh 35 40;
 #X obj 218 431 s threshold-crossings;
 #X obj 218 212 hradio 15 1 0 8 empty empty Threshold-crossings 0 -8
-0 10 -262144 -1 -1 0;
+0 10 -262144 -1 -1 1;
 #X text 157 366 Nr of threshold crossings in a given time period;
 #X text 157 379 Sensitivity is set using threshold message;
 #X text 157 392 Time period is set using del;
@@ -113,6 +113,7 @@
 #X connect 13 0 31 0;
 #X connect 14 0 2 0;
 #X connect 15 0 16 0;
+#X connect 16 0 17 0;
 #X connect 17 0 48 1;
 #X connect 17 0 14 1;
 #X connect 18 0 20 0;

@@ -17,7 +17,7 @@
 #X text 63 144 Storage of all the waveforms used in FM_oscs;
 #X connect 3 0 4 0;
 #X connect 4 0 5 0;
-#X restore 460 32 pd init;
+#X restore 480 27 pd init;
 #N canvas 664 23 656 301 store-pst 0;
 #X obj 105 98 r store-pst;
 #X obj 46 56 bng 15 250 50 0 empty empty SAVE 17 7 0 10 -262144 -1
@@ -80,25 +80,25 @@
 #X coords 0 -1 1 1 300 50 1 40 35;
 #X restore 511 222 pd store-pst;
 #X obj 7 275 FM_Osc 1;
-#X obj 7 32 Sequencer;
-#X obj 585 32 proxi-datas;
-#X obj 771 32 mic-datas;
-#X obj 1058 32 r proxi-bang;
-#X obj 1058 56 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 7 27 Sequencer;
+#X obj 585 27 proxi-datas;
+#X obj 771 27 mic-datas;
+#X obj 1058 27 r proxi-bang;
+#X obj 1058 51 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1058 105 s set-play-seq;
-#X msg 1058 77 1;
-#X obj 948 55 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 1058 100 s set-play-seq;
+#X msg 1058 72 1;
+#X obj 948 50 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X msg 948 76 1;
-#X obj 948 32 r mic-bang;
+#X msg 948 71 1;
+#X obj 948 27 r mic-bang;
 #X obj 817 233 r proxi-average;
-#X obj 948 177 s stop-mic;
-#X obj 948 106 s Play;
-#X obj 948 134 r isPlaying;
-#X obj 1043 138 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 948 172 s stop-mic;
+#X obj 948 101 s Play;
+#X obj 948 129 r isPlaying;
+#X obj 1043 133 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1043 158 s calibration-reset;
+#X obj 1043 153 s calibration-reset;
 #X obj 817 254 spigot;
 #X obj 862 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
