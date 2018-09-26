@@ -1,12 +1,13 @@
 #N canvas 364 23 1014 749 10;
 #X obj 446 283 tgl 15 0 isPlaying Play Play/Stop 25 10 0 10 -4032 -1
--1 0 1;
+-1 1 1;
 #X obj 14 310 metro;
 #X obj 534 606 expr 60000/$i1/4;
 #X obj 48 359 + 1;
 #N canvas 0 23 450 278 (subpatch) 0;
 #X array arpeg 16 float 3;
-#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+#A 0 10.0667 6.84281 10.0882 6.95684 10.0882 6.99983 10.1333 6.93531
+7.81211 6.97829 8.00555 6.8879 -1.74037 0.0214495 0.0214495 0;
 #X coords 0 12 16 0 240 180 2 0 0;
 #X restore 179 293 graph;
 #X msg 57 425 1, f 2;
@@ -382,7 +383,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 179 490 hradio 15 1 0 16 empty empty empty 0 -8 0 10 -66577
--4032 -1 6;
+-4032 -1 10;
 #X msg 609 123 \; arpeg xticks 0 1 1;
 #N canvas 599 252 612 300 rambom-seq-trigger 0;
 #X obj 75 142 metro 5000;
@@ -394,20 +395,20 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X text 249 203 Triggers a sequence every "n" milliseconds;
 #X obj 228 33 r min-trigger-time;
 #X obj 369 33 r max-trigger-time;
-#X obj 154 211 s set-play-seq;
 #X msg 154 189 1;
+#X obj 154 211 s Play;
 #X connect 0 0 2 0;
 #X connect 1 0 0 1;
 #X connect 2 0 3 0;
-#X connect 2 1 10 0;
+#X connect 2 1 9 0;
 #X connect 3 0 1 0;
 #X connect 4 0 0 0;
 #X connect 7 0 1 1;
 #X connect 8 0 3 1;
-#X connect 10 0 9 0;
+#X connect 9 0 10 0;
 #X restore 604 369 pd rambom-seq-trigger;
 #X obj 446 354 tgl 15 0 random-trig set-random-trig Random_trigger
-25 10 0 10 -4032 -1 -1 0 1;
+25 10 0 10 -4032 -1 -1 1 1;
 #X text 739 147 Set array display properties;
 #X msg 609 158 \; arpeg yticks 0 1 2;
 #X msg 609 193 \; arpeg ylabel -0.25 0-rest 1-c 2-c# 3-d 4-d# 5-e 6-f
@@ -433,7 +434,7 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 135 226 delay;
 #X obj 14 500 expr $f1 + 12;
 #X obj 420 295 vsl 15 175 0 1 0 0 DutyCycle set-DutyCycle DutyCycle*
--40 -10 0 10 -66577 -20480 -1 0 1;
+-40 -10 0 10 -66577 -20480 -1 16272 1;
 #X obj 179 473 SeqTrig;
 #X obj 179 616 s TrigNote;
 #X obj 14 560 s Note;
