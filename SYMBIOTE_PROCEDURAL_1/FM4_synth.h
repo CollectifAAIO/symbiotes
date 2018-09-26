@@ -18,6 +18,8 @@
 #ifndef _FM4_SYNTH_H_
 #define _FM4_SYNTH_H_
 
+#include "helpers.h"
+
 //#define SYNTH_DEBUG
 
 constexpr char WAVEFORM[8] = {WAVEFORM_SINE, WAVEFORM_SQUARE, WAVEFORM_SAWTOOTH, WAVEFORM_PULSE, WAVEFORM_TRIANGLE, WAVEFORM_SAWTOOTH_REVERSE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SAMPLE_HOLD};
@@ -147,15 +149,6 @@ struct ADSRParms {
     int DelayMs_;
 };
 
-static float Lerp(const float lhs, const float rhs, const float interpolationFactor) {
-  return lhs * interpolationFactor + (1.0f - interpolationFactor) * rhs;
-}
-static int Lerp(const int lhs, const int rhs, const float interpolationFactor) {
-  return static_cast<int>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
-}
-static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor) {
-  return static_cast<bool>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
-}
 static ADSRParms Lerp(const ADSRParms & lhs, const ADSRParms & rhs, const float interpolationFactor) {
   return ADSRParms(
     Lerp(lhs.AtkMs_, rhs.AtkMs_, interpolationFactor),
@@ -163,6 +156,16 @@ static ADSRParms Lerp(const ADSRParms & lhs, const ADSRParms & rhs, const float 
     Lerp(lhs.Sus_, rhs.Sus_, interpolationFactor),
     Lerp(lhs.RlsMs_, rhs.RlsMs_, interpolationFactor),
     Lerp(lhs.DelayMs_, rhs.DelayMs_, interpolationFactor));
+}
+
+ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) const {
+  ADSRParms out;
+  out.AtkMs_ = getRandom(meanADSR.AtkMs_, halfRangeADSR.AtkMs_);
+  out.DcayMs_ = getRandom(meanADSR.DcayMs_, halfRangeADSR.DcayMs_);
+  out.Sus_ = getRandom(meanADSR.Sus_, halfRangeADSR.Sus_);
+  out.RlsMs_ = getRandom(meanADSR.RlsMs_, halfRangeADSR.RlsMs_);
+  out.DelayMs_ = getRandom(meanADSR.DelayMs_, halfRangeADSR.DelayMs_);
+  return out;
 }
 
 // Parameters that are directly set from the presets
@@ -408,29 +411,6 @@ struct SynthStripParms {
   }
 
  private:
-  float getRandom(float mean, float halfRange) const {
-    if(halfRange == 0.0f) {
-      return mean;
-    }
-    const float rnd = static_cast<float>(random(2 * halfRange + 1));
-    const float val = (mean - halfRange) + rnd;
-    return abs(val);
-  }
-
-  int getRandom(int mean, int halfRange) const {
-    return getRandom(static_cast<float>(mean), static_cast<float>(halfRange));
-  }
-
-  ADSRParms getRandom(const ADSRParms & meanADSR, const ADSRParms & halfRangeADSR) const {
-    ADSRParms out;
-    out.AtkMs_ = getRandom(meanADSR.AtkMs_, halfRangeADSR.AtkMs_);
-    out.DcayMs_ = getRandom(meanADSR.DcayMs_, halfRangeADSR.DcayMs_);
-    out.Sus_ = getRandom(meanADSR.Sus_, halfRangeADSR.Sus_);
-    out.RlsMs_ = getRandom(meanADSR.RlsMs_, halfRangeADSR.RlsMs_);
-    out.DelayMs_ = getRandom(meanADSR.DelayMs_, halfRangeADSR.DelayMs_);
-    return out;
-  }
-
   int WaveformOSC_;
   ADSRParms VolParms_;
   ADSRParms VolParmsRand_;
