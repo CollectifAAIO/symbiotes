@@ -3,9 +3,9 @@
 #X obj 376 163 sel 1;
 #X msg 9 25 close;
 #X obj 221 152 hsl 115 15 0 1 0 0 empty empty Proxi_value -2 -8 0 10
--262144 -1 -1 11400 1;
+-262144 -1 -1 0 1;
 #X obj 221 183 hsl 115 15 0 1 0 0 empty empty proxi-average -2 -8 0
-10 -262144 -1 -1 10032 1;
+10 -262144 -1 -1 0 1;
 #X obj 218 28 * -1;
 #X obj 218 52 + 1;
 #X obj 218 120 tgl 15 0 empty empty SENSOR_ACTIVE 17 7 0 10 -262144
@@ -34,7 +34,7 @@
 #X text 495 297 Time period is set using del;
 #X obj 453 237 del 5000;
 #X obj 9 235 average 50;
-#X obj 361 348 s proxi-threshold-crossings;
+#X obj 361 343 s proxi-threshold-crossings;
 #X obj 452 213 s proxi-bang;
 #X obj 9 100 moses 101;
 #X floatatom 60 132 5 0 0 0 - - -, f 5;
