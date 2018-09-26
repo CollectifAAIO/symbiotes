@@ -18,6 +18,7 @@
 #define _SEQUENCER_H_
 
 #include "FM4_synth.h"
+#include "helpers.h"
 
 //#define SEQ_DEBUG
 
@@ -127,6 +128,43 @@ struct SequencerParms {
   ParameterValues Trigers_;
 };
 
+struct SequencerParmsInstance {
+  SequencerParmsInstance(
+    unsigned bpm = 120,
+    unsigned stepsCount = 5,
+    bool isLooping = false,
+    float DutyCycle = 0.5f,
+    const ParameterValues & arpeg = {},
+    const ParameterValues & Trigers = {}) :
+    bpm_(bpm),
+    stepsCount_(stepsCount),
+    isLooping_(isLooping),
+    DutyCycle_(DutyCycle),
+    arpeg_(arpeg),
+    Trigers_(Trigers) {
+  }
+
+  void dump() const {
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpeg_0: %f; Trigers_0: %d;\n",
+                  bpm_, stepsCount_, isLooping_, DutyCycle_, arpeg_.data_[0], Trigers_.data_[0]);
+  }
+
+  void LerpWith(const SequencerParmsInstance & rhs, const float interpolationFactor) {
+    bpm_ = Lerp(bpm_, rhs.bpm_, interpolationFactor);
+    stepsCount_ = Lerp(stepsCount_, rhs.stepsCount_, interpolationFactor);
+    isLooping_ = Lerp(isLooping_, rhs.isLooping_, interpolationFactor);
+    DutyCycle_ = Lerp(DutyCycle_, rhs.DutyCycle_, interpolationFactor);
+    arpeg_ = Lerp(arpeg_, rhs.arpeg_, interpolationFactor);
+    Trigers_ = Lerp(Trigers_, rhs.Trigers_, interpolationFactor);
+  }
+  unsigned bpm_;
+  unsigned stepsCount_;
+  bool isLooping_;
+  float DutyCycle_;
+  ParameterValues arpeg_;
+  ParameterValues Trigers_;
+};
+
 class Sequencer {
  public:
   Sequencer()
@@ -168,12 +206,33 @@ class Sequencer {
     }
   }
 
+  void setAllParms(const SequencerParmsInstance & parms) {
+    parms_ = parms;
+  }
+
   void applyParms() {
     periodMs_ = static_cast<unsigned>(1000.0 * 60.0 / static_cast<float>(parms_.bpm_));
   }
 
-  void setIndexedParameter(const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
-    parms_.setIndexedParameter(parmIndex, parmValues);
+  void setInterpolationFactor(const float value) {
+    // In the case of the Sequencer everything is applied instantly
+    SequencerParmsInstance newInstances[c_templatesCount];
+    for (unsigned i = 0; i < c_templatesCount; ++i) {
+      newInstances[i] = SequencerParmsInstance(
+        parmsTemplate_[i].bpm_,
+        parmsTemplate_[i].stepsCount_,
+        parmsTemplate_[i].isLooping_,
+        parmsTemplate_[i].DutyCycle_,
+        parmsTemplate_[i].arpeg_,
+        parmsTemplate_[i].Trigers_);
+    }
+    SequencerParmsInstance morphed(newInstances[0]);
+    morphed.LerpWith(newInstances[1], value);
+    setAllParms(morphed);
+  }
+
+  void setIndexedParameter(const unsigned templateIndex, const SequencerParameterIndex parmIndex, const ParameterValues & parmValues ) {
+    parmsTemplate_[templateIndex].setIndexedParameter(parmIndex, parmValues);
   }
 
   void noteOn(FM4 & synth_) {
@@ -198,6 +257,7 @@ class Sequencer {
   }
 
  private:
+  static constexpr unsigned c_templatesCount = 2;
   float computeNextNote() const {
     const float arpegValue = parms_.arpeg_.data_[stepsCounter_];
     const float midiValue = arpegValue + 12.0;
@@ -210,7 +270,8 @@ class Sequencer {
   unsigned cyclesCounter_;
   bool isNoteOn_;
   unsigned periodMs_;
-  SequencerParms parms_;
+  SequencerParmsInstance parms_;
+  SequencerParms parmsTemplate_[c_templatesCount];
 };
 
 #endif // _SEQUENCER_H_
