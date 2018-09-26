@@ -1,5 +1,6 @@
 5-pst-waveform 0;
 5-pst-AudioLoop 0;
+5-pst-playerOn 0;
 5-pst-AM_Waveform 0;
 5-pst-AM_Depth 0;
 5-pst-AM_Freq 0;
@@ -155,7 +156,7 @@
 pst-RandomizeSeqOrSound 1;
 pst-loop 0;
 pst-bpm 60;
-pst-RestartFrom0 1;
+pst-RestartFrom0 0;
 pst-StepNumber 12;
 pst-RandomSpeed 100;
 pst-DutyCycle 0.511494;
