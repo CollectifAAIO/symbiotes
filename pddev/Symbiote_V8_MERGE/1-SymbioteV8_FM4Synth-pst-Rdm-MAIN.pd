@@ -1,6 +1,6 @@
 #N canvas 92 33 1172 762 10;
 #X obj 817 276 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
--20480 -262144 5607 1;
+-20480 -262144 4650 1;
 #X obj 171 712 dac~;
 #X obj 8 682 catch~ 1-Osc;
 #X obj 102 682 catch~ 2-Osc;
@@ -29,7 +29,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 1614 1;
+-1 -1 1339 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -100,7 +100,7 @@
 -1 -1;
 #X obj 1043 153 s calibration-reset;
 #X obj 817 254 spigot;
-#X obj 862 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 862 255 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X text 879 255 Stop data-flow while playing with settings, f 15;
 #X obj 411 275 FM_Osc 2;
