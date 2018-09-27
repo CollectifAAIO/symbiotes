@@ -1,6 +1,6 @@
 #N canvas 146 250 1224 766 10;
 #X obj 817 276 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
--20480 -262144 18080 1;
+-20480 -262144 6947 1;
 #X obj 171 712 dac~;
 #X obj 8 682 catch~ 1-Osc;
 #X obj 102 682 catch~ 2-Osc;
@@ -29,7 +29,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 5205 1;
+-1 -1 2000 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -168,10 +168,7 @@
 #X connect 37 0 19 0;
 #X connect 39 0 38 0;
 #X connect 39 0 40 0;
-#X connect 40 0 57 0;
 #X connect 41 0 47 0;
-#X connect 42 0 46 1;
-#X connect 42 0 44 1;
 #X connect 42 0 51 0;
 #X connect 43 0 48 0;
 #X connect 44 0 50 0;
@@ -180,8 +177,6 @@
 #X connect 47 0 44 0;
 #X connect 48 0 46 0;
 #X connect 49 0 55 0;
-#X connect 50 0 46 1;
-#X connect 50 0 44 1;
 #X connect 50 0 52 0;
 #X connect 51 0 45 0;
 #X connect 51 1 45 1;
@@ -190,6 +185,8 @@
 #X connect 53 0 43 0;
 #X connect 54 1 49 0;
 #X connect 54 1 45 1;
+#X connect 54 1 46 1;
+#X connect 54 1 44 1;
 #X connect 55 0 56 0;
 #X connect 56 0 57 0;
 #X connect 57 0 37 0;
