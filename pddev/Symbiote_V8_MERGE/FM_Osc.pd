@@ -1,4 +1,4 @@
-#N canvas 377 121 909 593 10;
+#N canvas 93 136 1271 593 10;
 #X obj 23 308 phasor~;
 #X obj 23 330 wavetable~;
 #X obj 23 286 +~;
@@ -6,49 +6,49 @@
 0 100 0 10 -262144 -1 -1 0;
 #X text 124 10 Saw;
 #X obj 456 -18 vsl 40 100 0 1 0 0 \$0-Vol \$1-set-Vol VOL 10 5 0 10
--99865 -262144 -262144 9900 1;
-#X obj 242 11 hsl 40 15 0 20000 0 0 \$0-FM_Osc2 \$1-set-FM_Osc2 FM_Osc2
+-99865 -262144 -262144 0 1;
+#X obj 242 11 hsl 40 15 0 2000 0 0 \$0-FM_Osc2 \$1-set-FM_Osc2 FM_Osc2
 0 8 0 10 -260097 -1 -262144 0 1;
-#X obj 242 42 hsl 40 15 0 20000 0 0 \$0-FM_Osc3 \$1-set-FM_Osc3 FM_Osc3
+#X obj 242 42 hsl 40 15 0 2000 0 0 \$0-FM_Osc3 \$1-set-FM_Osc3 FM_Osc3
 0 8 0 10 -260097 -1 -262144 0 1;
-#X obj 242 72 hsl 40 15 0 20000 0 0 \$0-FM_Osc4 \$1-set-FM_Osc4 FM_Osc4
+#X obj 242 72 hsl 40 15 0 2000 0 0 \$0-FM_Osc4 \$1-set-FM_Osc4 FM_Osc4
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 23 466 *~ 0;
 #X obj 304 -20 vradio 15 1 0 6 \$0-AM_Waveform \$1-set-AM_Waveform
 AM_WAVEFORM 0 100 0 10 -262144 -1 -1 0;
 #X text 322 10 Saw;
-#X obj 356 17 hsl 40 15 0 20000 0 0 \$0-AM_Freq \$1-set-AM_Freq AMFreq
+#X obj 356 17 hsl 40 15 0 2000 0 0 \$0-AM_Freq \$1-set-AM_Freq AMFreq
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 356 -20 hsl 40 15 0 1 0 0 \$0-AM_Depth \$1-set-AM_Depth AMDepth
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 23 377 *~;
 #X obj 23 245 +~;
-#X obj 173 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dlay \$1-set-LADSR_Dlay
+#X obj 173 110 nbx 4 14 0 3000 0 0 \$0-LADSR_Dlay \$1-set-LADSR_Dlay
 Dlay 0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 239 110 nbx 4 14 0 1 0 0 \$0-LADSR_Amp \$1-set-LADSR_Amp Atk.Amp
-0 -6 0 10 -36344 -1 -1 1 256;
-#X obj 304 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Atk \$1-set-LADSR_Atk
-A 0 -6 0 10 -27631 -1 -1 1 256;
-#X obj 353 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dcay \$1-set-LADSR_Dcay
+0 -6 0 10 -36344 -1 -1 0 256;
+#X obj 304 110 nbx 4 14 0 3000 0 0 \$0-LADSR_Atk \$1-set-LADSR_Atk
+A 0 -6 0 10 -27631 -1 -1 0 256;
+#X obj 353 110 nbx 4 14 0 3000 0 0 \$0-LADSR_Dcay \$1-set-LADSR_Dcay
 D 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 402 110 nbx 4 14 0 1 0 0 \$0-LADSR_Sus \$1-set-LADSR_Sus S 0
--6 0 10 -27631 -1 -1 1 256;
-#X obj 451 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Rel \$1-set-LADSR_Rel
-R 0 -6 0 10 -27631 -1 -1 18 256;
-#X obj 173 138 nbx 4 14 0 11880 0 0 \$0-PADSR_Dlay \$1-set-PADSR_Dlay
+-6 0 10 -27631 -1 -1 0 256;
+#X obj 451 110 nbx 4 14 0 3000 0 0 \$0-LADSR_Rel \$1-set-LADSR_Rel
+R 0 -6 0 10 -27631 -1 -1 0 256;
+#X obj 173 138 nbx 4 14 0 3000 0 0 \$0-PADSR_Dlay \$1-set-PADSR_Dlay
 empty 48 8 0 10 -56448 -1 -1 0 256;
-#X obj 238 138 nbx 4 14 0 19980 0 0 \$0-PADSR_Amp \$1-set-PADSR_Amp
+#X obj 238 138 nbx 4 14 0 2000 0 0 \$0-PADSR_Amp \$1-set-PADSR_Amp
 empty 48 8 0 10 -56448 -1 -1 0 256;
-#X obj 304 138 nbx 4 14 0 11880 0 0 \$0-PADSR_Atk \$1-set-PADSR_Atk
+#X obj 304 138 nbx 4 14 0 3000 0 0 \$0-PADSR_Atk \$1-set-PADSR_Atk
 empty 48 8 0 10 -51896 -1 -1 0 256;
-#X obj 353 138 nbx 4 14 0 11880 0 0 \$0-PADSR_Dcay \$1-set-PADSR_Dcay
+#X obj 353 138 nbx 4 14 0 3000 0 0 \$0-PADSR_Dcay \$1-set-PADSR_Dcay
 empty 48 8 0 10 -51896 -1 -1 0 256;
-#X obj 402 138 nbx 4 14 0 20000 0 0 \$0-PADSR_Sus \$1-set-PADSR_Sus
+#X obj 402 138 nbx 4 14 0 2000 0 0 \$0-PADSR_Sus \$1-set-PADSR_Sus
 empty 48 8 0 10 -51896 -1 -1 0 256;
-#X obj 451 138 nbx 4 14 0 11880 0 0 \$0-PADSR_Rel \$1-set-PADSR_Rel
+#X obj 451 138 nbx 4 14 0 3000 0 0 \$0-PADSR_Rel \$1-set-PADSR_Rel
 empty 48 8 0 10 -51896 -1 -1 0 256;
 #X text 102 135 PITCH ENV;
-#X obj 242 -20 hsl 40 15 0 20000 0 0 \$0-FM_Osc1 \$1-set-FM_Osc1 FM_Osc1
+#X obj 242 -20 hsl 40 15 0 2000 0 0 \$0-FM_Osc1 \$1-set-FM_Osc1 FM_Osc1
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 23 438 *~;
 #X obj 38 -35 loadbang;
@@ -59,7 +59,7 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 #X obj 23 507 throw~ \$1-Osc;
 #X obj 118 507 s~ \$1-FMOsc;
 #X obj 173 -20 nbx 5 25 0 20000 0 0 \$0-Pitch \$1-set-Pitch Pitch 0
--7 0 10 -27631 -262144 -1 1760 256;
+-7 0 10 -27631 -262144 -1 0 256;
 #X obj 23 164 line;
 #X obj 176 49 hsl 40 15 0 2000 0 0 \$0-glide \$1-set-glide Glide 5
 8 0 10 -4032 -1 -1 0 1;
@@ -948,43 +948,43 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 #X connect 94 43 91 4;
 #X connect 94 44 92 4;
 #X restore 439 505 pd pst-routing;
-#X obj 242 -5 hsl 40 10 0 20000 0 0 \$0-FM_Osc1_rand \$1-set-FM_Osc1_rand
+#X obj 242 -5 hsl 40 10 0 2000 0 0 \$0-FM_Osc1_rand \$1-set-FM_Osc1_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 242 26 hsl 40 10 0 20000 0 0 \$0-FM_Osc2_rand \$1-set-FM_Osc2_rand
+#X obj 242 26 hsl 40 10 0 2000 0 0 \$0-FM_Osc2_rand \$1-set-FM_Osc2_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 242 57 hsl 40 10 0 20000 0 0 \$0-FM_Osc3_rand \$1-set-FM_Osc3_rand
+#X obj 242 57 hsl 40 10 0 2000 0 0 \$0-FM_Osc3_rand \$1-set-FM_Osc3_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 242 87 hsl 40 10 0 20000 0 0 \$0-FM_Osc4_rand \$1-set-FM_Osc4_rand
+#X obj 242 87 hsl 40 10 0 2000 0 0 \$0-FM_Osc4_rand \$1-set-FM_Osc4_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 356 -5 hsl 40 10 0 1 0 0 \$0-AM_Depth_rand \$1-set-AM_Depth_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 356 32 hsl 40 10 0 20000 0 0 \$0-AM_Freq_rand \$1-set-AM_Freq_rand
+#X obj 356 32 hsl 40 10 0 2000 0 0 \$0-AM_Freq_rand \$1-set-AM_Freq_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 176 6 hsl 54 10 0 20000 0 0 \$0-Pitch_rand \$1-set-Pitch_rand
+#X obj 176 6 hsl 54 10 0 2000 0 0 \$0-Pitch_rand \$1-set-Pitch_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 176 64 hsl 40 10 0 2000 0 0 \$0-glide_rand \$1-set-glide_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 176 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Dlay_rand \$1-set-LADSR_Dlay_rand
+#X obj 176 124 hsl 40 10 0 3000 0 0 \$0-LADSR_Dlay_rand \$1-set-LADSR_Dlay_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 307 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Atk_rand \$1-set-LADSR_Atk_rand
+#X obj 307 124 hsl 40 10 0 3000 0 0 \$0-LADSR_Atk_rand \$1-set-LADSR_Atk_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 356 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Dcay_rand \$1-set-LADSR_Dcay_rand
+#X obj 356 124 hsl 40 10 0 3000 0 0 \$0-LADSR_Dcay_rand \$1-set-LADSR_Dcay_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 405 124 hsl 40 10 0 1 0 0 \$0-LADSR_Sus_rand \$1-set-LADSR_Sus_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 454 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Rel_rand \$1-set-LADSR_Rel_rand
+#X obj 454 124 hsl 40 10 0 3000 0 0 \$0-LADSR_Rel_rand \$1-set-LADSR_Rel_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 176 152 hsl 40 10 0 11880 0 0 \$0-PADSR_Dlay_rand \$1-set-PADSR_Dlay_rand
+#X obj 176 152 hsl 40 10 0 3000 0 0 \$0-PADSR_Dlay_rand \$1-set-PADSR_Dlay_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 241 152 hsl 40 10 0 19980 0 0 \$0-PADSR_Amp_rand \$1-set-PADSR_Amp_rand
+#X obj 241 152 hsl 40 10 0 2000 0 0 \$0-PADSR_Amp_rand \$1-set-PADSR_Amp_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 307 152 hsl 40 10 0 11880 0 0 \$0-PADSR_Atk_rand \$1-set-PADSR_Atk_rand
+#X obj 307 152 hsl 40 10 0 3000 0 0 \$0-PADSR_Atk_rand \$1-set-PADSR_Atk_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 356 152 hsl 40 10 0 11880 0 0 \$0-PADSR_Dcay_rand \$1-set-PADSR_Dcay_rand
+#X obj 356 152 hsl 40 10 0 3000 0 0 \$0-PADSR_Dcay_rand \$1-set-PADSR_Dcay_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 405 152 hsl 40 10 0 20000 0 0 \$0-PADSR_Sus_rand \$1-set-PADSR_Sus_rand
+#X obj 405 152 hsl 40 10 0 2000 0 0 \$0-PADSR_Sus_rand \$1-set-PADSR_Sus_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
-#X obj 454 152 hsl 40 10 0 11880 0 0 \$0-PADSR_Rel_rand \$1-set-PADSR_Rel_rand
+#X obj 454 152 hsl 40 10 0 3000 0 0 \$0-PADSR_Rel_rand \$1-set-PADSR_Rel_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X text 322 -20 Sin;
 #X text 322 -5 Squ;
@@ -1018,7 +1018,7 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 461 350 Randomize;
 #X obj 535 217 Randomize;
 #X obj 153 -20 tgl 14 0 \$0-ListenSeq \$1-set-ListenSeq Seq 0 -7 0
-10 -27631 -1 -1 1 1;
+10 -27631 -1 -1 0 1;
 #X obj 630 135 spigot;
 #X obj 38 350 ADSR, f 18;
 #X obj 41 217 ADSR, f 18;
@@ -1029,13 +1029,49 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 30 7 0 10 -20480 -1 -1 0 256;
 #X obj 687 54 r \$0-Transpose;
 #X obj 173 33 nbx 2 14 0 10 0 0 \$0-Octave \$1-set-Octave Oct 30 7
-0 10 -20480 -1 -1 6 256;
+0 10 -20480 -1 -1 0 256;
 #X obj 791 54 r \$0-Octave;
 #X obj 630 -26 r Note;
 #X obj 538 -26 r TrigNote;
 #X text 582 9 Trig enveloppes & randomize;
 #X text 583 24 Send Note to Osc;
 #X obj 538 5 t f b;
+#X obj 643 276 t b f;
+#X obj 643 299 pack f f f;
+#X obj 603 329 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 407 -21 RANGE;
+#X obj 400 17 nbx 5 14 0 19900 0 0 empty empty empty 60 7 0 10 -260097
+-262144 -1 0 256;
+#X obj 400 31 nbx 5 14 1 20000 0 0 empty empty empty 60 7 0 10 -260097
+-262144 -1 2000 256;
+#X obj 400 71 nbx 5 14 0 11880 0 0 empty empty empty 60 7 0 10 -27631
+-262144 -1 3000 256;
+#X obj 918 299 pack f f;
+#X text 401 1 FreqMin;
+#X text 401 46 FreqMax;
+#X text 408 85 EnvMax;
+#X msg 643 327 \; \$3-set-Pitch_rand range \$1 \$2 \; \$3-set-FM_Osc1
+range \$1 \$2 \; \$3-set-FM_Osc1_rand range \$1 \$2 \; \$3-set-FM_Osc2
+range \$1 \$2 \; \$3-set-FM_Osc2_rand range \$1 \$2 \; \$3-set-FM_Osc3
+range \$1 \$2 \; \$3-set-FM_Osc3_rand range \$1 \$2 \; \$3-set-FM_Osc4
+range \$1 \$2 \; \$3-set-FM_Osc4_rand range \$1 \$2 \; \$3-set-AM_Freq
+range \$1 \$2 \; \$3-set-AM_Freq_rand range \$1 \$2 \; \$3-set-PADSR_Sus
+range \$1 \$2 \; \$3-set-PADSR_Sus_rand range \$1 \$2 \; \$3-set-PADSR_Amp
+range \$1 \$2 \; \$3-set-PADSR_Amp_rand range \$1 \$2 \;;
+#X msg 918 327 \; \$2-set-LADSR_Dlay range 0 \$1 \; \$2-set-LADSR_Dlay_rand
+range 0 \$1 \; \$2-set-LADSR_Atk range 0 \$1 \; \$2-set-LADSR_Atk_rand
+range 0 \$1 \; \$2-set-LADSR_Dcay range 0 \$1 \; \$2-set-LADSR_Dcay_rand
+range 0 \$1 \; \$2-set-LADSR_Rel range 0 \$1 \; \$2-set-LADSR_Rel_rand
+range 0 \$1 \; \$2-set-PADSR_Dlay range 0 \$1 \; \$2-set-PADSR_Dlay_rand
+range 0 \$1 \; \$2-set-PADSR_Atk range 0 \$1 \; \$2-set-PADSR_Atk_rand
+range 0 \$1 \; \$2-set-PADSR_Dcay range 0 \$1 \; \$2-set-PADSR_Dcay_rand
+range 0 \$1 \; \$2-set-PADSR_Rel range 0 \$1 \; \$2-set-PADSR_Rel_rand
+range 0 \$1 \;;
+#X obj 960 132 r \$0-AM_Freq;
+#X floatatom 960 162 5 0 0 0 - - -, f 5;
+#X obj 1067 130 r \$0-LADSR_Rel_rand;
+#X floatatom 1066 165 5 0 0 0 - - -, f 5;
 #X connect 0 0 1 0;
 #X connect 1 0 14 0;
 #X connect 2 0 0 0;
@@ -1078,6 +1114,8 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X connect 42 0 30 1;
 #X connect 43 0 2 1;
 #X connect 47 0 46 0;
+#X connect 47 0 116 2;
+#X connect 47 0 122 1;
 #X connect 49 0 83 2;
 #X connect 50 0 84 2;
 #X connect 51 0 85 2;
@@ -1150,4 +1188,14 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X connect 114 1 95 0;
 #X connect 114 1 81 0;
 #X connect 114 1 94 0;
+#X connect 115 0 116 0;
+#X connect 115 1 116 1;
+#X connect 116 0 126 0;
+#X connect 117 0 47 0;
+#X connect 119 0 116 0;
+#X connect 120 0 115 0;
+#X connect 121 0 122 0;
+#X connect 122 0 127 0;
+#X connect 128 0 129 0;
+#X connect 130 0 131 0;
 #X coords 0 -1 1 1 400 200 1 100 -35;
