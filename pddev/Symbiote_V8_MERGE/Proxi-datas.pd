@@ -4,7 +4,6 @@
 #X obj 218 28 * -1;
 #X obj 218 52 + 1;
 #X floatatom 452 95 5 0 0 0 - - -, f 5;
-#X obj 218 3 r stopInput;
 #X obj 453 261 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 376 241 f 1;
@@ -22,11 +21,11 @@
 #X obj 452 188 s proxi-bang;
 #X obj 9 258 s proxi-average;
 #X obj 9 137 expr $f1/50*(-1)+1;
-#N canvas 0 22 450 300 auto-calibrate 0;
+#N canvas 0 23 450 300 auto-calibrate 0;
 #X obj 54 29 inlet;
 #X obj 54 94 scale 0 1 0 100;
 #X obj 54 116 outlet;
-#N canvas 1130 574 450 300 bornes 0;
+#N canvas 533 763 450 300 bornes 0;
 #X obj 89 131 min;
 #X floatatom 116 131 5 0 0 0 - - -, f 5;
 #X floatatom 202 131 5 0 0 0 - - -, f 5;
@@ -61,8 +60,8 @@
 #X connect 3 0 1 1;
 #X connect 3 1 1 2;
 #X restore 9 108 pd auto-calibrate;
-#X obj 9 31 r proxi-raw;
-#X obj 9 53 spigot 1;
+#X obj 9 1 r proxi-raw;
+#X obj 9 23 spigot 1;
 #X text 491 118 Crossing the threshold;
 #X obj 452 117 >= 0.6;
 #X obj 207 110 cnv 15 140 130 empty empty Monitoring 5 10 0 10 -106496
@@ -70,11 +69,11 @@
 #X obj 207 250 cnv 15 140 75 empty empty Settings 5 10 0 10 -204800
 -66577 0;
 #X obj 220 149 hsl 115 15 0 1 0 0 empty empty Proxi_value 0 8 0 10
--262144 -1 -1 0 1;
+-262144 -1 -1 3483 1;
 #X obj 220 168 hsl 115 15 0 1 0 0 empty empty proxi-average 0 8 0 10
--262144 -1 -1 0 1;
+-262144 -1 -1 2006 1;
 #X obj 217 130 tgl 15 0 empty empty PROXI_IS_ACTIVE 17 7 0 10 -262144
--1 -1 1 1;
+-1 -1 0 1;
 #X obj 217 220 hradio 15 1 0 8 empty empty Nr_of_crossings 0 -8 0 10
 -262144 -1 -1 0;
 #X obj 220 286 hsl 83 14 0 1 0 1 empty empty Sensitivity 0 8 0 10 -262144
@@ -85,7 +84,7 @@
 #X floatatom 305 306 5 0 0 0 - - -, f 5;
 #X obj 217 188 bng 15 250 50 0 empty empty CROSSED_THRESHOLD 17 7 0
 10 -262144 -1 -1;
-#X obj 9 75 spigot;
+#X obj 9 45 spigot;
 #X obj 217 268 tgl 15 1 empty empty ENABLE_PROXI 17 7 0 10 -262144
 -1 -1 1 1;
 #X obj 346 34 t b f;
@@ -99,50 +98,55 @@
 #X obj 9 230 scale 0.2 0.8 0 1;
 #X text 118 210 Eliminates extremes values, f 12;
 #X text 78 186 Smooths values;
+#X floatatom 150 101 5 0 0 0 - - -, f 5;
+#X obj 9 67 MEDIAN_3;
+#X obj 218 3 r stop-proxi;
 #X connect 0 0 1 0;
-#X connect 1 0 37 0;
+#X connect 1 0 36 0;
 #X connect 2 0 3 0;
-#X connect 3 0 24 1;
-#X connect 3 0 42 0;
-#X connect 4 0 26 0;
-#X connect 5 0 2 0;
-#X connect 6 0 10 0;
-#X connect 7 0 8 0;
-#X connect 7 0 9 0;
-#X connect 8 0 11 1;
-#X connect 9 0 7 1;
-#X connect 10 0 12 0;
-#X connect 10 1 11 0;
-#X connect 11 0 32 0;
-#X connect 12 0 7 1;
-#X connect 16 0 6 0;
-#X connect 17 0 47 0;
-#X connect 21 0 17 0;
-#X connect 21 0 4 0;
-#X connect 21 0 29 0;
-#X connect 22 0 21 0;
-#X connect 23 0 24 0;
-#X connect 24 0 38 0;
-#X connect 26 0 0 0;
-#X connect 30 0 20 0;
-#X connect 32 0 18 0;
-#X connect 33 0 34 0;
-#X connect 34 0 44 0;
-#X connect 35 0 36 0;
-#X connect 36 0 16 1;
-#X connect 37 0 19 0;
-#X connect 37 0 16 0;
-#X connect 37 0 7 0;
-#X connect 38 0 22 0;
-#X connect 39 0 38 1;
-#X connect 39 0 43 0;
-#X connect 40 0 46 0;
-#X connect 40 1 46 1;
-#X connect 42 0 46 0;
-#X connect 43 0 40 0;
-#X connect 44 0 45 0;
-#X connect 45 0 26 1;
-#X connect 46 0 31 0;
-#X connect 47 0 48 0;
-#X connect 48 0 30 0;
+#X connect 3 0 23 1;
+#X connect 3 0 41 0;
+#X connect 4 0 25 0;
+#X connect 5 0 9 0;
+#X connect 6 0 7 0;
+#X connect 6 0 8 0;
+#X connect 7 0 10 1;
+#X connect 8 0 6 1;
+#X connect 9 0 11 0;
+#X connect 9 1 10 0;
+#X connect 10 0 31 0;
+#X connect 11 0 6 1;
+#X connect 15 0 5 0;
+#X connect 16 0 46 0;
+#X connect 20 0 16 0;
+#X connect 20 0 4 0;
+#X connect 20 0 28 0;
+#X connect 21 0 20 0;
+#X connect 22 0 23 0;
+#X connect 23 0 37 0;
+#X connect 25 0 0 0;
+#X connect 29 0 19 0;
+#X connect 31 0 17 0;
+#X connect 32 0 33 0;
+#X connect 33 0 43 0;
+#X connect 34 0 35 0;
+#X connect 35 0 15 1;
+#X connect 36 0 18 0;
+#X connect 36 0 15 0;
+#X connect 36 0 6 0;
+#X connect 37 0 51 0;
+#X connect 38 0 37 1;
+#X connect 38 0 42 0;
+#X connect 39 0 45 0;
+#X connect 39 1 45 1;
+#X connect 41 0 45 0;
+#X connect 42 0 39 0;
+#X connect 43 0 44 0;
+#X connect 44 0 25 1;
+#X connect 45 0 30 0;
+#X connect 46 0 47 0;
+#X connect 47 0 29 0;
+#X connect 51 0 50 0;
+#X connect 51 0 21 0;
+#X connect 52 0 2 0;
 #X coords 0 -1 1 1 155 230 2 200 100;

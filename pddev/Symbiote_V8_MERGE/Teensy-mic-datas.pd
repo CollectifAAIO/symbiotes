@@ -11,16 +11,16 @@
 #X obj 521 289 f;
 #X obj 521 56 >= 70;
 #X obj 521 78 change;
-#X obj 6 84 spigot 1;
-#X obj 116 43 * -1;
-#X obj 116 67 + 1;
+#X obj 6 49 spigot 1;
+#X obj 116 33 * -1;
+#X obj 116 57 + 1;
 #X obj 6 184 average-array 50;
 #X msg 560 171 1;
 #X obj 521 147 t b b b;
 #X msg 540 198 0;
 #X obj 6 210 s noise-average;
 #X obj 370 265 s spent-above-threshold;
-#X obj 116 18 r stop-mic;
+#X obj 116 8 r stop-mic;
 #X text 603 245 Displays time spent above a given threshold, f 24
 ;
 #X text 606 468 Developed by Collectif AAIO;
@@ -39,7 +39,7 @@
 #X obj 228 37 r calibration-reset;
 #X msg 228 66 1;
 #X obj 89 65 int;
-#X msg 168 66 100;
+#X msg 168 66 160;
 #X connect 0 0 1 0;
 #X connect 0 0 5 0;
 #X connect 1 0 0 1;
@@ -69,7 +69,7 @@
 #X obj 207 280 cnv 15 140 75 empty empty Settings 5 10 0 10 -204800
 -66577 0;
 #X obj 220 316 hsl 83 14 0 100 0 1 empty empty Threshold 0 8 0 10 -262144
--1 -1 5300 1;
+-1 -1 6400 1;
 #X floatatom 305 316 5 0 0 0 - - -, f 5;
 #X obj 220 336 hsl 83 14 100 10000 0 1 empty empty Time_period 0 8
 0 10 -262144 -1 -1 2400 1;
@@ -78,14 +78,14 @@
 -1 1 1;
 #X obj 245 49 t b f;
 #X text 282 37 Check if active;
-#X obj 6 106 spigot;
-#X obj 6 43 r mic-raw;
+#X obj 6 71 spigot;
+#X obj 6 8 r mic-raw;
 #X obj 215 128 tgl 15 0 empty empty ADC_IS_ACTIVE 17 7 0 10 -262144
--1 -1 1 1;
+-1 -1 0 1;
 #X obj 218 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
-0 8 0 10 -262144 -1 -1 698 1;
+0 8 0 10 -262144 -1 -1 4385 1;
 #X obj 218 167 hsl 115 15 0 100 0 0 empty empty Noise_average 0 8 0
-10 -262144 -1 -1 968 1;
+10 -262144 -1 -1 4165 1;
 #X obj 215 188 bng 15 250 50 0 empty empty PEAK_DETECTED 17 7 0 10
 -262144 -1 -1;
 #X obj 215 219 hradio 15 1 0 8 empty empty Nr_of_Peaks 0 -8 0 10 -262144
@@ -158,6 +158,7 @@
 #X obj 215 27 == 1;
 #X obj 245 27 == 1;
 #X obj 215 72 &&;
+#X obj 6 93 MEDIAN_3;
 #X connect 0 0 24 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
@@ -195,7 +196,7 @@
 #X connect 31 0 46 0;
 #X connect 32 0 47 0;
 #X connect 32 1 47 1;
-#X connect 34 0 0 0;
+#X connect 34 0 48 0;
 #X connect 35 0 11 0;
 #X connect 38 0 18 0;
 #X connect 39 0 43 0;
@@ -207,4 +208,5 @@
 #X connect 45 0 47 0;
 #X connect 46 0 32 0;
 #X connect 47 0 36 0;
+#X connect 48 0 0 0;
 #X coords 0 -1 1 1 155 260 2 200 100;
