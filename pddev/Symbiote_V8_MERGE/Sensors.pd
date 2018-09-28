@@ -1,4 +1,4 @@
-#N canvas 629 357 659 311 10;
+#N canvas 629 357 655 343 10;
 #X msg 9 25 close;
 #X msg 52 25 devices;
 #X obj 9 50 comport 1 9600;
@@ -13,7 +13,7 @@ f 17;
 #X obj 390 25 Teensy-mic-datas;
 #X obj 244 266 bng 15 250 50 0 empty empty RESET_CALIBRATION 17 7 0
 10 -262144 -1 -1;
-#X obj 230 295 s calibration-reset;
+#X obj 101 281 s calibration-reset;
 #X connect 0 0 2 0;
 #X connect 1 0 2 0;
 #X connect 2 0 4 0;
@@ -22,4 +22,4 @@ f 17;
 #X connect 4 1 8 0;
 #X connect 6 0 2 0;
 #X connect 11 0 12 0;
-#X coords 0 -1 1 1 325 270 1 225 20;
+#X coords 0 -1 1 1 325 310 1 225 20;

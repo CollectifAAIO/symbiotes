@@ -1,7 +1,7 @@
-#N canvas 1457 88 795 495 10;
+#N canvas 1457 88 795 580 10;
 #X floatatom 6 133 5 0 0 0 - - -, f 5;
 #X text 109 180 Moyenne du volume sur n mesures, f 11;
-#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 540 247 f 1;
 #X obj 521 123 moses 1;
@@ -23,7 +23,7 @@
 #X obj 116 8 r stop-mic;
 #X text 603 245 Displays time spent above a given threshold, f 24
 ;
-#X text 606 468 Developed by Collectif AAIO;
+#X text 606 508 Developed by Collectif AAIO;
 #X obj 370 203 s mic-bang;
 #N canvas 50 82 450 300 auto-calibrate 0;
 #X obj 54 29 inlet;
@@ -66,14 +66,14 @@
 #X restore 6 155 pd auto-calibrate;
 #X obj 207 110 cnv 15 140 165 empty empty Monitoring 5 10 0 10 -106496
 -66577 0;
-#X obj 207 280 cnv 15 140 75 empty empty Settings 5 10 0 10 -204800
+#X obj 207 280 cnv 15 140 115 empty empty Settings 5 10 0 10 -204800
 -66577 0;
 #X obj 220 316 hsl 83 14 0 100 0 1 empty empty Threshold 0 8 0 10 -262144
--1 -1 6400 1;
+-1 -1 5400 1;
 #X floatatom 305 316 5 0 0 0 - - -, f 5;
-#X obj 220 336 hsl 83 14 100 10000 0 1 empty empty Time_period 0 8
+#X obj 220 356 hsl 83 14 100 10000 0 1 empty empty Time_period 0 8
 0 10 -262144 -1 -1 2400 1;
-#X floatatom 305 336 5 0 0 0 - - -, f 5;
+#X floatatom 305 356 5 0 0 0 - - -, f 5;
 #X obj 217 298 tgl 15 1 empty empty ENABLE_MIC 17 7 0 10 -262144 -1
 -1 1 1;
 #X obj 245 49 t b f;
@@ -81,11 +81,11 @@
 #X obj 6 71 spigot;
 #X obj 6 8 r mic-raw;
 #X obj 215 128 tgl 15 0 empty empty ADC_IS_ACTIVE 17 7 0 10 -262144
--1 -1 0 1;
+-1 -1 1 1;
 #X obj 218 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
-0 8 0 10 -262144 -1 -1 4385 1;
+0 8 0 10 -262144 -1 -1 8521 1;
 #X obj 218 167 hsl 115 15 0 100 0 0 empty empty Noise_average 0 8 0
-10 -262144 -1 -1 4165 1;
+10 -262144 -1 -1 8514 1;
 #X obj 215 188 bng 15 250 50 0 empty empty PEAK_DETECTED 17 7 0 10
 -262144 -1 -1;
 #X obj 215 219 hradio 15 1 0 8 empty empty Nr_of_Peaks 0 -8 0 10 -262144
@@ -93,7 +93,7 @@
 #X obj 370 234 s nr-of-peaks;
 #N canvas 0 22 450 300 peak-detector 0;
 #X obj 145 41 inlet;
-#X obj 351 42 inlet;
+#X obj 232 42 inlet;
 #X obj 160 245 outlet;
 #X obj 205 74 >= 70;
 #X obj 205 96 change;
@@ -107,6 +107,7 @@
 #X obj 205 118 sel 1;
 #X msg 205 140 1;
 #X obj 160 198 spigot;
+#X obj 287 42 inlet;
 #X connect 0 0 3 0;
 #X connect 0 0 11 0;
 #X connect 1 0 5 0;
@@ -123,6 +124,7 @@
 #X connect 12 0 13 0;
 #X connect 13 0 14 1;
 #X connect 14 0 7 0;
+#X connect 15 0 5 1;
 #X restore 6 241 pd peak-detector;
 #N canvas 0 22 504 297 peak-counter 0;
 #X obj 83 64 inlet;
@@ -159,6 +161,42 @@
 #X obj 245 27 == 1;
 #X obj 215 72 &&;
 #X obj 6 93 MEDIAN_3;
+#X obj 220 336 hsl 83 14 0 1 0 1 empty empty Hysteresis 0 8 0 10 -262144
+-1 -1 7100 1;
+#X floatatom 305 336 5 0 0 0 - - -, f 5;
+#X obj 366 350 * -1;
+#X obj 366 372 + 1;
+#X obj 359 146 s envelope-follower;
+#N canvas 0 22 450 300 variability-detection 0;
+#X obj 55 34 r noise-average;
+#X obj 63 56 r envelope-follower;
+#X obj 55 101 -;
+#X obj 63 78 t b f;
+#X obj 55 123 abs;
+#X floatatom 55 146 5 0 0 0 - - -, f 5;
+#X obj 55 165 > 3;
+#X obj 55 187 change;
+#X obj 55 209 sel 1;
+#X obj 55 231 outlet;
+#X obj 255 34 inlet;
+#X text 175 108 Detects sudden changes in volume;
+#X text 175 121 (difference between peak and average);
+#X connect 0 0 2 0;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 2 0;
+#X connect 3 1 2 1;
+#X connect 4 0 5 0;
+#X connect 5 0 6 0;
+#X connect 6 0 7 0;
+#X connect 7 0 8 0;
+#X connect 8 0 9 0;
+#X connect 10 0 6 1;
+#X restore 110 446 pd variability-detection;
+#X obj 220 376 hsl 83 14 1 10 0 1 empty empty Var_sensitivity 0 8 0
+10 -262144 -1 -1 2300 1;
+#X floatatom 305 376 5 0 0 0 - - -, f 5;
+#X obj 110 468 s mic-variations;
 #X connect 0 0 24 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
@@ -198,6 +236,7 @@
 #X connect 32 1 47 1;
 #X connect 34 0 48 0;
 #X connect 35 0 11 0;
+#X connect 37 0 53 0;
 #X connect 38 0 18 0;
 #X connect 39 0 43 0;
 #X connect 39 0 23 0;
@@ -209,4 +248,11 @@
 #X connect 46 0 32 0;
 #X connect 47 0 36 0;
 #X connect 48 0 0 0;
-#X coords 0 -1 1 1 155 260 2 200 100;
+#X connect 49 0 50 0;
+#X connect 50 0 51 0;
+#X connect 51 0 52 0;
+#X connect 52 0 42 2;
+#X connect 54 0 57 0;
+#X connect 55 0 56 0;
+#X connect 56 0 54 0;
+#X coords 0 -1 1 1 155 300 2 200 100;
