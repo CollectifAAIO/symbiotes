@@ -2,28 +2,28 @@
 #X obj 106 -20 vradio 15 1 0 6 \$0-waveform \$1-set-waveform SAMPLE_N
 0 100 0 10 -262144 -1 -1 2;
 #X obj 456 -18 vsl 40 100 0 1 0 0 \$0-Vol \$1-set-Vol VOL 10 5 0 10
--99865 -262144 -262144 6400 1;
+-99865 -262144 -262144 0 1;
 #X obj 23 466 *~ 0;
 #X obj 239 -20 vradio 15 1 0 6 \$0-AM_Waveform \$1-set-AM_Waveform
 AM_WAVEFORM 0 100 0 10 -262144 -1 -1 0;
 #X text 257 10 Saw;
 #X obj 291 17 hsl 40 15 0 20000 0 0 \$0-AM_Freq \$1-set-AM_Freq AMFreq
-0 8 0 10 -260097 -1 -262144 400 1;
+0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 291 -20 hsl 40 15 0 1 0 0 \$0-AM_Depth \$1-set-AM_Depth AMDepth
-0 8 0 10 -260097 -1 -262144 3200 1;
+0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 23 377 *~;
 #X obj 173 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dlay \$1-set-LADSR_Dlay
 Dlay 0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 239 110 nbx 4 14 0 1 0 0 \$0-LADSR_Amp \$1-set-LADSR_Amp Atk.Amp
-0 -6 0 10 -36344 -1 -1 1 256;
+0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 304 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Atk \$1-set-LADSR_Atk
-A 0 -6 0 10 -27631 -1 -1 2 256;
+A 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 353 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Dcay \$1-set-LADSR_Dcay
-D 0 -6 0 10 -27631 -1 -1 179 256;
+D 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 402 110 nbx 4 14 0 1 0 0 \$0-LADSR_Sus \$1-set-LADSR_Sus S 0
--6 0 10 -27631 -1 -1 0.05 256;
+-6 0 10 -27631 -1 -1 0 256;
 #X obj 451 110 nbx 4 14 0 11880 0 0 \$0-LADSR_Rel \$1-set-LADSR_Rel
-R 0 -6 0 10 -27631 -1 -1 8 256;
+R 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 23 438 *~;
 #X obj 38 -35 loadbang;
 #X text 54 375 AMPLITUDE ENVELOPPE;
@@ -328,15 +328,6 @@ R 0 -6 0 10 -27631 -1 -1 8 256;
 #X obj 245 277 scale 0 1 0 1;
 #X obj 245 339 s \$1-set-AudioLoop;
 #X obj 245 318 change;
-#N canvas 0 22 450 300 round 0;
-#X obj 50 83 int;
-#X obj 50 61 + 0.5;
-#X obj 50 105 outlet;
-#X obj 50 38 inlet;
-#X connect 0 0 2 0;
-#X connect 1 0 0 0;
-#X connect 3 0 1 0;
-#X restore 245 297 pd round;
 #X obj 10 72 route \$1-pst-waveform \$1-pst-LADSR_Dlay \$1-pst-LADSR_Amp
 \$1-pst-LADSR_Atk \$1-pst-LADSR_Dcay \$1-pst-LADSR_Sus \$1-pst-LADSR_Rel
 \$1-pst-Vol \$1-pst-AM_Waveform \$1-pst-AM_Depth \$1-pst-AM_Freq \$1-pst-LADSR_Dlay_rand
@@ -344,7 +335,6 @@ R 0 -6 0 10 -27631 -1 -1 8 256;
 \$1-pst-LADSR_Rel_rand \$1-pst-AM_Depth_rand \$1-pst-AM_Freq_rand \$1-pst-AudioLoop
 \$1-pst-playerOn, f 80;
 #X obj 398 569 s set-playerOn;
-#X obj 398 525 int;
 #X obj 398 547 change;
 #X obj 398 502 scale 0 1 0 1;
 #X obj 583 72 route \$1-pst-waveform \$1-pst-LADSR_Dlay \$1-pst-LADSR_Amp
@@ -353,9 +343,11 @@ R 0 -6 0 10 -27631 -1 -1 8 256;
 \$1-pst-LADSR_Atk_rand \$1-pst-LADSR_Dcay_rand \$1-pst-LADSR_Sus_rand
 \$1-pst-LADSR_Rel_rand \$1-pst-AM_Depth_rand \$1-pst-AM_Freq_rand \$1-pst-AudioLoop
 \$1-pst-playerOn, f 80;
+#X obj 398 525 round-to-int;
+#X obj 245 297 round-to-int;
 #X connect 0 0 1 0;
-#X connect 1 0 43 0;
-#X connect 1 1 48 0;
+#X connect 1 0 42 0;
+#X connect 1 1 46 0;
 #X connect 2 0 14 0;
 #X connect 3 0 2 0;
 #X connect 3 0 4 0;
@@ -376,7 +368,7 @@ R 0 -6 0 10 -27631 -1 -1 8 256;
 #X connect 3 0 30 0;
 #X connect 3 0 31 0;
 #X connect 3 0 39 0;
-#X connect 3 0 47 0;
+#X connect 3 0 45 0;
 #X connect 4 0 19 0;
 #X connect 5 0 20 0;
 #X connect 6 0 21 0;
@@ -394,57 +386,57 @@ R 0 -6 0 10 -27631 -1 -1 8 256;
 #X connect 29 0 36 0;
 #X connect 30 0 37 0;
 #X connect 31 0 38 0;
-#X connect 39 0 42 0;
+#X connect 39 0 48 0;
 #X connect 41 0 40 0;
-#X connect 42 0 41 0;
-#X connect 43 0 2 3;
-#X connect 43 1 4 3;
-#X connect 43 2 5 3;
-#X connect 43 3 6 3;
-#X connect 43 4 7 3;
-#X connect 43 5 8 3;
-#X connect 43 6 9 3;
-#X connect 43 7 10 3;
-#X connect 43 8 11 3;
-#X connect 43 9 12 3;
-#X connect 43 10 13 3;
-#X connect 43 11 25 3;
-#X connect 43 12 26 3;
-#X connect 43 13 27 3;
-#X connect 43 14 28 3;
-#X connect 43 15 29 3;
-#X connect 43 16 30 3;
-#X connect 43 17 31 3;
-#X connect 43 18 39 3;
-#X connect 43 19 47 1;
-#X connect 45 0 46 0;
-#X connect 46 0 44 0;
-#X connect 47 0 45 0;
-#X connect 48 0 2 4;
-#X connect 48 1 4 4;
-#X connect 48 2 5 4;
-#X connect 48 3 6 4;
-#X connect 48 4 7 4;
-#X connect 48 5 8 4;
-#X connect 48 6 9 4;
-#X connect 48 7 10 4;
-#X connect 48 8 11 4;
-#X connect 48 9 12 4;
-#X connect 48 10 13 4;
-#X connect 48 11 25 4;
-#X connect 48 12 26 4;
-#X connect 48 13 27 4;
-#X connect 48 14 28 4;
-#X connect 48 15 29 4;
-#X connect 48 16 30 4;
-#X connect 48 17 31 4;
-#X connect 48 18 39 4;
-#X connect 48 19 47 2;
+#X connect 42 0 2 3;
+#X connect 42 1 4 3;
+#X connect 42 2 5 3;
+#X connect 42 3 6 3;
+#X connect 42 4 7 3;
+#X connect 42 5 8 3;
+#X connect 42 6 9 3;
+#X connect 42 7 10 3;
+#X connect 42 8 11 3;
+#X connect 42 9 12 3;
+#X connect 42 10 13 3;
+#X connect 42 11 25 3;
+#X connect 42 12 26 3;
+#X connect 42 13 27 3;
+#X connect 42 14 28 3;
+#X connect 42 15 29 3;
+#X connect 42 16 30 3;
+#X connect 42 17 31 3;
+#X connect 42 18 39 3;
+#X connect 42 19 45 1;
+#X connect 44 0 43 0;
+#X connect 45 0 47 0;
+#X connect 46 0 2 4;
+#X connect 46 1 4 4;
+#X connect 46 2 5 4;
+#X connect 46 3 6 4;
+#X connect 46 4 7 4;
+#X connect 46 5 8 4;
+#X connect 46 6 9 4;
+#X connect 46 7 10 4;
+#X connect 46 8 11 4;
+#X connect 46 9 12 4;
+#X connect 46 10 13 4;
+#X connect 46 11 25 4;
+#X connect 46 12 26 4;
+#X connect 46 13 27 4;
+#X connect 46 14 28 4;
+#X connect 46 15 29 4;
+#X connect 46 16 30 4;
+#X connect 46 17 31 4;
+#X connect 46 18 39 4;
+#X connect 46 19 45 2;
+#X connect 47 0 44 0;
+#X connect 48 0 41 0;
 #X restore 439 505 pd pst-routing;
 #X obj 291 -5 hsl 40 10 0 1 0 0 \$0-AM_Depth_rand \$1-set-AM_Depth_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 291 32 hsl 40 10 0 20000 0 0 \$0-AM_Freq_rand \$1-set-AM_Freq_rand
-Rand 10 5 0 8 -128992 -262144 -262144 800 1;
+Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 176 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Dlay_rand \$1-set-LADSR_Dlay_rand
 Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 307 124 hsl 40 10 0 11880 0 0 \$0-LADSR_Atk_rand \$1-set-LADSR_Atk_rand
@@ -485,7 +477,7 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 23 501 throw~ \$1-AudioPlayer;
 #X obj 23 125 spigot;
 #X obj 143 20 tgl 30 0 \$0-playerOn \$1-set-playerOn Player_On 35 15
-0 10 -27631 -1 -1 1 1;
+0 10 -27631 -1 -1 0 1;
 #X connect 0 0 48 0;
 #X connect 1 0 18 0;
 #X connect 2 0 57 0;
