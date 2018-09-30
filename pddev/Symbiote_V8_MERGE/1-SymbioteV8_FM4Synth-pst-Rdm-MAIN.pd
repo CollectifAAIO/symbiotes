@@ -146,15 +146,16 @@
 #X obj 539 28 r mic-variations;
 #X obj 539 71 del 100;
 #X obj 7 275 FM_Osc 1;
-#X obj 271 801 *~;
-#X obj 286 736 r noise-average;
+#X obj 271 811 *~;
+#X obj 286 726 r noise-average;
 #X obj 286 835 dac~;
-#X floatatom 286 758 5 0 0 0 - - -, f 5;
-#X obj 286 777 scale 0 50 0.1 1;
+#X floatatom 286 748 5 0 0 0 - - -, f 5;
+#X obj 286 767 scale 0 50 0.1 1;
 #X text 876 420 4 = noise average;
 #X text 876 433 5 = mic gravity bang;
 #X text 876 381 1 = proxi gravity bang;
 #X obj 649 28 r proxi-variations;
+#X obj 286 789 clip 0.1 1;
 #X connect 1 0 40 0;
 #X connect 2 0 40 0;
 #X connect 3 0 40 0;
@@ -177,5 +178,6 @@
 #X connect 40 0 15 0;
 #X connect 41 0 43 0;
 #X connect 43 0 44 0;
-#X connect 44 0 40 1;
+#X connect 44 0 49 0;
 #X connect 48 0 8 0;
+#X connect 49 0 40 1;
