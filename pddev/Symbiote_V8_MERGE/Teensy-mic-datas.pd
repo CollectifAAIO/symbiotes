@@ -1,7 +1,7 @@
 #N canvas 1457 88 795 580 10;
 #X floatatom 6 133 5 0 0 0 - - -, f 5;
 #X text 109 180 Moyenne du volume sur n mesures, f 11;
-#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 540 247 f 1;
 #X obj 521 123 moses 1;
@@ -66,7 +66,7 @@
 #X restore 6 155 pd auto-calibrate;
 #X obj 207 110 cnv 15 140 165 empty empty Monitoring 5 10 0 10 -106496
 -66577 0;
-#X obj 207 280 cnv 15 140 115 empty empty Settings 5 10 0 10 -204800
+#X obj 207 280 cnv 15 140 140 empty empty Settings 5 10 0 10 -204800
 -66577 0;
 #X obj 220 316 hsl 83 14 0 100 0 1 empty empty Threshold 0 8 0 10 -262144
 -1 -1 5400 1;
@@ -83,9 +83,9 @@
 #X obj 215 128 tgl 15 0 empty empty ADC_IS_ACTIVE 17 7 0 10 -262144
 -1 -1 1 1;
 #X obj 218 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
-0 8 0 10 -262144 -1 -1 8521 1;
+0 8 0 10 -262144 -1 -1 1086 1;
 #X obj 218 167 hsl 115 15 0 100 0 0 empty empty Noise_average 0 8 0
-10 -262144 -1 -1 8514 1;
+10 -262144 -1 -1 1473 1;
 #X obj 215 188 bng 15 250 50 0 empty empty PEAK_DETECTED 17 7 0 10
 -262144 -1 -1;
 #X obj 215 219 hradio 15 1 0 8 empty empty Nr_of_Peaks 0 -8 0 10 -262144
@@ -174,29 +174,71 @@
 #X obj 63 78 t b f;
 #X obj 55 123 abs;
 #X floatatom 55 146 5 0 0 0 - - -, f 5;
-#X obj 55 165 > 3;
-#X obj 55 187 change;
-#X obj 55 209 sel 1;
-#X obj 55 231 outlet;
+#X obj 55 261 outlet;
 #X obj 255 34 inlet;
 #X text 175 108 Detects sudden changes in volume;
 #X text 175 121 (difference between peak and average);
+#N canvas 0 22 450 300 peak-detector 0;
+#X obj 145 41 inlet;
+#X obj 232 42 inlet;
+#X obj 160 275 outlet;
+#X obj 205 126 change;
+#X obj 160 104 * 0.8;
+#X msg 217 228 0;
+#X obj 160 250 t b b;
+#X obj 145 199 sel 1;
+#X obj 145 169 change;
+#X text 212 198 Attack detector with hysteresis;
+#X obj 145 147 <;
+#X obj 205 148 sel 1;
+#X msg 205 170 1;
+#X obj 160 228 spigot;
+#X obj 287 42 inlet;
+#X obj 205 104 >= 3;
+#X obj 287 64 t b f;
+#X connect 0 0 10 0;
+#X connect 0 0 15 0;
+#X connect 1 0 4 0;
+#X connect 1 0 15 1;
+#X connect 3 0 11 0;
+#X connect 4 0 10 1;
+#X connect 5 0 13 1;
+#X connect 6 0 2 0;
+#X connect 6 1 5 0;
+#X connect 7 0 13 0;
+#X connect 8 0 7 0;
+#X connect 10 0 8 0;
+#X connect 11 0 12 0;
+#X connect 12 0 13 1;
+#X connect 13 0 6 0;
+#X connect 14 0 16 0;
+#X connect 15 0 3 0;
+#X connect 16 0 4 0;
+#X connect 16 1 4 1;
+#X restore 55 175 pd peak-detector;
+#X obj 333 34 inlet;
+#X text 252 56 Threshold;
+#X text 322 56 Hysteresis;
 #X connect 0 0 2 0;
 #X connect 1 0 3 0;
 #X connect 2 0 4 0;
 #X connect 3 0 2 0;
 #X connect 3 1 2 1;
 #X connect 4 0 5 0;
-#X connect 5 0 6 0;
-#X connect 6 0 7 0;
-#X connect 7 0 8 0;
-#X connect 8 0 9 0;
-#X connect 10 0 6 1;
+#X connect 5 0 10 0;
+#X connect 7 0 10 1;
+#X connect 10 0 6 0;
+#X connect 11 0 10 2;
 #X restore 110 446 pd variability-detection;
-#X obj 220 376 hsl 83 14 1 10 0 1 empty empty Var_sensitivity 0 8 0
-10 -262144 -1 -1 2300 1;
+#X obj 220 376 hsl 83 14 1 20 0 1 empty empty Var_threshold 0 8 0 10
+-262144 -1 -1 8200 1;
 #X floatatom 305 376 5 0 0 0 - - -, f 5;
 #X obj 110 468 s mic-variations;
+#X obj 220 396 hsl 83 14 0 1 0 1 empty empty Var_Hysteresis 0 8 0 10
+-262144 -1 -1 4500 1;
+#X floatatom 305 396 5 0 0 0 - - -, f 5;
+#X obj 366 410 * -1;
+#X obj 366 432 + 1;
 #X connect 0 0 24 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
@@ -255,4 +297,8 @@
 #X connect 54 0 57 0;
 #X connect 55 0 56 0;
 #X connect 56 0 54 0;
-#X coords 0 -1 1 1 155 300 2 200 100;
+#X connect 58 0 59 0;
+#X connect 59 0 60 0;
+#X connect 60 0 61 0;
+#X connect 61 0 54 1;
+#X coords 0 -1 1 1 155 325 2 200 100;

@@ -1,4 +1,4 @@
-#N canvas 629 357 655 343 10;
+#N canvas 629 357 656 362 10;
 #X msg 9 25 close;
 #X msg 52 25 devices;
 #X obj 9 50 comport 1 9600;
@@ -22,4 +22,4 @@ f 17;
 #X connect 4 1 8 0;
 #X connect 6 0 2 0;
 #X connect 11 0 12 0;
-#X coords 0 -1 1 1 325 310 1 225 20;
+#X coords 0 -1 1 1 325 335 1 225 20;
