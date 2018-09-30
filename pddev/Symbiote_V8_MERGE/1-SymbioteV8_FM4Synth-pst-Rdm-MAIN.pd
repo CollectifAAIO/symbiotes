@@ -1,6 +1,6 @@
 #N canvas 197 23 1224 766 10;
 #X obj 814 277 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
--20480 -262144 39600 1;
+-20480 -262144 0 1;
 #X obj 8 682 catch~ 1-Osc;
 #X obj 102 682 catch~ 2-Osc;
 #X obj 196 682 catch~ 3-Osc;
@@ -30,7 +30,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 11400 1;
+-1 -1 0 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -81,7 +81,6 @@
 #X coords 0 -1 1 1 300 50 1 40 35;
 #X restore 476 222 pd store-pst;
 #X obj 7 27 Sequencer;
-#X obj 649 28 r proxi-bang;
 #X obj 649 51 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 539 51 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -103,7 +102,7 @@
 #X obj 411 275 FM_Osc 2;
 #X obj 7 477 FM_Osc 3;
 #X obj 411 477 FM_Osc 4;
-#X text 728 29 Triggering sounds;
+#X text 728 47 Triggering sounds;
 #X text 630 176 Mic input is stopped while sequence is playing, f
 22;
 #X text 515 156 ________________________________;
@@ -155,27 +154,28 @@
 #X text 876 420 4 = noise average;
 #X text 876 433 5 = mic gravity bang;
 #X text 876 381 1 = proxi gravity bang;
-#X connect 1 0 41 0;
-#X connect 2 0 41 0;
-#X connect 3 0 41 0;
-#X connect 4 0 41 0;
-#X connect 8 0 9 0;
-#X connect 9 0 35 0;
-#X connect 10 0 39 0;
-#X connect 11 0 13 0;
-#X connect 14 0 12 0;
-#X connect 15 0 41 0;
-#X connect 17 0 16 0;
-#X connect 18 0 16 0;
-#X connect 19 0 16 0;
-#X connect 24 0 23 0;
-#X connect 31 0 0 0;
-#X connect 34 0 31 0;
+#X obj 649 28 r proxi-variations;
+#X connect 1 0 40 0;
+#X connect 2 0 40 0;
+#X connect 3 0 40 0;
+#X connect 4 0 40 0;
+#X connect 8 0 34 0;
+#X connect 9 0 38 0;
+#X connect 10 0 12 0;
+#X connect 13 0 11 0;
+#X connect 14 0 40 0;
+#X connect 16 0 15 0;
+#X connect 17 0 15 0;
+#X connect 18 0 15 0;
+#X connect 23 0 22 0;
+#X connect 30 0 0 0;
+#X connect 33 0 30 0;
+#X connect 37 0 9 0;
 #X connect 38 0 10 0;
-#X connect 39 0 11 0;
+#X connect 40 0 42 0;
+#X connect 40 0 42 1;
+#X connect 40 0 15 0;
 #X connect 41 0 43 0;
-#X connect 41 0 43 1;
-#X connect 41 0 16 0;
-#X connect 42 0 44 0;
-#X connect 44 0 45 0;
-#X connect 45 0 41 1;
+#X connect 43 0 44 0;
+#X connect 44 0 40 1;
+#X connect 48 0 8 0;
