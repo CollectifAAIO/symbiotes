@@ -1,7 +1,7 @@
 #N canvas 1457 88 795 580 10;
 #X floatatom 6 133 5 0 0 0 - - -, f 5;
 #X text 109 180 Moyenne du volume sur n mesures, f 11;
-#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 521 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 540 247 f 1;
 #X obj 521 123 moses 1;
@@ -83,9 +83,9 @@
 #X obj 215 128 tgl 15 0 empty empty ADC_IS_ACTIVE 17 7 0 10 -262144
 -1 -1 1 1;
 #X obj 218 147 hsl 115 15 0 100 0 0 empty empty Enveloppe_follower
-0 8 0 10 -262144 -1 -1 1086 1;
+0 8 0 10 -262144 -1 -1 9903 1;
 #X obj 218 167 hsl 115 15 0 100 0 0 empty empty Noise_average 0 8 0
-10 -262144 -1 -1 1473 1;
+10 -262144 -1 -1 10926 1;
 #X obj 215 188 bng 15 250 50 0 empty empty PEAK_DETECTED 17 7 0 10
 -262144 -1 -1;
 #X obj 215 219 hradio 15 1 0 8 empty empty Nr_of_Peaks 0 -8 0 10 -262144
@@ -239,6 +239,59 @@
 #X floatatom 305 396 5 0 0 0 - - -, f 5;
 #X obj 366 410 * -1;
 #X obj 366 432 + 1;
+#X obj 207 315 cnv 15 100 15 empty empty UNUSED 20 8 0 12 -233017 -66577
+0;
+#X obj 207 335 cnv 15 100 15 empty empty UNUSED 20 8 0 12 -233017 -66577
+0;
+#X obj 207 355 cnv 15 100 15 empty empty UNUSED 20 8 0 12 -233017 -66577
+0;
+#X obj 207 250 cnv 15 100 15 empty empty UNUSED 20 8 0 12 -233017 -66577
+0;
+#X obj 207 219 cnv 15 100 15 empty empty UNUSED 20 8 0 12 -233017 -66577
+0;
+#N canvas 711 205 451 373 gravity-bang 0;
+#X obj 53 293 outlet;
+#X obj 103 127 - 0.1;
+#X obj 103 73 metro 500;
+#X obj 53 103 f;
+#X obj 53 174 f;
+#X obj 103 103 f;
+#X floatatom 53 223 5 0 0 0 - - -, f 5;
+#X obj 53 127 + 1;
+#X obj 103 149 t b f;
+#X obj 53 149 t b f;
+#X obj 103 54 tgl 15 0 empty init-bang empty 17 7 0 10 -262144 -1 -1
+0 1;
+#X obj 53 243 clip 0 3;
+#X obj 53 265 / 3;
+#X obj 53 199 clip 0 7;
+#X text 112 193 Keeps small margin to stay longer at the top of the
+macro, f 30;
+#X text 146 105 GRAVITY BANG;
+#X obj 53 73 inlet;
+#X connect 1 0 8 0;
+#X connect 2 0 5 0;
+#X connect 3 0 7 0;
+#X connect 4 0 13 0;
+#X connect 5 0 1 0;
+#X connect 6 0 11 0;
+#X connect 7 0 9 0;
+#X connect 8 0 4 0;
+#X connect 8 1 4 1;
+#X connect 9 0 4 0;
+#X connect 9 1 4 1;
+#X connect 10 0 2 0;
+#X connect 11 0 12 0;
+#X connect 12 0 0 0;
+#X connect 13 0 6 0;
+#X connect 13 0 5 1;
+#X connect 13 0 3 1;
+#X connect 16 0 3 0;
+#X restore 525 387 pd gravity-bang;
+#X obj 525 364 r mic-variations;
+#X text 656 364 Gravity bang feature can be connected to any bang derived
+from sensor data, f 20;
+#X obj 525 409 s mic-gravity-bang;
 #X connect 0 0 24 0;
 #X connect 2 0 4 0;
 #X connect 3 0 5 0;
@@ -301,4 +354,6 @@
 #X connect 59 0 60 0;
 #X connect 60 0 61 0;
 #X connect 61 0 54 1;
+#X connect 67 0 70 0;
+#X connect 68 0 67 0;
 #X coords 0 -1 1 1 155 325 2 200 100;

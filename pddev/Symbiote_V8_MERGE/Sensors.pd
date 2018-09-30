@@ -11,9 +11,9 @@ f 17;
 #X obj 88 132 s mic-raw;
 #X obj 230 25 Proxi-datas;
 #X obj 390 25 Teensy-mic-datas;
-#X obj 244 266 bng 15 250 50 0 empty empty RESET_CALIBRATION 17 7 0
+#X obj 244 322 bng 15 250 50 0 empty empty RESET_CALIBRATION 17 7 0
 10 -262144 -1 -1;
-#X obj 101 281 s calibration-reset;
+#X obj 101 337 s calibration-reset;
 #X connect 0 0 2 0;
 #X connect 1 0 2 0;
 #X connect 2 0 4 0;
