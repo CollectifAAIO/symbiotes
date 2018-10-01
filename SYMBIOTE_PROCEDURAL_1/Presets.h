@@ -92,12 +92,12 @@ struct BinaryPreset {
   float ParameterValues_[ParameterValues::c_itemsCount];
 };
 
-bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken, const bool allowDigits) {
+bool ParseToken(const String & data, unsigned & inOutCursor, String & outToken) {
   unsigned cursor = inOutCursor;
   const unsigned dataLength = data.length();
   String token;
   token.reserve(dataLength);
-  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n' && (allowDigits || !isDigit(data[cursor]))) {
+  while(cursor < dataLength && data[cursor] != ' ' && data[cursor] != '\n') {
     token += data[cursor];
     cursor += 1;
   }
@@ -127,7 +127,7 @@ unsigned ParseNumberTokens(const String & data, unsigned & inOutCursor, Paramete
     cursor += 1;
   }
 
-  while (cursor < dataLength && data[cursor] != '\n' && ParseToken(data, cursor, token, true)) {
+  while (cursor < dataLength && data[cursor] != '\n' && ParseToken(data, cursor, token)) {
     const float value = token.toFloat();
     out.data_[valueIndex++] = value;
 #ifdef PRESET_DEBUG
@@ -161,7 +161,7 @@ bool ParseParameterLine(const String & data, int & _outStripIndex, unsigned & _o
 
     unsigned cursor = isSynthPreset? 1 : 0;
     String token;
-    if (ParseToken(data, cursor, token, false)) {
+    if (ParseToken(data, cursor, token)) {
       CleanIdToken(token, isSynthPreset);
       unsigned tokenIdx = 0;
       for (; tokenIdx < c_tokensCount; ++tokenIdx) {
