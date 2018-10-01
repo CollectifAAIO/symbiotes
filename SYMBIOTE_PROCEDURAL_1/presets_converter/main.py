@@ -85,22 +85,27 @@ def DumpFloatArrayValues(data):
 def ParseInputFile(path, index):
   thisScriptDir = os.path.dirname(os.path.realpath(__file__))
   outFilePath = os.path.join(os.path.dirname(thisScriptDir), "preset_data_{0}.h".format(index))
-  if os.path.exists(path):
-    reference = re.compile(r'([1-4]*)\-?pst\-([a-zA-Z\_\-0-9]+) ([e0-9\.\- ]+)')
+  with open(path, 'r') as inFile:
+    reference = re.compile(r'[ ]?([1-4]*)\-?pst\-([a-zA-Z\_\-0-9]+) ([e0-9\.\- ]+)\;')
+    data = inFile.read()
+    data = data.replace('\n', ' ')
+    data = data.replace(';', ';\n')
+    lines = data.split('\n')
     out = []
-    inFile = open(path, 'r')
-    for line in inFile:
+    for line in lines:
       foundMatches = reference.match(line)
       if(foundMatches):
         out.append(foundMatches.groups())
-    outFile = open(outFilePath, 'w')
-    for item in out:
-      (numValues, values) = DumpFloatArrayValues(item[2])
-      if(item[0]):
-        outFile.write("{{{0}, {1}, {2}, {{ {3} }} }},\n".format(item[0], c_tokens.index(item[1]), numValues, values))
-      else:
-        outFile.write("{{9, {0}, {1}, {{ {2} }} }},\n".format(c_tokens.index(item[1]), numValues, values))
-    print("Written {0} items.\n".format(len(out)))
+    with open(outFilePath, 'w') as outFile:
+      for item in out:
+        parmIndex = c_tokens.index(item[1])
+        valuesOneLiner = item[2].replace('\n', ' ');
+        (numValues, values) = DumpFloatArrayValues(valuesOneLiner)
+        if(item[0]):
+          outFile.write("{{{0}, {1}, {2}, {{ {3} }} }},\n".format(item[0], parmIndex, numValues, values))
+        else:
+          outFile.write("{{9, {0}, {1}, {{ {2} }} }},\n".format(parmIndex, numValues, values))
+      print("Written {0} items.\n".format(len(out)))
 
 if __name__ == "__main__":
   import sys
