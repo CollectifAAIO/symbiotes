@@ -74,7 +74,7 @@ struct SequencerParms {
       break;
     }
     case seq_bpm:{
-      bpm_ = static_cast<unsigned>(parmValues.data_[0]);
+      bpm_ = 4.0f * static_cast<unsigned>(parmValues.data_[0]);
       break;
     }
     case seq_RestartFrom0:{
