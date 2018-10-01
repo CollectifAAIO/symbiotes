@@ -76,6 +76,10 @@ enum SynthParameterIndex {
   synth_Count
 };
 
+float computeModulationLevelFromExpectedPitch(const float expected, const float base) {
+  return log(expected / base) / c_modRangeFactor;
+}
+
 // Struct defining an envelope generator parameters
 struct ADSRParms {
   ADSRParms( unsigned AtkMs = 100,
@@ -657,9 +661,9 @@ struct SynthStrip {
     for (unsigned i = 0; i < c_templatesCount; ++i) {
       // Handling parameters dependencies here
       const float FreqOsc = parmsTemplate_[i].FreqOsc(noteFreqHz);
-      const float PitchDepth = parmsTemplate_[i].PitchDepth() / FreqOsc;
+      const float PitchDepth = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].PitchDepth(), FreqOsc);
       ADSRParms PitchParms = parmsTemplate_[i].PitchParms();
-      PitchParms.Sus_ = PitchParms.Sus_ / FreqOsc;
+      PitchParms.Sus_ = computeModulationLevelFromExpectedPitch(PitchParms.Sus_, FreqOsc);
 
 #ifdef SYNTH_DEBUG
       Serial.printf("New freq %f\n", FreqOsc);
