@@ -187,6 +187,8 @@ class Sequencer {
       if(cyclesCounter_ == 0 || parms_.isLooping_) {
         if(parms_.Trigers_.data_[stepsCounter_] > 0.0f) {
             noteOn(synth_);
+        } else {
+          noteOff(synth_);
         }
 #ifdef SEQ_DEBUG
         Serial.printf("Cycles count %d - Steps count %d\n", cyclesCounter_, stepsCounter_);
