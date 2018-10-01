@@ -373,7 +373,7 @@ struct SynthStripParms {
   }
   float FreqOsc(const float freqHz) const {
     if(ListenSeq_) {
-      const float pitchedNoteHz = (freqHz * Transpose_) * pow(2.0f, Octave_);
+      const float pitchedNoteHz = (freqHz + Transpose_) * pow(2.0f, Octave_);
       return pitchedNoteHz;
     } else {
       return FreqOsc_;
