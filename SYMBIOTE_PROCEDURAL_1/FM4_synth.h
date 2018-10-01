@@ -838,7 +838,7 @@ class FM4 {
     }
   }
 
-  void setInterpolationFactor( const float value) {
+  void setInterpolationFactor(const float value) {
     interpolationFactor_ = value;
   }
 
