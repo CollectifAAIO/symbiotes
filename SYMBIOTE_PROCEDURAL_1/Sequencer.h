@@ -145,8 +145,10 @@ struct SequencerParmsInstance {
   }
 
   void dump() const {
-    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpeg_0 1 2 3: %f %f %f %f; Trigers_0 1 2 3: %f %f %f %f;\n",
-                  bpm_, stepsCount_, isLooping_, DutyCycle_, arpeg_.data_[0], arpeg_.data_[1], arpeg_.data_[2], arpeg_.data_[3], Trigers_.data_[0], Trigers_.data_[1], Trigers_.data_[2], Trigers_.data_[3]);
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpegs: %f %f %f %f %f %f %f %f; Trigers: %f %f %f %f %f %f %f %f;\n",
+                  bpm_, stepsCount_, isLooping_, DutyCycle_,
+                  arpeg_.data_[0], arpeg_.data_[1], arpeg_.data_[2], arpeg_.data_[3], arpeg_.data_[4], arpeg_.data_[5], arpeg_.data_[6], arpeg_.data_[7],
+                  Trigers_.data_[0], Trigers_.data_[1], Trigers_.data_[2], Trigers_.data_[3], Trigers_.data_[4], Trigers_.data_[5], Trigers_.data_[6], Trigers_.data_[7]);
   }
 
   void LerpWith(const SequencerParmsInstance & rhs, const float interpolationFactor) {
