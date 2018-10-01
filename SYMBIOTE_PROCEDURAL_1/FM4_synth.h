@@ -77,7 +77,11 @@ enum SynthParameterIndex {
 };
 
 float computeModulationLevelFromExpectedPitch(const float expected, const float base) {
-  return log(expected / base) / c_modRangeFactor;
+  float out = 0.0f;
+  if (expected > 0) {
+    out = log(expected / base) / c_modRangeFactor;
+  }
+  return out;
 }
 
 // Struct defining an envelope generator parameters
