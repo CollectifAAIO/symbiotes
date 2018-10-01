@@ -14,20 +14,18 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
 
+#define AUDIO_DUMP
+
 // Peak detection for trigger
 AudioInputI2S     audioInput;
 AudioAnalyzePeak  peak1;
 AudioConnection   patchCord(audioInput, peak1);
-
-// GUItool: begin automatically generated code
 
 // Synth 1
 AudioSynthWaveformDc     PitchEnvDepthOsc1; //xy=92.5,45
@@ -150,5 +148,9 @@ AudioConnection          patchCord72(AM3, 0, mixerMASTER, 2);
 
 AudioConnection          patchCord73(mixerMASTER, 0, i2s1, 0);
 AudioConnection          patchCord74(mixerMASTER, 0, i2s1, 1);
-// GUItool: end automatically generated code
+
+#ifdef AUDIO_DUMP
+AudioOutputUSB           usb1;
+AudioConnection          patchCordAudioDump(mixerMASTER, 0, usb1, 0);
+#endif // AUDIO_DUMP
 
