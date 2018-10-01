@@ -192,6 +192,7 @@ struct SynthStripParms {
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
+    float Vol = 1.0,
     float AMdepth = 0,
     unsigned AMFreq = 4,
     unsigned WaveformAM = 0 )
@@ -216,6 +217,7 @@ struct SynthStripParms {
     FMOsc3toOscRand_{},
     FMOsc4toOsc_( FMOsc4toOsc ),
     FMOsc4toOscRand_{},
+    Vol_(Vol),
     AMdepth_( AMdepth ),
     AMdepthRand_{},
     AMFreq_( AMFreq ),
@@ -351,6 +353,7 @@ struct SynthStripParms {
       break;
     }
     case synth_Vol:{
+      Vol_ = parmValue;
       break;
     }
     default:{
@@ -409,6 +412,9 @@ struct SynthStripParms {
   float FMOsc4toOsc() const {
     return getRandom(FMOsc4toOsc_, FMOsc4toOscRand_);
   }
+  float Vol() const {
+    return Vol_;
+  }
   float AMdepth() const {
     return getRandom(AMdepth_, AMdepthRand_);
   }
@@ -440,6 +446,7 @@ struct SynthStripParms {
   float FMOsc3toOscRand_;
   float FMOsc4toOsc_;
   float FMOsc4toOscRand_;
+  float Vol_;
   float AMdepth_;
   float AMdepthRand_;
   unsigned AMFreq_;
@@ -462,7 +469,8 @@ struct SynthStripParmsInstance {
     float FMOsc2toOsc = 0.0,
     float FMOsc3toOsc = 0.0,
     float FMOsc4toOsc = 0.0,
-    float AMdepth = 0,
+    float Vol = 0.0,
+    float AMdepth = 0.0,
     unsigned AMFreq = 4,
     unsigned WaveformAM = 0 )
     :
@@ -476,6 +484,7 @@ struct SynthStripParmsInstance {
     FMOsc2toOsc_( FMOsc2toOsc ),
     FMOsc3toOsc_( FMOsc3toOsc ),
     FMOsc4toOsc_( FMOsc4toOsc ),
+    Vol_( Vol ),
     AMdepth_( AMdepth ),
     AMFreq_( AMFreq ),
     WaveformAM_( WaveformAM ) {}
@@ -508,6 +517,7 @@ struct SynthStripParmsInstance {
   float FMOsc4toOsc_;     // Depth of FM from OSC4
 
   // AM
+  float Vol_;
   float AMdepth_;      // Mix between amp
 
   unsigned AMFreq_;         // Frequency of Amplitude Modulation (Hz)
@@ -531,6 +541,7 @@ struct SynthStripParmsInstance {
     FMOsc2toOsc_ = Lerp(FMOsc2toOsc_, rhs.FMOsc2toOsc_, interpolationFactor);
     FMOsc3toOsc_ = Lerp(FMOsc3toOsc_, rhs.FMOsc3toOsc_, interpolationFactor);
     FMOsc4toOsc_ = Lerp(FMOsc4toOsc_, rhs.FMOsc4toOsc_, interpolationFactor);
+    Vol_ = Lerp(Vol_, rhs.Vol_, interpolationFactor);
     AMdepth_ = Lerp(AMdepth_, rhs.AMdepth_, interpolationFactor);
     AMFreq_ = Lerp(AMFreq_, rhs.AMFreq_, interpolationFactor);
     WaveformAM_ = Lerp(WaveformAM_, rhs.WaveformAM_, interpolationFactor);
@@ -621,6 +632,8 @@ struct SynthStrip {
     mixerOSCtoOSC_.gain(3, parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
 
     // AM
+    AMdc_.amplitude(parms_.Vol_);
+
     mixerAM_.gain(0, parms_.AMdepth_);
     mixerAM_.gain(1, 1.0 - parms_.AMdepth_);
 
@@ -684,6 +697,7 @@ struct SynthStrip {
         parmsTemplate_[i].FMOsc2toOsc(),
         parmsTemplate_[i].FMOsc3toOsc(),
         parmsTemplate_[i].FMOsc4toOsc(),
+        parmsTemplate_[i].Vol(),
         parmsTemplate_[i].AMdepth(),
         parmsTemplate_[i].AMFreq(),
         parmsTemplate_[i].WaveformAM());
@@ -772,6 +786,7 @@ class FM4 {
       0.0, /* FMOsc2toOsc */
       0.0, /* FMOsc3toOsc */
       0.0, /* FMOsc4toOsc */
+      0.0, /* Vol */
       1, /* AMdepth */
       4, /* AMFreq */
       0 /* WaveformAM */ );
