@@ -751,7 +751,7 @@ class FM4 {
   }
 
   void init() {
-     SynthStripParmsInstance defaultSynth1Parms(
+     SynthStripParmsInstance defaultSynthParms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
       550, /* FreqOsc */
@@ -767,55 +767,10 @@ class FM4 {
       4, /* AMFreq */
       0 /* WaveformAM */ );
 
-     SynthStripParmsInstance defaultSynth2Parms(
-      0, /* WaveformOSC */
-      ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
-      440, /* FreqOsc */
-      false, /* ListenSeq */
-      0.0, /* PitchDepth */
-      ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
-      0.0, /* FMOsc1toOsc */
-      0.0, /* FMOsc2toOsc */
-      0.0, /* FMOsc3toOsc */
-      0.0, /* FMOsc4toOsc */
-      0, /* AMdepth */
-      4, /* AMFreq */
-      0 /* WaveformAM */ );
-
-     SynthStripParmsInstance defaultSynth3Parms(
-      0, /* WaveformOSC */
-      ADSRParms( 1, 200, 0.5, 500, 0 ), /* VolParms */
-      440, /* FreqOsc */
-      false, /* ListenSeq */
-      0.0, /* PitchDepth */
-      ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
-      0.0, /* FMOsc1toOsc */
-      0.0, /* FMOsc2toOsc */
-      0.0, /* FMOsc3toOsc */
-      0.0, /* FMOsc4toOsc */
-      0, /* AMdepth */
-      4, /* AMFreq */
-      0 /* WaveformAM */ );
-
-     SynthStripParmsInstance defaultSynth4Parms(
-      0, /* WaveformOSC */
-      ADSRParms( 1, 200, 0.2, 500, 0 ), /* VolParms */
-      440, /* FreqOsc */
-      false, /* ListenSeq */
-      0.0, /* PitchDepth */
-      ADSRParms( 100, 220, 0.3, 200, 0 ), /* PitchParms */
-      0.0, /* FMOsc1toOsc */
-      0.0, /* FMOsc2toOsc */
-      0.0, /* FMOsc3toOsc */
-      0.0, /* FMOsc4toOsc */
-      0, /* AMdepth */
-      4, /* AMFreq */
-      0 /* WaveformAM */ );
-
-    strip1_.setAllParms(defaultSynth1Parms);
-    strip2_.setAllParms(defaultSynth2Parms);
-    strip3_.setAllParms(defaultSynth3Parms);
-    strip4_.setAllParms(defaultSynth4Parms);
+    strip1_.setAllParms(defaultSynthParms);
+    strip2_.setAllParms(defaultSynthParms);
+    strip3_.setAllParms(defaultSynthParms);
+    strip4_.setAllParms(defaultSynthParms);
     for (int i = 0; i < 4; ++i) {
       getStrip(i).applyParms();
       getStrip(i).initialise();
