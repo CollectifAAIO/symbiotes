@@ -772,8 +772,8 @@ class FM4 {
     strip3_.setAllParms(defaultSynthParms);
     strip4_.setAllParms(defaultSynthParms);
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).applyParms();
-      getStrip(i).initialise();
+      getStrip(i)->applyParms();
+      getStrip(i)->initialise();
     }
     // Global initialisations
     Noise.amplitude(1.0);
@@ -800,7 +800,7 @@ class FM4 {
     Serial.printf("noteOn: frequency %f\n", noteFreqHz);
 #endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).noteOn(noteFreqHz, interpolationFactor_);
+      getStrip(i)->noteOn(noteFreqHz, interpolationFactor_);
     }
   }
 
@@ -809,7 +809,7 @@ class FM4 {
     Serial.println(">>>>>>>> NOTE OFF !! <<<<<<<<");
 #endif // SYNTH_DEBUG
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).noteOff();
+      getStrip(i)->noteOff();
     }
   }
 
@@ -825,7 +825,7 @@ class FM4 {
 
   void applyParms() {
     for (int i = 0; i < 4; ++i) {
-      getStrip(i).applyParms();
+      getStrip(i)->applyParms();
     }
   }
 
@@ -834,17 +834,19 @@ class FM4 {
   }
 
   void dumpParms() const {
-    getConstStrip(0).dump();
+    getStrip(0)->dump();
   }
  private:
-  const SynthStrip & getConstStrip( int index ) const {
-    // We expect indices from 0 to 3
-    return *all_synth_strips_[index];
+  const SynthStrip * getStrip( int index ) const {
+    if (index >= 0 && index < 4) {
+      return all_synth_strips_[index];
+    } else {
+      return nullptr;
+    }
   }
 
-  SynthStrip & getStrip( int index ) {
-    // We expect indices from 0 to 3
-    return *all_synth_strips_[index];
+  SynthStrip * getStrip( int index ) {
+    return const_cast<SynthStrip*>(const_cast<const FM4*>(this)->getStrip(index));
   }
 
   float mtof(const float midiNote) {
@@ -856,7 +858,10 @@ class FM4 {
 #ifdef SYNTH_DEBUG
     Serial.printf("Set Strip %d - \n", stripIndex);
 #endif // SYNTH_DEBUG
-    getStrip(stripIndex).setIndexedParameter(templateIndex, parmIndex, parmValue);
+    SynthStrip * strip = getStrip(stripIndex);
+    if (strip != nullptr) {
+      strip->setIndexedParameter(templateIndex, parmIndex, parmValue);
+    }
   }
 
   SynthStrip strip1_;
