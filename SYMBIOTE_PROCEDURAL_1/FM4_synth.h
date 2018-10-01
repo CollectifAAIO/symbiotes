@@ -182,6 +182,7 @@ struct SynthStripParms {
   SynthStripParms(
     unsigned WaveformOSC = 0,
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
+    const float LADSR_Amp = 0.0f,
     unsigned FreqOsc = 440,
     bool ListenSeq = false,
     unsigned Transpose = 0,
@@ -199,6 +200,7 @@ struct SynthStripParms {
     :
     WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
+    LADSR_Amp_( LADSR_Amp ),
     VolParmsRand_{},
     FreqOsc_( FreqOsc ),
     FreqOscRand_{},
@@ -333,13 +335,16 @@ struct SynthStripParms {
       break;
     }
     case synth_LADSR_Dlay:
-    case synth_LADSR_Amp:
     case synth_LADSR_Atk:
     case synth_LADSR_Dcay:
     case synth_LADSR_Sus:
     case synth_LADSR_Rel:{
       const int adsrParmIndex = parmIndex - synth_LADSR_Dlay;
       VolParms_.setIndexedParameter(adsrParmIndex, parmValue);
+      break;
+    }
+    case synth_LADSR_Amp:{
+      LADSR_Amp_ = parmValue;
       break;
     }
     case synth_LADSR_Dlay_rand:
@@ -370,8 +375,8 @@ struct SynthStripParms {
     Serial.println("Vol/Pitch random parms");
     VolParmsRand_.dump();
     PitchParmsRand_.dump();
-    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; Transpose_: %d; Octave_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, FreqOsc_, ListenSeq_, Transpose_, Octave_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; Transpose_: %d; Octave_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, LADSR_Amp_, FreqOsc_, ListenSeq_, Transpose_, Octave_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
     Serial.printf("FreqOscRand_: %d; FMOsc1toOscRand_: %f; FMOsc2toOscRand_: %f; FMOsc3toOscRand_: %f; FMOsc4toOscRand_: %f; AMdepthRand_: %f; AMFreqRand_: %d;\n",
                   FreqOscRand_, FMOsc1toOscRand_, FMOsc2toOscRand_, FMOsc3toOscRand_, FMOsc4toOscRand_, AMdepthRand_, AMFreqRand_);
   }
@@ -382,6 +387,9 @@ struct SynthStripParms {
   }
   ADSRParms VolParms() const {
     return getRandom(VolParms_, VolParmsRand_);
+  }
+  float LADSR_Amp() const {
+    return LADSR_Amp_;
   }
   float FreqOsc(const float freqHz) const {
     if(ListenSeq_) {
@@ -428,6 +436,7 @@ struct SynthStripParms {
  private:
   unsigned WaveformOSC_;
   ADSRParms VolParms_;
+  float LADSR_Amp_;
   ADSRParms VolParmsRand_;
   unsigned FreqOsc_;
   float FreqOscRand_;
@@ -461,6 +470,7 @@ struct SynthStripParmsInstance {
   SynthStripParmsInstance(
     unsigned WaveformOSC = 0,
     const ADSRParms & VolParms = ADSRParms( 1, 200, 0.2, 1000, 0 ),
+    const float LADSR_Amp = 0.0,
     unsigned FreqOsc = 440,
     bool ListenSeq = false,
     float PitchDepth = 0.2,
@@ -476,6 +486,7 @@ struct SynthStripParmsInstance {
     :
     WaveformOSC_( WaveformOSC ),
     VolParms_( VolParms ),
+    LADSR_Amp_( LADSR_Amp ),
     FreqOsc_( FreqOsc ),
     ListenSeq_( ListenSeq ),
     PitchDepth_( PitchDepth ),
@@ -495,6 +506,7 @@ struct SynthStripParmsInstance {
   // OSC VOLUME
 
   ADSRParms VolParms_;
+  float LADSR_Amp_;
 
   // OSC PITCH
 
@@ -526,13 +538,14 @@ struct SynthStripParmsInstance {
   void dump() const {
     VolParms_.dump();
     PitchParms_.dump();
-    Serial.printf("WaveformOSC_: %d; FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
+    Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; Vol_: %f, AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+                  WaveformOSC_, LADSR_Amp_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, Vol_, AMdepth_, AMFreq_, WaveformAM_);
   }
 
   void LerpWith(const SynthStripParmsInstance & rhs, const float interpolationFactor) {
     WaveformOSC_ = Lerp(WaveformOSC_, rhs.WaveformOSC_, interpolationFactor);
     VolParms_ = Lerp(VolParms_, rhs.VolParms_, interpolationFactor);
+    LADSR_Amp_ = Lerp(LADSR_Amp_, rhs.LADSR_Amp_, interpolationFactor);
     FreqOsc_ = Lerp(FreqOsc_, rhs.FreqOsc_, interpolationFactor);
     ListenSeq_ = Lerp(ListenSeq_, rhs.ListenSeq_, interpolationFactor);
     PitchDepth_ = Lerp(PitchDepth_, rhs.PitchDepth_, interpolationFactor);
@@ -582,7 +595,6 @@ struct SynthStrip {
     // Set null values for parameters we won't touch
     VolEnvOsc_.hold( 0 );
     PitchEnvOsc_.hold( 0 );
-    AMdc_.amplitude(1);
     WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
     mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
     mixerOSC_.gain(2, 0);  // Depth of FM OSCILLATORS
@@ -616,6 +628,7 @@ struct SynthStrip {
 
     // Note
     OSC_.frequency(parms_.FreqOsc_);
+    OSC_.amplitude(parms_.LADSR_Amp_);
 
     // Envelop
     PitchEnvDepthOsc_.amplitude(parms_.PitchDepth_); // Depth of Pitch enveloppe
@@ -689,6 +702,7 @@ struct SynthStrip {
       newInstances[i] = SynthStripParmsInstance(
         parmsTemplate_[i].WaveformOSC(),
         parmsTemplate_[i].VolParms(),
+        parmsTemplate_[i].LADSR_Amp(),
         FreqOsc,
         parmsTemplate_[i].ListenSeq(),
         PitchDepth,
@@ -777,6 +791,7 @@ class FM4 {
      SynthStripParmsInstance defaultSynthParms(
       0, /* WaveformOSC */
       ADSRParms( 1, 200, 0.2, 1000, 0 ), /* VolParms */
+      0.0, /* LADSR_Amp */
       550, /* FreqOsc */
       true, /* ListenSeq */
       1.0, /* PitchDepth */
