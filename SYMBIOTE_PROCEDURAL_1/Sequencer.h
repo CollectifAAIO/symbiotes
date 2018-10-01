@@ -263,7 +263,7 @@ class Sequencer {
  private:
   static constexpr unsigned c_templatesCount = 2;
   float computeNextNote() const {
-    const float arpegValue = parms_.arpeg_.data_[stepsCounter_];
+    const float arpegValue = static_cast<float>(static_cast<int>(parms_.arpeg_.data_[stepsCounter_]));
     const float midiValue = arpegValue + 12.0;
     return midiValue;
   }
