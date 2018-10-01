@@ -51,5 +51,6 @@ float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
+constexpr float c_modRange = 8.0;
 #endif // _GLOBAL_VARIABLES_H_
 

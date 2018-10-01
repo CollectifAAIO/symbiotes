@@ -18,6 +18,7 @@
 #ifndef _FM4_SYNTH_H_
 #define _FM4_SYNTH_H_
 
+#include "GlobalVariables.h"
 #include "helpers.h"
 
 //#define SYNTH_DEBUG
@@ -558,7 +559,7 @@ struct SynthStrip {
     AudioNoInterrupts();
 
     OSC_.amplitude(1.0);
-    OSC_.frequencyModulation(1.0);
+    OSC_.frequencyModulation(c_modRange);
     // Set null values for parameters we won't touch
     VolEnvOsc_.hold( 0 );
     PitchEnvOsc_.hold( 0 );
