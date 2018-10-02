@@ -245,7 +245,7 @@ struct SynthStripParms {
       break;
     }
     case synth_ListenSeq:{
-      ListenSeq_ = parmValue > 0.0f;
+      ListenSeq_ = parmValue > 0.5f;
       break;
     }
     case synth_Transpose:{

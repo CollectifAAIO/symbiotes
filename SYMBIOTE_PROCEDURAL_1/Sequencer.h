@@ -70,7 +70,7 @@ struct SequencerParms {
       break;
     }
     case seq_loop:{
-      isLooping_ = parmValues.data_[0] > 0.0f;
+      isLooping_ = parmValues.data_[0] > 0.5f;
       break;
     }
     case seq_bpm:{

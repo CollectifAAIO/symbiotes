@@ -50,7 +50,8 @@ static unsigned Lerp(const unsigned lhs, const unsigned rhs, const float interpo
   return static_cast<int>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
 }
 static bool Lerp(const bool lhs, const bool rhs, const float interpolationFactor) {
-  return static_cast<bool>(interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs);
+  const float value = interpolationFactor * lhs + (1.0f - interpolationFactor) * rhs;
+  return value > 0.5;
 }
 static ParameterValues Lerp(const ParameterValues & lhs, const ParameterValues & rhs, const float interpolationFactor) {
   ParameterValues out;
