@@ -394,12 +394,11 @@ struct SynthStripParms {
     return LADSR_Amp_;
   }
   float FreqOsc(const float freqHz) const {
+    float pitchedNoteHz = FreqOsc_;
     if(ListenSeq_) {
-      const float pitchedNoteHz = (freqHz + Transpose_) * pow(2.0f, Octave_);
-      return pitchedNoteHz;
-    } else {
-      return FreqOsc_;
+      pitchedNoteHz = (freqHz + Transpose_) * pow(2.0f, Octave_);
     }
+    return getRandom(pitchedNoteHz, FreqOscRand_);
   }
   bool ListenSeq() const {
     return ListenSeq_;
