@@ -44,7 +44,7 @@ void setup() {
   // setup audio board
 
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.25);                         //REGLAGE
+  sgtl5000_1.volume(0.5);
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
   ProxiSetup();
