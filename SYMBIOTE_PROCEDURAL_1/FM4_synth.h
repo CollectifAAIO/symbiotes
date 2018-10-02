@@ -683,6 +683,10 @@ struct SynthStrip {
     parms_.dump();
     parmsTemplate_[0].dump();
   }
+
+  bool isPlaying() const {
+    return VolEnvOsc_.isActive() && PitchEnvOsc_.isActive();
+  }
  private:
   static constexpr unsigned c_templatesCount = 2;
 
@@ -873,6 +877,17 @@ class FM4 {
   void dumpParms() const {
     getStrip(0)->dump();
   }
+
+  bool isPlaying() const {
+    bool out = true;
+    out &= strip1_.isPlaying();
+    out &= strip2_.isPlaying();
+    out &= strip3_.isPlaying();
+    out &= strip4_.isPlaying();
+    return out;
+  }
+
+
  private:
   const SynthStrip * getStrip( int index ) const {
     if (index >= 0 && index < 4) {

@@ -191,6 +191,7 @@ class Sequencer {
   stepsCounter_(0),
   cyclesCounter_(0),
   isNoteOn_(false),
+  isPlaying_(false),
   periodMs_(0),
   parms_() {}
 
@@ -199,6 +200,9 @@ class Sequencer {
     stepsCounter_ = 0;
     cyclesCounter_ = 0;
     isNoteOn_ = false;
+    setBPM();
+    Serial.println("start");
+    isPlaying_ = true;
   }
 
   void update(FM4 & synth_) {
@@ -220,6 +224,8 @@ class Sequencer {
         setBPM();
         timer_ = 0;
         noteOffTime_ = static_cast<unsigned>(static_cast<float>(periodMs_) * parms_.DutyCycle_);
+      } else {
+        isPlaying_ = false;
       }
     }
     if (timer_ >= noteOffTime_) {
@@ -284,6 +290,9 @@ class Sequencer {
     Serial.printf("periodMs: %f; noteOffTime_: %f\n", periodMs_, noteOffTime_);
   }
 
+  bool isPlaying() const {
+    return isPlaying_;
+  }
  private:
   static constexpr unsigned c_templatesCount = 2;
   float computeNextNote() const {
@@ -300,6 +309,7 @@ class Sequencer {
   unsigned stepsCounter_;
   unsigned cyclesCounter_;
   bool isNoteOn_;
+  bool isPlaying_;
   unsigned periodMs_;
   SequencerParmsInstance parms_;
   SequencerParms parmsTemplate_[c_templatesCount];

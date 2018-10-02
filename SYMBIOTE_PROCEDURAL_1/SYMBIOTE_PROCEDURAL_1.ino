@@ -66,10 +66,11 @@ void loop() {
 
   // Mic detection
   micDetection.update();
-  if (micDetection.hasDetected()) {
+  if (micDetection.hasDetected() && !FM4synth.isPlaying() && !seq.isPlaying()) {
     seq.start();
     seq.noteOn(FM4synth);
   }
+  //Serial.println(FM4synth.isPlaying() && seq.isPlaying());
 
   seq.update(FM4synth);
 
