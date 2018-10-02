@@ -696,9 +696,15 @@ struct SynthStrip {
     for (unsigned i = 0; i < c_templatesCount; ++i) {
       // Handling parameters dependencies here
       const float FreqOsc = parmsTemplate_[i].FreqOsc(noteFreqHz);
+      Serial.println(FreqOsc);
       const float PitchDepth = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].PitchDepth(), FreqOsc);
       ADSRParms PitchParms = parmsTemplate_[i].PitchParms();
       PitchParms.Sus_ = computeModulationLevelFromExpectedPitch(PitchParms.Sus_, FreqOsc);
+
+      const float FMOsc1toOsc = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].FMOsc1toOsc(), FreqOsc);
+      const float FMOsc2toOsc = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].FMOsc2toOsc(), FreqOsc);
+      const float FMOsc3toOsc = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].FMOsc3toOsc(), FreqOsc);
+      const float FMOsc4toOsc = computeModulationLevelFromExpectedPitch(parmsTemplate_[i].FMOsc4toOsc(), FreqOsc);
 
 #ifdef SYNTH_DEBUG
       Serial.printf("New freq %f\n", FreqOsc);
@@ -712,10 +718,10 @@ struct SynthStrip {
         parmsTemplate_[i].ListenSeq(),
         PitchDepth,
         PitchParms,
-        parmsTemplate_[i].FMOsc1toOsc(),
-        parmsTemplate_[i].FMOsc2toOsc(),
-        parmsTemplate_[i].FMOsc3toOsc(),
-        parmsTemplate_[i].FMOsc4toOsc(),
+        FMOsc1toOsc,
+        FMOsc2toOsc,
+        FMOsc3toOsc,
+        FMOsc4toOsc,
         parmsTemplate_[i].Vol(),
         parmsTemplate_[i].AMdepth(),
         parmsTemplate_[i].AMFreq(),
