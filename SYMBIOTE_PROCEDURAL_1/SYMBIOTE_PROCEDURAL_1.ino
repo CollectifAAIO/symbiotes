@@ -115,6 +115,7 @@ void loop() {
 #ifdef PARMS_DUMP
       FM4synth.dumpParms();
       seq.dumpParms();
+      micDetection.dump();
 #endif // PARMS_DUMP
     }
   }

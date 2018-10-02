@@ -371,10 +371,10 @@ struct SynthStripParms {
   }
 
   void dump() const {
-    Serial.println("Vol/Pitch parms");
+    Serial.println("StripParmsTemplate Vol/Pitch parms");
     VolParms_.dump();
     PitchParms_.dump();
-    Serial.println("Vol/Pitch random parms");
+    Serial.println("StripParmsTemplate Vol/Pitch random parms");
     VolParmsRand_.dump();
     PitchParmsRand_.dump();
     Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; Transpose_: %d; Octave_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
@@ -537,6 +537,7 @@ struct SynthStripParmsInstance {
   unsigned WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
   void dump() const {
+    Serial.println("StripParmsInstance");
     VolParms_.dump();
     PitchParms_.dump();
     Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; Vol_: %f, AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
