@@ -205,7 +205,7 @@ class Sequencer {
     if (timer_ >= periodMs_) {
       if(cyclesCounter_ == 0 || parms_.isLooping_) {
         if(parms_.Trigers_.data_[stepsCounter_] > 0.0f) {
-            noteOn(synth_);
+          noteOn(synth_);
         } else {
           noteOff(synth_);
         }
@@ -217,13 +217,15 @@ class Sequencer {
         if (stepsCounter_ == 0) {
           cyclesCounter_ += 1;
         }
+        setBPM();
         timer_ = 0;
         noteOffTime_ = static_cast<unsigned>(static_cast<float>(periodMs_) * parms_.DutyCycle_);
       }
-    } else if (timer_ >= noteOffTime_) {
-      if (isNoteOn_) {
-        noteOff(synth_);
-      }
+    }
+    if (timer_ >= noteOffTime_) {
+        if (isNoteOn_) {
+          noteOff(synth_);
+        }
     }
   }
 
@@ -231,8 +233,11 @@ class Sequencer {
     parms_ = parms;
   }
 
-  void applyParms() {
-    periodMs_ = static_cast<unsigned>(1000.0 * 60.0 / static_cast<float>(parms_.bpm_));
+  void setBPM() {
+    if (parms_.RandomizeSeqOrSound_ || (stepsCounter_ == 0)) {
+      const float meanPeriod = static_cast<unsigned>(1000.0 * 60.0 / static_cast<float>(parms_.bpm_));
+      periodMs_ = getRandom(meanPeriod, parms_.RandomSpeed_);
+    }
   }
 
   void setInterpolationFactor(const float value) {
@@ -261,7 +266,6 @@ class Sequencer {
   void noteOn(FM4 & synth_) {
     const float midiNote = computeNextNote();
     synth_.noteOn(midiNote);
-    applyParms();
     isNoteOn_ = true;
 #ifdef SEQ_DEBUG
     Serial.printf("noteOn: %f - expected note off time: %d\n", midiNote, noteOffTime_);
@@ -274,15 +278,19 @@ class Sequencer {
   }
 
   void dumpParms() const {
+    parmsTemplate_[0].dump();
+    parmsTemplate_[1].dump();
     parms_.dump();
-    Serial.printf("periodMs: %u, noteOffTime: %u\n",
-                  periodMs_, noteOffTime_);
+    Serial.printf("periodMs: %f; noteOffTime_: %f\n", periodMs_, noteOffTime_);
   }
 
  private:
   static constexpr unsigned c_templatesCount = 2;
   float computeNextNote() const {
     const float arpegValue = static_cast<float>(static_cast<int>(parms_.arpeg_.data_[stepsCounter_]));
+#ifdef SEQ_DEBUG
+    Serial.printf("arpegValue: %f\n", arpegValue);
+#endif // SEQ_DEBUG
     const float midiValue = arpegValue + 12.0;
     return midiValue;
   }
