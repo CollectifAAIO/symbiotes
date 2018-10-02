@@ -29,7 +29,6 @@
 
 // Settings functions
 
-MedianFilter MedianProx(5, 0);
 RunningAverage MicroRA(15);
 
 // MACROS

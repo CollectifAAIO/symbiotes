@@ -17,6 +17,8 @@
 
 // CALIBRATION PROXI RETURN VALUE BETWEEN 0 & 100
 
+MedianFilter MedianProx(5, 0);
+
 void ProxiSetup() {
   elapsedMillis TimeElapsed = 0;
   Serial.println(" >>>>>>>>>>> Début de Calibration <<<<<<<<<< ");
