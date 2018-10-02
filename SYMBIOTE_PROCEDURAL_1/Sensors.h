@@ -14,10 +14,14 @@
 /// You should have received a copy of the GNU Lesser Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-// CALIBRATION PROXI RETURN VALUE BETWEEN 0 & 100
+// Include Lib
+#include <MedianFilter.h>   // https://github.com/daPhoosa/MedianFilter
+#include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
 
 MedianFilter MedianProx(5, 0);
+
+static int ProxiMin = 1023;
+static float ProxiMax = 0.0;
 
 void ProxiSetup() {
   elapsedMillis TimeElapsed = 0;
@@ -29,9 +33,9 @@ void ProxiSetup() {
     //    MicroRA.addValue(MicroRms);
     //    Micro_Moyenne = MicroRA.getAverage();
 
-    Proximeter = analogRead(PROXI_PIN);
+    const float Proximeter = analogRead(PROXI_PIN);
     MedianProx.in(Proximeter);
-    ProxiMedian = MedianProx.out();
+    const float ProxiMedian = MedianProx.out();
 
     // record the minimum Proxi Value
     if (Proximeter < ProxiMin) {
@@ -51,14 +55,26 @@ void ProxiSetup() {
   Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
 }
 
+static unsigned proxyDetectionMode = 0;
+
   // DATA SENSORS
 float Proxi() {
-  Proximeter = analogRead(PROXI_PIN);
-  MedianProx.in(Proximeter);
-  ProxiMedian = MedianProx.out();
-  ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
-  ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
-  return ProxiScale;
+  const float Proximeter = analogRead(PROXI_PIN);
+  switch(proxyDetectionMode) {
+    case(0): {
+      MedianProx.in(Proximeter);
+      const float ProxiMedian = MedianProx.out();
+      const float ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
+      const float ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
+      return ProxiScale;
+    }
+    case(1): {
+      return 0.0f;
+    }
+    default: {
+      return 1.0f;
+    }
+  }
 }
 
 // CALIB MICRO & RETURN VALUE
@@ -75,7 +91,7 @@ public:
   static constexpr float c_extremeMin = 0.0;
   static constexpr float c_extremeMax = 1.0;
   MicDetection(
-    float Threshold = 0.5,
+    float Threshold = 0.3,
     float Hysteresis = 0.8,
     unsigned WindowLength = 50) :
   Threshold_(Threshold),
@@ -92,6 +108,7 @@ public:
   }
 
   void setIndexedParameter(const MicDetectionParameterIndex parmIndex, const ParameterValues & parmValues ) {
+    Serial.printf("Mic detection set param index %d to %f\n", parmIndex, parmValues.data_[0]);
     switch(parmIndex) {
     case mic_Threshold:{
       Threshold_ = parmValues.data_[0];

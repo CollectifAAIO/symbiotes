@@ -82,7 +82,8 @@ static const String c_tokens[] = {
   "max-trigger-time",
   "Threshold",
   "Hysteresis",
-  "WindowLength"
+  "WindowLength",
+  "proxyDetectionMode"
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 

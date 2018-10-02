@@ -59,9 +59,8 @@ void setup() {
 bool isNoteOn = false;
 
 void loop() {
-
-  MACROExpressivite = Proxi();
-  //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
+  const float MACROExpressivite = Proxi();
+  Serial.println(MACROExpressivite);
   seq.setInterpolationFactor(MACROExpressivite);
   FM4synth.setInterpolationFactor(MACROExpressivite);
 
@@ -93,8 +92,12 @@ void loop() {
     if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
       if (parmIndex > SynthParameterIndex::synth_Count) {
         if (parmIndex >= SequencerParameterIndex::seq_Count) {
-          const MicDetectionParameterIndex micParmIndex = static_cast<MicDetectionParameterIndex>(parmIndex - SynthParameterIndex::synth_Count - SequencerParameterIndex::seq_Count);
-          micDetection.setIndexedParameter(micParmIndex, parmValues);
+          if (parmIndex >= MicDetectionParameterIndex::mic_Count) {
+              proxyDetectionMode = static_cast<unsigned>(parmValues.data_[0]);
+          } else {
+            const MicDetectionParameterIndex micParmIndex = static_cast<MicDetectionParameterIndex>(parmIndex - SynthParameterIndex::synth_Count - SequencerParameterIndex::seq_Count);
+            micDetection.setIndexedParameter(micParmIndex, parmValues);
+          }
         } else {
           const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
           seq.setIndexedParameter(0, seqParmIndex, parmValues);

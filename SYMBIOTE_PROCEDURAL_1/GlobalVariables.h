@@ -20,33 +20,11 @@
 // Def In & Out
 #define PROXI_PIN        A3
 
-// Include Lib
-#include <MedianFilter.h>   // https://github.com/daPhoosa/MedianFilter
-#include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
 #include <elapsedMillis.h>
 
 // DECLARATION & INIT VARIABLES
 
 // Settings functions
-
-RunningAverage MicroRA(15);
-
-// MACROS
-
-float MACROExpressivite = 0.0;
-int   MACRODensity;
-
-// Calib
-
-bool Calib = true;
-
-float Proximeter = 0.0;
-float ProxiMedian = 0.0;
-float ProxiClip = 0.0;
-float ProxiScale = 0.0;
-
-int ProxiMin = 1023;
-float ProxiMax = 0.0;
 
 const int TEMPS_CALIB = 5000; //SETTING (en ms)
 
