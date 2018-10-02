@@ -19,6 +19,7 @@
 #include <RunningAverage.h> // https://github.com/RobTillaart/Arduino/tree/master/libraries/RunningAverage
 
 MedianFilter MedianProx(5, 0);
+RunningAverage proxiAverage(50);
 
 static int ProxiMin = 1023;
 static float ProxiMax = 0.0;
@@ -53,6 +54,7 @@ void ProxiSetup() {
   Serial.println(ProxiMax);
 
   Serial.println(" >>>>>>>>>>> Fin de Calibration <<<<<<<<<< ");
+  proxiAverage.clear();
 }
 
 static unsigned proxyDetectionMode = 0;
@@ -94,9 +96,12 @@ float Proxi() {
   const float ProxiMedian = MedianProx.out();
   const float ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
   const float ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
+  proxiAverage.addValue(ProxiScale);
+  const float currentProxi = proxiAverage.getAverage();
   switch(proxyDetectionMode) {
     case(0): {
-      return ProxiScale;
+      const float clippedProxi = min(0.8, currentProxi) + 0.2;
+      return clippedProxi;
     }
     case(1): {
       return gravityBang.update(ProxiScale);
