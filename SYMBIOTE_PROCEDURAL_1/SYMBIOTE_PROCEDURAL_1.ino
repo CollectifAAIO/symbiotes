@@ -91,11 +91,13 @@ void loop() {
     ParameterValues parmValues;
     const String data = Serial.readString();
     if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
-      if (parmIndex > SynthParameterIndex::synth_Count) {
-        if (parmIndex >= SequencerParameterIndex::seq_Count) {
-          if (parmIndex >= MicDetectionParameterIndex::mic_Count) {
+      if (parmIndex >= SynthParameterIndex::synth_Count) {
+        if (parmIndex >= SynthParameterIndex::synth_Count + SequencerParameterIndex::seq_Count) {
+          if (parmIndex >= SynthParameterIndex::synth_Count + SequencerParameterIndex::seq_Count + MicDetectionParameterIndex::mic_Count) {
+            if (parmIndex >= MicDetectionParameterIndex::mic_Count + 2) {
               proxyDetectionMode = static_cast<unsigned>(parmValues.data_[0]);
               gravityBang.reset();
+            }
           } else {
             const MicDetectionParameterIndex micParmIndex = static_cast<MicDetectionParameterIndex>(parmIndex - SynthParameterIndex::synth_Count - SequencerParameterIndex::seq_Count);
             micDetection.setIndexedParameter(micParmIndex, parmValues);
