@@ -239,7 +239,9 @@ struct SynthStripParms {
       FreqOsc_ = parmValue;
       break;
     }
-    case synth_glide_rand:
+    case synth_glide_rand:{
+      break;
+    }
     case synth_Pitch_rand:{
       FreqOscRand_ = parmValue;
       break;
