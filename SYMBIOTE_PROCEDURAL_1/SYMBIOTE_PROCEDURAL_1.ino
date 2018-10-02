@@ -69,7 +69,7 @@ void loop() {
   micDetection.update();
   if (micDetection.hasDetected()) {
     seq.start();
-    seq.noteOn();
+    seq.noteOn(FM4synth);
   }
 
   seq.update(FM4synth);
@@ -92,9 +92,14 @@ void loop() {
     const String data = Serial.readString();
     if (ParseParameterLine(data, synthStripIndex, parmIndex, parmValues)) {
       if (parmIndex > SynthParameterIndex::synth_Count) {
-        const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
-        seq.setIndexedParameter(0, seqParmIndex, parmValues);
-        seq.setIndexedParameter(1, seqParmIndex, parmValues);
+        if (parmIndex >= SequencerParameterIndex::seq_Count) {
+          const MicDetectionParameterIndex micParmIndex = static_cast<MicDetectionParameterIndex>(parmIndex - SynthParameterIndex::synth_Count - SequencerParameterIndex::seq_Count);
+          micDetection.setIndexedParameter(micParmIndex, parmValues);
+        } else {
+          const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
+          seq.setIndexedParameter(0, seqParmIndex, parmValues);
+          seq.setIndexedParameter(1, seqParmIndex, parmValues);
+        }
       } else {
         const SynthParameterIndex synthParmIndex = static_cast<SynthParameterIndex>(parmIndex);
         // For now the synth has no multi-values parameters

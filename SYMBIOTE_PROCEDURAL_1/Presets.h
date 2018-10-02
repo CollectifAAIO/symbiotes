@@ -79,7 +79,10 @@ static const String c_tokens[] = {
   "Trigers",
   "random-trig",
   "min-trigger-time",
-  "max-trigger-time"
+  "max-trigger-time",
+  "Threshold",
+  "Hysteresis",
+  "WindowLength"
 };
 constexpr int c_tokensCount = sizeof(c_tokens) / sizeof(String);
 
