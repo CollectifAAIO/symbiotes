@@ -46,6 +46,8 @@ void setup() {
   sgtl5000_1.volume(0.25);                         //REGLAGE
   sgtl5000_1.inputSelect(AUDIO_INPUT_MIC);
 
+  ProxiSetup();
+
   FM4synth.init();
   seq.start();
   ParseBinaryPresets(c_presets_1, c_presets_2, c_presetSize, FM4synth, seq);
@@ -57,13 +59,15 @@ bool isNoteOn = false;
 
 void loop() {
 
-  //MACROExpressivite = Proxi();
+  MACROExpressivite = Proxi();
   //MACRODensity = map(Proxi(), 0.0, 1.0, MaxTimeNoteOnBorneMin, MaxTimeNoteOnBorneMax);
+  seq.setInterpolationFactor(MACROExpressivite);
+  FM4synth.setInterpolationFactor(MACROExpressivite);
 
   if ( peak1.available() ) {
-    if ( peak1.read() > 0.5 ) {
-      seq.start();
-      seq.noteOn(FM4synth);
+    if ( peak1.read() > 0.25 ) {
+      //seq.start();
+      //seq.noteOn(FM4synth);
     }
   }
 
