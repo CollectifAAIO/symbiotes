@@ -79,7 +79,7 @@ enum SynthParameterIndex {
 float computeModulationLevelFromExpectedPitch(const float expected, const float base) {
   float out = 0.0f;
   if (expected > 0) {
-    out = log(expected / base) / c_modRangeFactor;
+    out = log(expected / base) / (0.5 * c_modRangeFactor);
   }
   return out;
 }
