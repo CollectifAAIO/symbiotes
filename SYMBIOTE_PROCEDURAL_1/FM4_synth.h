@@ -642,10 +642,10 @@ struct SynthStrip {
     // FM
 
     // Osc
-    mixerOSCtoOSC_.gain(0, parms_.FMOsc1toOsc_);     // Depth of FM from OSC1
-    mixerOSCtoOSC_.gain(1, parms_.FMOsc2toOsc_);     // Depth of FM from OSC2
-    mixerOSCtoOSC_.gain(2, parms_.FMOsc3toOsc_);     // Depth of FM from OSC3
-    mixerOSCtoOSC_.gain(3, parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
+    mixerOSCtoOSC_.gain(0, 0.25 * parms_.FMOsc1toOsc_);     // Depth of FM from OSC1
+    mixerOSCtoOSC_.gain(1, 0.25 * parms_.FMOsc2toOsc_);     // Depth of FM from OSC2
+    mixerOSCtoOSC_.gain(2, 0.25 * parms_.FMOsc3toOsc_);     // Depth of FM from OSC3
+    mixerOSCtoOSC_.gain(3, 0.25 * parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
 
     // AM
     mixerAM_.gain(0, parms_.AMdepth_);
