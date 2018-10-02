@@ -60,7 +60,7 @@ bool isNoteOn = false;
 
 void loop() {
   const float MACROExpressivite = Proxi();
-  Serial.println(MACROExpressivite);
+  //Serial.println(MACROExpressivite);
   seq.setInterpolationFactor(MACROExpressivite);
   FM4synth.setInterpolationFactor(MACROExpressivite);
 
