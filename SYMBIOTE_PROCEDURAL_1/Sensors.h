@@ -57,19 +57,49 @@ void ProxiSetup() {
 
 static unsigned proxyDetectionMode = 0;
 
-  // DATA SENSORS
+class GravityBang {
+  static constexpr unsigned c_decreaseFrequencyMs = 500;
+  static constexpr float c_decreaseValue = 0.4;
+  static constexpr float c_firstClip = 7;
+  static constexpr float c_secondClip = 3;
+public:
+  GravityBang() : sum_(0.0) {}
+
+  float update(const float proxyVariation) {
+    sum_ += proxyVariation;
+    sum_ = max(0.0, min(sum_, c_firstClip));
+    if (timer_ >= c_decreaseFrequencyMs) {
+      sum_ -= c_decreaseValue;
+      timer_ = 0;
+      Serial.printf("Gravity bang decreasing to %f\n", sum_);
+    }
+    const float result = min(sum_, c_secondClip);
+    return result / c_secondClip;
+  }
+
+  void reset() {
+    sum_ = 0.0;
+    timer_ = 0;
+  }
+private:
+  float sum_;
+  elapsedMillis timer_;
+};
+
+GravityBang gravityBang;
+
 float Proxi() {
   const float Proximeter = analogRead(PROXI_PIN);
+  MedianProx.in(Proximeter);
+  const float ProxiMedian = MedianProx.out();
+  const float ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
+  const float ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
   switch(proxyDetectionMode) {
     case(0): {
-      MedianProx.in(Proximeter);
-      const float ProxiMedian = MedianProx.out();
-      const float ProxiClip = constrain(ProxiMedian, ProxiMin, ProxiMax);
-      const float ProxiScale = map(ProxiClip, ProxiMin, ProxiMax, 0, 1.0);
       return ProxiScale;
     }
     case(1): {
-      return 0.0f;
+      return gravityBang.update(ProxiScale);
     }
     default: {
       return 1.0f;
@@ -153,7 +183,6 @@ public:
 
     // Variability detection
     const float peakValue = abs(lastAverage_ - lastValue_);
-    Serial.println(peakValue);
     if (hasHitMax_) {
      if (peakValue < (Hysteresis_ * Threshold_)) {
         hasDetected_ = true;
@@ -163,9 +192,9 @@ public:
     } else {
       hasDetected_ = false;
       hasHitMax_ = peakValue >= Threshold_;
-    if (hasHitMax_) {
-      Serial.println("hasHitMax_");
-    }
+      if (hasHitMax_) {
+        Serial.println("hasHitMax_");
+      }
     }
   }
 
@@ -194,9 +223,4 @@ private:
   bool hasHitMax_;
   bool hasDetected_;
 };
-
-
-// CALIB MICRO & RETURN VALUE
-
-
 
