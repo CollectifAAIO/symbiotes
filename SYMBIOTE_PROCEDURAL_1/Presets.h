@@ -215,7 +215,7 @@ void ParseBinaryPresets(const BinaryPreset * data_1, const BinaryPreset * data_2
 #ifdef PRESET_DEBUG
       //parmValues.dump();
 #endif // PRESET_DEBUG
-      if (parmIndex > SynthParameterIndex::synth_Count) {
+      if (parmIndex >= SynthParameterIndex::synth_Count) {
         const SequencerParameterIndex seqParmIndex = static_cast<SequencerParameterIndex>(parmIndex - SynthParameterIndex::synth_Count);
         seq.setIndexedParameter(presetIndex, seqParmIndex, parmValues);
       } else {
