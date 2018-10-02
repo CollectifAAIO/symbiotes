@@ -23,7 +23,7 @@
 //#define SEQ_DEBUG
 
 enum SequencerParameterIndex {
-  seq_randomizeSeqOrSound,
+  seq_RandomizeSeqOrSound,
   seq_loop,
   seq_bpm,
   seq_RestartFrom0,
@@ -43,11 +43,15 @@ struct SequencerParms {
     unsigned bpm = 120,
     unsigned stepsCount = 5,
     bool isLooping = false,
-    float DutyCycle = 0.5f) :
+    float DutyCycle = 0.5f,
+    bool RandomizeSeqOrSound = false,
+    float RandomSpeed = 100) :
     bpm_(bpm),
     stepsCount_(stepsCount),
     isLooping_(isLooping),
     DutyCycle_(DutyCycle),
+    RandomizeSeqOrSound_(RandomizeSeqOrSound),
+    RandomSpeed_(RandomSpeed),
     arpeg_(),
     Trigers_() {
       arpeg_.data_[0] = 16.2;
@@ -66,7 +70,8 @@ struct SequencerParms {
     Serial.printf("Sequencer: set parameter %d\n", (int)parmIndex);
 #endif // SEQ_DEBUG
     switch(parmIndex) {
-    case seq_randomizeSeqOrSound:{
+    case seq_RandomizeSeqOrSound:{
+      RandomizeSeqOrSound_ = parmValues.data_[0] > 0.5f;
       break;
     }
     case seq_loop:{
@@ -85,6 +90,7 @@ struct SequencerParms {
       break;
     }
     case seq_RandomSpeed:{
+      RandomSpeed_ = parmValues.data_[0];
       break;
     }
     case seq_DutyCycle:{
@@ -116,14 +122,17 @@ struct SequencerParms {
   }
 
   void dump() const {
-    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpeg_0 1 2 3: %f %f %f %f; Trigers_0 1 2 3: %f %f %f %f;\n",
-                  bpm_, stepsCount_, isLooping_, DutyCycle_, arpeg_.data_[0], arpeg_.data_[1], arpeg_.data_[2], arpeg_.data_[3], Trigers_.data_[0], Trigers_.data_[1], Trigers_.data_[2], Trigers_.data_[3]);
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; RandomizeSeqOrSound_: %d; RandomSpeed_: %f; arpeg_0 1 2 3: %f %f %f %f; Trigers_0 1 2 3: %f %f %f %f;\n",
+                  bpm_, stepsCount_, isLooping_, DutyCycle_, RandomizeSeqOrSound_, RandomSpeed_,
+                  arpeg_.data_[0], arpeg_.data_[1], arpeg_.data_[2], arpeg_.data_[3], Trigers_.data_[0], Trigers_.data_[1], Trigers_.data_[2], Trigers_.data_[3]);
   }
 
   unsigned bpm_;
   unsigned stepsCount_;
   bool isLooping_;
   float DutyCycle_;
+  bool RandomizeSeqOrSound_;
+  float RandomSpeed_;
   ParameterValues arpeg_;
   ParameterValues Trigers_;
 };
@@ -134,19 +143,23 @@ struct SequencerParmsInstance {
     unsigned stepsCount = 5,
     bool isLooping = false,
     float DutyCycle = 0.5f,
+    bool RandomizeSeqOrSound = false,
+    float RandomSpeed = 100,
     const ParameterValues & arpeg = {},
     const ParameterValues & Trigers = {}) :
     bpm_(bpm),
     stepsCount_(stepsCount),
     isLooping_(isLooping),
     DutyCycle_(DutyCycle),
+    RandomizeSeqOrSound_(RandomizeSeqOrSound),
+    RandomSpeed_(RandomSpeed),
     arpeg_(arpeg),
     Trigers_(Trigers) {
   }
 
   void dump() const {
-    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; arpegs: %f %f %f %f %f %f %f %f; Trigers: %f %f %f %f %f %f %f %f;\n",
-                  bpm_, stepsCount_, isLooping_, DutyCycle_,
+    Serial.printf("bpm_: %d; stepsCount_: %d; isLooping_: %d; DutyCycle_: %f; RandomizeSeqOrSound_: %d; RandomSpeed_: %f; arpegs: %f %f %f %f %f %f %f %f; Trigers: %f %f %f %f %f %f %f %f;\n",
+                  bpm_, stepsCount_, isLooping_, DutyCycle_, RandomizeSeqOrSound_, RandomSpeed_,
                   arpeg_.data_[0], arpeg_.data_[1], arpeg_.data_[2], arpeg_.data_[3], arpeg_.data_[4], arpeg_.data_[5], arpeg_.data_[6], arpeg_.data_[7],
                   Trigers_.data_[0], Trigers_.data_[1], Trigers_.data_[2], Trigers_.data_[3], Trigers_.data_[4], Trigers_.data_[5], Trigers_.data_[6], Trigers_.data_[7]);
   }
@@ -156,6 +169,8 @@ struct SequencerParmsInstance {
     stepsCount_ = Lerp(stepsCount_, rhs.stepsCount_, interpolationFactor);
     isLooping_ = Lerp(isLooping_, rhs.isLooping_, interpolationFactor);
     DutyCycle_ = Lerp(DutyCycle_, rhs.DutyCycle_, interpolationFactor);
+    RandomizeSeqOrSound_ = Lerp(RandomizeSeqOrSound_, rhs.RandomizeSeqOrSound_, interpolationFactor);
+    RandomSpeed_ = Lerp(RandomSpeed_, rhs.RandomSpeed_, interpolationFactor);
     arpeg_ = Lerp(arpeg_, rhs.arpeg_, interpolationFactor);
     Trigers_ = Lerp(Trigers_, rhs.Trigers_, interpolationFactor);
   }
@@ -163,6 +178,8 @@ struct SequencerParmsInstance {
   unsigned stepsCount_;
   bool isLooping_;
   float DutyCycle_;
+  bool RandomizeSeqOrSound_;
+  float RandomSpeed_;
   ParameterValues arpeg_;
   ParameterValues Trigers_;
 };
@@ -227,6 +244,8 @@ class Sequencer {
         parmsTemplate_[i].stepsCount_,
         parmsTemplate_[i].isLooping_,
         parmsTemplate_[i].DutyCycle_,
+        parmsTemplate_[i].RandomizeSeqOrSound_,
+        parmsTemplate_[i].RandomSpeed_,
         parmsTemplate_[i].arpeg_,
         parmsTemplate_[i].Trigers_);
     }

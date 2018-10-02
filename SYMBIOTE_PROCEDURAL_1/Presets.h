@@ -68,7 +68,7 @@ static const String c_tokens[] = {
   "LADSR_Sus_rand",
   "LADSR_Rel_rand",
   "Vol",
-  "randomizeSeqOrSound",
+  "RandomizeSeqOrSound",
   "loop",
   "bpm",
   "RestartFrom0",
