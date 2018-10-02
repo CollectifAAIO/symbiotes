@@ -146,9 +146,9 @@ struct ADSRParms {
       }
     }
 
-    void dump() const {
-      Serial.printf("AtkMs_: %d; DcayMs_: %d; Sus_: %f; RlsMs_: %d; DelayMs_: %d\n",
-                    AtkMs_, DcayMs_, Sus_, RlsMs_, DelayMs_);
+    void dump(const unsigned stripIndex, const char * prefix, const char * suffix) const {
+      Serial.printf("%d-pst-%sADSR_Atk%s %d;\n%d-pst-%sADSR_Dcay%s %d;\n%d-pst-%sADSR_Sus%s %f;\n%d-pst-%sADSR_Rel%s %d;\n%d-pst-%sADSR_Dlay%s %d;\n",
+                    stripIndex, prefix, suffix, AtkMs_, stripIndex, prefix, suffix, DcayMs_, stripIndex, prefix, suffix, Sus_, stripIndex, prefix, suffix, RlsMs_, stripIndex, prefix, suffix, DelayMs_);
     }
 
     unsigned AtkMs_;
@@ -370,17 +370,18 @@ struct SynthStripParms {
     }
   }
 
-  void dump() const {
+  void dump(const unsigned stripIndex) const {
     Serial.println("StripParmsTemplate Vol/Pitch parms");
-    VolParms_.dump();
-    PitchParms_.dump();
+    VolParms_.dump(stripIndex, "L", "");
+    PitchParms_.dump(stripIndex, "P", "");
     Serial.println("StripParmsTemplate Vol/Pitch random parms");
-    VolParmsRand_.dump();
-    PitchParmsRand_.dump();
-    Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; Transpose_: %d; Octave_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, LADSR_Amp_, FreqOsc_, ListenSeq_, Transpose_, Octave_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, AMdepth_, AMFreq_, WaveformAM_);
-    Serial.printf("FreqOscRand_: %d; FMOsc1toOscRand_: %f; FMOsc2toOscRand_: %f; FMOsc3toOscRand_: %f; FMOsc4toOscRand_: %f; AMdepthRand_: %f; AMFreqRand_: %d;\n",
-                  FreqOscRand_, FMOsc1toOscRand_, FMOsc2toOscRand_, FMOsc3toOscRand_, FMOsc4toOscRand_, AMdepthRand_, AMFreqRand_);
+    VolParmsRand_.dump(stripIndex, "L", "_rand");
+    PitchParmsRand_.dump(stripIndex, "P", "_rand");
+    Serial.printf("%d-pst-waveform %d;\n%d-pst-Pitch %f;\n%d-pst-Pitch_rand %f;\n%d-pst-ListenSeq %d;\n%d-pst-Transpose %d;\n%d-pst-Octave %d;\n%d-pst-FM_Osc1 %f;\n%d-pst-FM_Osc2 %f;\n%d-pst-FM_Osc3 %f;\n%d-pst-FM_Osc4 %f;\n%d-pst-FM_Osc1_rand %f;\n%d-pst-FM_Osc2_rand %f;\n%d-pst-FM_Osc3_rand %f;\n%d-pst-FM_Osc4_rand %f;\n%d-pst-AM_Waveform %d;\n%d-pst-AM_Depth %f;\n%d-pst-AM_Freq %f;\n%d-pst-AM_Depth_rand %f;\n%d-pst-AM_Freq_rand %f;\n%d-pst-Vol %f;\n",
+                  stripIndex, WaveformOSC_, stripIndex, FreqOsc_, stripIndex, FreqOscRand_, stripIndex, ListenSeq_, stripIndex, Transpose_, stripIndex, Octave_,
+                  stripIndex, FMOsc1toOsc_, stripIndex, FMOsc2toOsc_, stripIndex, FMOsc3toOsc_, stripIndex, FMOsc4toOsc_,
+                  stripIndex, FMOsc1toOscRand_, stripIndex, FMOsc2toOscRand_, stripIndex, FMOsc3toOscRand_, stripIndex, FMOsc4toOscRand_,
+                  stripIndex, WaveformAM_, stripIndex, AMdepth_, stripIndex, AMFreq_, stripIndex, AMdepthRand_, stripIndex, AMFreqRand_, stripIndex, Vol_);
   }
 
   // Only accessible through getters so we can implement randomness etc.
@@ -537,11 +538,11 @@ struct SynthStripParmsInstance {
   unsigned WaveformAM_;      // Waveform of AM (Waveform selected in the array between 0 & 7.)
 
   void dump() const {
-    Serial.println("StripParmsInstance");
-    VolParms_.dump();
-    PitchParms_.dump();
-    Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; Vol_: %f, AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
-                  WaveformOSC_, LADSR_Amp_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, Vol_, AMdepth_, AMFreq_, WaveformAM_);
+    //Serial.println("StripParmsInstance");
+    //VolParms_.dump();
+    //PitchParms_.dump();
+    //Serial.printf("WaveformOSC_: %d; LADSR_Amp_: %f, FreqOsc_: %d; ListenSeq_: %d; PitchDepth_: %f; FMOsc1toOsc_: %f; FMOsc2toOsc_: %f; FMOsc3toOsc_: %f; FMOsc4toOsc_: %f; Vol_: %f, AMdepth_: %f; AMFreq_: %d; WaveformAM_: %d;\n",
+    //              WaveformOSC_, LADSR_Amp_, FreqOsc_, ListenSeq_, PitchDepth_, FMOsc1toOsc_, FMOsc2toOsc_, FMOsc3toOsc_, FMOsc4toOsc_, Vol_, AMdepth_, AMFreq_, WaveformAM_);
   }
 
   void LerpWith(const SynthStripParmsInstance & rhs, const float interpolationFactor) {
@@ -679,9 +680,9 @@ struct SynthStrip {
     PitchEnvOsc_.noteOff();
   }
 
-  void dump() const {
+  void dump(const unsigned stripIndex) const {
     parms_.dump();
-    parmsTemplate_[0].dump();
+    parmsTemplate_[0].dump(stripIndex);
   }
 
   bool isPlaying() const {
@@ -875,7 +876,10 @@ class FM4 {
   }
 
   void dumpParms() const {
-    getStrip(0)->dump();
+    getStrip(0)->dump(1);
+    getStrip(1)->dump(2);
+    getStrip(2)->dump(3);
+    getStrip(3)->dump(4);
   }
 
   bool isPlaying() const {
