@@ -25,6 +25,7 @@
 
 static FM4 FM4synth;
 static Sequencer seq;
+static MicDetection micDetection;
 
 #define PARMS_DUMP
 
@@ -64,11 +65,11 @@ void loop() {
   seq.setInterpolationFactor(MACROExpressivite);
   FM4synth.setInterpolationFactor(MACROExpressivite);
 
-  if ( peak1.available() ) {
-    if ( peak1.read() > 0.25 ) {
-      //seq.start();
-      //seq.noteOn(FM4synth);
-    }
+  // Mic detection
+  micDetection.update();
+  if (micDetection.hasDetected()) {
+    seq.start();
+    seq.noteOn();
   }
 
   seq.update(FM4synth);

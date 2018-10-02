@@ -27,6 +27,9 @@ AudioInputI2S     audioInput;
 AudioAnalyzePeak  peak1;
 AudioConnection   patchCord(audioInput, peak1);
 
+AudioAnalyzeRMS   rms;
+AudioConnection   patchCordRMS(audioInput, rms);
+
 // Synth 1
 AudioSynthWaveformDc     PitchEnvDepthOsc1; //xy=92.5,45
 AudioEffectEnvelope      PitchEnvOsc1;   //xy=287.5,45

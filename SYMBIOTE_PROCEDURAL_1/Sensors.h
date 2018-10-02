@@ -63,8 +63,123 @@ float Proxi() {
 
 // CALIB MICRO & RETURN VALUE
 
-// record the minimum Micro Value
-//    if (Micro_Moyenne < MicroMin) {
-//      MicroMin = Micro_Moyenne;
-//    }
+enum MicDetectionParameterIndex {
+  mic_Threshold,
+  mic_Hysteresis,
+  mic_WindowLength,
+  mic_Count
+};
+
+class MicDetection {
+public:
+  static constexpr float c_extremeMin = 0.0;
+  static constexpr float c_extremeMax = 1.0;
+  MicDetection(
+    float Threshold = 0.5,
+    float Hysteresis = 0.8,
+    unsigned WindowLength = 50) :
+  Threshold_(Threshold),
+  Hysteresis_(Hysteresis),
+  WindowLength_(WindowLength),
+  median_(5, 0),
+  average_(50),
+  calibMin_(1.0),
+  calibMax_(0.0),
+  lastValue_(0.0),
+  lastAverage_(0.0),
+  hasHitMax_(false) {
+    average_.clear();
+  }
+
+  void setIndexedParameter(const MicDetectionParameterIndex parmIndex, const ParameterValues & parmValues ) {
+    switch(parmIndex) {
+    case mic_Threshold:{
+      Threshold_ = parmValues.data_[0];
+      break;
+    }
+    case mic_Hysteresis:{
+      Hysteresis_ = parmValues.data_[0];
+      break;
+    }
+    case mic_WindowLength:{
+      WindowLength_ = static_cast<unsigned>(parmValues.data_[0]);
+      break;
+    }
+    default:{
+      Serial.println("Bad parameter index.");
+      break;
+    }
+    }
+  }
+
+  void update() {
+    delay(50);
+    const float current = rms.read();
+    // Median filter
+    const float currentMedian = current;//0.01 * median_.in(current * 100);
+    // Autocalibration
+    calibMin_ = min(currentMedian, calibMin_);
+    calibMax_ = max(currentMedian, calibMax_);
+
+    // invert direction
+    lastValue_ = currentMedian;//1.0 - currentMedian;
+
+    // Running average
+    average_.addValue(currentMedian);
+    const float average = average_.getAverage();
+
+    // clip
+    const float clippedCurrent = min(c_extremeMax, max(c_extremeMin, average));
+    // scale
+    const float normalisedCurrent = c_extremeMin + clippedCurrent * (c_extremeMax - c_extremeMin);
+    lastAverage_ = normalisedCurrent;
+
+    // Variability detection
+    const float peakValue = abs(lastAverage_ - lastValue_);
+    Serial.println(peakValue);
+    if (hasHitMax_) {
+     if (peakValue < (Hysteresis_ * Threshold_)) {
+        hasDetected_ = true;
+        // reset state
+        hasHitMax_ = false;
+     }
+    } else {
+      hasDetected_ = false;
+      hasHitMax_ = peakValue >= Threshold_;
+    if (hasHitMax_) {
+      Serial.println("hasHitMax_");
+    }
+    }
+  }
+
+  bool hasDetected() const {
+    if (hasDetected_) {
+      Serial.println("trigger");
+    }
+    return hasDetected_;
+  }
+
+  void dump() const {
+    Serial.printf("Threshold_: %f; Hysteresis_: %f; WindowLength_: %d; calibMin_: %f; calibMax_: %f; lastValue_: %f; lastAverage_: %f;\n",
+                  Threshold_, Hysteresis_, WindowLength_, calibMin_, calibMax_, lastValue_, lastAverage_);
+  }
+
+private:
+  float Threshold_;
+  float Hysteresis_;
+  unsigned WindowLength_;
+  MedianFilter median_;
+  RunningAverage average_;
+  float calibMin_;
+  float calibMax_;
+  float lastValue_;
+  float lastAverage_;
+  bool hasHitMax_;
+  bool hasDetected_;
+};
+
+
+// CALIB MICRO & RETURN VALUE
+
+
 
