@@ -125,12 +125,10 @@ AudioConnection          patchCord2(Noise, 0, mixerOSC2, 2);
 AudioConnection          patchCord3(Noise, 0, mixerOSC3, 2);
 AudioConnection          patchCord4(Noise, 0, mixerOSC4, 2);
 
-AudioConnection          patchCord53(AM4, 0, mixerMASTER, 3);
 AudioConnection          patchCord54(AM4, 0, mixerOSCtoOSC1, 3);
 AudioConnection          patchCord55(AM4, 0, mixerOSCtoOSC2, 3);
 AudioConnection          patchCord56(AM4, 0, mixerOSCtoOSC3, 3);
 AudioConnection          patchCord57(AM4, 0, mixerOSCtoOSC4, 3);
-AudioConnection          patchCord58(AM1, 0, mixerMASTER, 0);
 AudioConnection          patchCord59(AM1, 0, mixerOSCtoOSC1, 0);
 AudioConnection          patchCord60(AM1, 0, mixerOSCtoOSC2, 0);
 AudioConnection          patchCord61(AM1, 0, mixerOSCtoOSC3, 0);
@@ -139,12 +137,15 @@ AudioConnection          patchCord63(AM2, 0, mixerOSCtoOSC1, 1);
 AudioConnection          patchCord64(AM2, 0, mixerOSCtoOSC3, 1);
 AudioConnection          patchCord65(AM2, 0, mixerOSCtoOSC2, 1);
 AudioConnection          patchCord66(AM2, 0, mixerOSCtoOSC4, 1);
-AudioConnection          patchCord67(AM2, 0, mixerMASTER, 1);
 AudioConnection          patchCord68(AM3, 0, mixerOSCtoOSC1, 2);
 AudioConnection          patchCord69(AM3, 0, mixerOSCtoOSC2, 2);
 AudioConnection          patchCord70(AM3, 0, mixerOSCtoOSC3, 2);
 AudioConnection          patchCord71(AM3, 0, mixerOSCtoOSC4, 2);
-AudioConnection          patchCord72(AM3, 0, mixerMASTER, 2);
+
+AudioConnection          patchCordFinal1(AM1, 0, mixerMASTER, 0);
+AudioConnection          patchCordFinal2(AM2, 0, mixerMASTER, 1);
+AudioConnection          patchCordFinal3(AM3, 0, mixerMASTER, 2);
+AudioConnection          patchCordFinal4(AM4, 0, mixerMASTER, 3);
 
 AudioConnection          patchCord73(mixerMASTER, 0, i2s1, 0);
 AudioConnection          patchCord74(mixerMASTER, 0, i2s1, 1);

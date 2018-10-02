@@ -595,10 +595,10 @@ struct SynthStrip {
     // Set null values for parameters we won't touch
     VolEnvOsc_.hold( 0 );
     PitchEnvOsc_.hold( 0 );
+    AMdc_.amplitude(1.0);
     WaveAM_.begin(1, 4, WAVEFORM_TRIANGLE);
     mixerOSC_.gain(1, 1);    // Importance of pitch enveloppe in the modulation
     mixerOSC_.gain(2, 0);  // Depth of FM OSCILLATORS
-
     AudioInterrupts();
   }
 
@@ -645,8 +645,6 @@ struct SynthStrip {
     mixerOSCtoOSC_.gain(3, parms_.FMOsc4toOsc_);     // Depth of FM from OSC4
 
     // AM
-    AMdc_.amplitude(parms_.Vol_);
-
     mixerAM_.gain(0, parms_.AMdepth_);
     mixerAM_.gain(1, 1.0 - parms_.AMdepth_);
 
@@ -720,6 +718,8 @@ struct SynthStrip {
     morphed.LerpWith(newInstances[1], interpolationFactor);
     setAllParms(morphed);
   }
+
+  friend class FM4;
 
   SynthStripParmsInstance parms_;
   SynthStripParms parmsTemplate_[c_templatesCount];
@@ -822,16 +822,12 @@ class FM4 {
 #ifdef SYNTH_DEBUG
     Serial.println(">>>>>>>> NOTE ON !! <<<<<<<<");
 #endif // SYNTH_DEBUG
-    float VolOsc1 = 1.0;  // Oscillator 1 Level
-    float VolOsc2 = 0.0;  // Oscillator 2 Level
-    float VolOsc3 = 0.0;  // Oscillator 3 Level
-    float VolOsc4 = 0.0;  // Oscillator 4 Level
 
     AudioNoInterrupts();
-    mixerMASTER.gain(0, VolOsc1);
-    mixerMASTER.gain(1, VolOsc2);
-    mixerMASTER.gain(2, VolOsc3);
-    mixerMASTER.gain(3, VolOsc4);
+    mixerMASTER.gain(0, strip1_.parms_.Vol_);
+    mixerMASTER.gain(1, strip2_.parms_.Vol_);
+    mixerMASTER.gain(2, strip3_.parms_.Vol_);
+    mixerMASTER.gain(3, strip4_.parms_.Vol_);
 
     AudioInterrupts();
     const float noteFreqHz = mtof(midiNote);
