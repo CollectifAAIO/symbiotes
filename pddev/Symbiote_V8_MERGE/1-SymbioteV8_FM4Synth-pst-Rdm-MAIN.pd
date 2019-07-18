@@ -1,4 +1,4 @@
-#N canvas 197 23 1224 766 10;
+#N canvas 0 97 1920 983 10;
 #X obj 814 277 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
 #X obj 8 682 catch~ 1-Osc;
@@ -147,15 +147,12 @@
 #X obj 539 71 del 100;
 #X obj 7 275 FM_Osc 1;
 #X obj 271 811 *~;
-#X obj 286 726 r noise-average;
 #X obj 286 835 dac~;
 #X floatatom 286 748 5 0 0 0 - - -, f 5;
-#X obj 286 767 scale 0 50 0.1 1;
 #X text 876 420 4 = noise average;
 #X text 876 433 5 = mic gravity bang;
 #X text 876 381 1 = proxi gravity bang;
 #X obj 649 28 r proxi-variations;
-#X obj 286 789 clip 0.1 1;
 #X connect 1 0 40 0;
 #X connect 2 0 40 0;
 #X connect 3 0 40 0;
@@ -173,11 +170,8 @@
 #X connect 33 0 30 0;
 #X connect 37 0 9 0;
 #X connect 38 0 10 0;
-#X connect 40 0 42 0;
-#X connect 40 0 42 1;
+#X connect 40 0 41 0;
+#X connect 40 0 41 1;
 #X connect 40 0 15 0;
-#X connect 41 0 43 0;
-#X connect 43 0 44 0;
-#X connect 44 0 49 0;
-#X connect 48 0 8 0;
-#X connect 49 0 40 1;
+#X connect 42 0 40 1;
+#X connect 46 0 8 0;
