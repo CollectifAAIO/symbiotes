@@ -1,5 +1,5 @@
-#N canvas 272 143 956 882 10;
-#X obj 814 277 vsl 40 397 0 1 0 0 MACRO empty MACRO 2 7 1 10 -99865
+#N canvas 2125 147 1357 996 10;
+#X obj 814 277 vsl 40 397 0 1 0 0 \$0-MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
 #X obj 8 682 catch~ 1-Osc;
 #X obj 102 682 catch~ 2-Osc;
@@ -19,7 +19,7 @@
 #X connect 3 0 7 0;
 #X connect 4 0 5 0;
 #X restore 480 27 pd init;
-#N canvas 664 23 656 301 store-pst 0;
+#N canvas 2186 337 656 301 store-pst 0;
 #X obj 105 98 r store-pst;
 #X obj 46 56 bng 15 250 50 0 empty empty SAVE 17 7 0 10 -262144 -1
 -1;
@@ -29,8 +29,8 @@
 #X obj 43 120 t s b b;
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
-#X obj 215 55 hsl 115 15 0 1 0 0 pst-morph MACRO MORPH 0 8 0 10 -262144
--1 -1 0 1;
+#X obj 215 55 hsl 115 15 0 1 0 0 \$0-pst-morph \$0-MACRO MORPH 0 8
+0 10 -262144 -1 -1 0 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
@@ -39,7 +39,6 @@
 #X obj 190 129 openpanel;
 #X msg 280 180 read \$1;
 #X obj 190 151 t b b s;
-#X obj 222 279 s pst;
 #X obj 103 66 bng 15 250 50 0 empty empty OPEN_PRESET_2 17 7 0 10 -262144
 -1 -1;
 #X obj 190 98 t b b;
@@ -49,35 +48,36 @@
 #X obj 43 241 qlist;
 #X obj 190 257 t b l;
 #X obj 190 235 list prepend;
+#X obj 222 279 s \$0-pst;
 #X connect 0 0 4 0;
 #X connect 1 0 2 0;
 #X connect 2 0 5 0;
-#X connect 4 0 22 0;
+#X connect 4 0 21 0;
 #X connect 5 0 6 0;
 #X connect 5 1 3 0;
 #X connect 5 2 7 0;
-#X connect 6 0 22 0;
-#X connect 7 0 22 0;
+#X connect 6 0 21 0;
+#X connect 7 0 21 0;
 #X connect 9 0 11 0;
 #X connect 10 0 11 0;
-#X connect 11 0 24 0;
+#X connect 11 0 23 0;
 #X connect 11 1 9 1;
-#X connect 12 0 18 0;
+#X connect 12 0 17 0;
 #X connect 13 0 15 0;
 #X connect 14 0 11 0;
 #X connect 15 0 9 0;
 #X connect 15 1 10 0;
 #X connect 15 2 14 0;
-#X connect 17 0 19 0;
+#X connect 16 0 18 0;
+#X connect 17 0 13 0;
+#X connect 17 1 20 0;
 #X connect 18 0 13 0;
-#X connect 18 1 21 0;
-#X connect 19 0 13 0;
-#X connect 19 1 20 0;
-#X connect 20 0 24 1;
-#X connect 21 0 24 1;
-#X connect 23 0 8 0;
-#X connect 23 1 16 0;
-#X connect 24 0 23 0;
+#X connect 18 1 19 0;
+#X connect 19 0 23 1;
+#X connect 20 0 23 1;
+#X connect 22 0 8 0;
+#X connect 22 1 24 0;
+#X connect 23 0 22 0;
 #X coords 0 -1 1 1 300 50 1 40 35;
 #X restore 476 222 pd store-pst;
 #X obj 7 27 Sequencer;
