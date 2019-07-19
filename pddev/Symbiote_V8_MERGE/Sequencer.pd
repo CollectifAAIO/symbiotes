@@ -363,10 +363,10 @@ pst-StepNumber pst-RandomSpeed pst-Trigers;
 #X obj 14 359 % 16;
 #X obj 14 450 array get arpeg;
 #X obj 179 490 hradio 15 1 0 16 empty empty empty 0 -8 0 10 -66577
--4032 -1 0;
+-4032 -1 15;
 #X msg 609 123 \; arpeg xticks 0 1 1;
 #X obj 806 277 tgl 15 0 random-trig set-random-trig Random_trigger
-25 10 0 10 -4032 -1 -1 1 1;
+25 10 0 10 -4032 -1 -1 0 1;
 #X text 739 147 Set array display properties;
 #X msg 609 158 \; arpeg yticks 0 1 2;
 #X msg 609 193 \; arpeg ylabel -0.25 0-rest 1-c 2-c# 3-d 4-d# 5-e 6-f
@@ -461,6 +461,7 @@ mapped to microphone peak, f 16;
 #X msg 884 399 1;
 #X obj 884 421 s Play;
 #X obj 887 359 - 1000;
+#X floatatom 884 339 5 0 0 0 - - -, f 5;
 #X connect 0 0 80 0;
 #X connect 1 0 11 0;
 #X connect 2 0 36 0;
@@ -543,10 +544,11 @@ mapped to microphone peak, f 16;
 #X connect 83 0 84 0;
 #X connect 84 0 42 0;
 #X connect 85 0 87 0;
-#X connect 86 0 85 1;
+#X connect 86 0 94 0;
 #X connect 87 0 88 0;
 #X connect 87 1 91 0;
 #X connect 88 0 86 0;
 #X connect 91 0 92 0;
 #X connect 93 0 88 1;
+#X connect 94 0 85 1;
 #X coords 0 -1 1 1 465 245 2 135 270;
