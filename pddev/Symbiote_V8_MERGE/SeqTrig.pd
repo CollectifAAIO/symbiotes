@@ -1,4 +1,4 @@
-#N canvas 174 76 1106 702 10;
+#N canvas 2142 703 1106 702 10;
 #X obj 39 128 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 24 128 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
@@ -98,10 +98,14 @@
 #X obj 342 401 t b f;
 #X obj 57 272 expr if($f2 == 0 \, 0.01 \, $f1 * $f2);
 #X obj 6 273 t b f;
-#X obj 128 15 r \$0-ms-per-beat;
-#X obj 297 138 r \$0-DutyCycle;
-#X obj 406 401 r \$0-set-Trigers;
-#X obj 63 485 s \$0-Trigers;
+#X obj 128 15 inlet;
+#X text 170 15 ms-per-beat;
+#X obj 260 13 inlet;
+#X text 309 16 DutyCycle;
+#X obj 390 17 inlet;
+#X text 435 17 set-Trigers;
+#X obj 63 485 outlet;
+#X text 81 511 Trigers;
 #X connect 0 0 35 1;
 #X connect 0 0 65 0;
 #X connect 1 0 34 1;
@@ -210,7 +214,7 @@
 #X connect 58 0 52 0;
 #X connect 59 0 56 1;
 #X connect 59 1 58 1;
-#X connect 62 0 85 0;
+#X connect 62 0 88 0;
 #X connect 63 0 1 0;
 #X connect 63 0 1 0;
 #X connect 63 1 0 0;
@@ -277,6 +281,6 @@
 #X connect 81 0 51 0;
 #X connect 81 1 33 0;
 #X connect 82 0 80 0;
-#X connect 83 0 55 0;
-#X connect 84 0 63 0;
-#X coords 0 -1 1 1 242 17 1 23 127;
+#X connect 84 0 55 0;
+#X connect 86 0 63 0;
+#X coords 0 -1 1 1 250 20 1 23 127;
