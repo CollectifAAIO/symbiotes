@@ -1,10 +1,6 @@
 #N canvas 2115 139 1357 996 10;
-#X obj 814 277 vsl 40 397 0 1 0 0 \$0-MACRO empty MACRO 2 7 1 10 -99865
+#X obj 1130 306 vsl 40 397 0 1 0 0 \$0-MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
-#X obj 8 682 catch~ 1-Osc;
-#X obj 102 682 catch~ 2-Osc;
-#X obj 196 682 catch~ 3-Osc;
-#X obj 290 682 catch~ 4-Osc;
 #N canvas 420 289 356 174 init 0;
 #X text 6 8 Externals needed to run the patch: [scale];
 #X text 6 22 >> declare library maxlib;
@@ -82,12 +78,17 @@
 #X restore 476 222 pd store-pst;
 #X obj 7 27 Sequencer;
 #X text 688 106 Developed by Collectif AAIO;
-#X obj 411 275 FM_Osc 2;
-#X obj 7 477 FM_Osc 3;
-#X obj 411 477 FM_Osc 4;
-#X obj 7 275 FM_Osc 1;
-#X obj 271 811 dac~;
-#X connect 1 0 13 0;
-#X connect 2 0 13 0;
-#X connect 3 0 13 0;
-#X connect 4 0 13 0;
+#X obj 502 340 FM_Osc 2;
+#X obj 150 596 FM_Osc 3;
+#X obj 554 596 FM_Osc 4;
+#X obj 98 340 FM_Osc 1;
+#X obj 414 930 dac~;
+#X connect 3 0 8 4;
+#X connect 3 0 5 4;
+#X connect 3 0 6 4;
+#X connect 3 0 7 4;
+#X connect 3 1 5 5;
+#X connect 3 1 8 5;
+#X connect 3 1 6 5;
+#X connect 3 1 7 5;
+#X connect 8 0 9 1;
