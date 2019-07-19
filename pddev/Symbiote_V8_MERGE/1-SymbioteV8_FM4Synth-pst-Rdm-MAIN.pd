@@ -1,4 +1,4 @@
-#N canvas 2125 147 1357 996 10;
+#N canvas 2115 139 1357 996 10;
 #X obj 814 277 vsl 40 397 0 1 0 0 \$0-MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
 #X obj 8 682 catch~ 1-Osc;
@@ -81,26 +81,13 @@
 #X coords 0 -1 1 1 300 50 1 40 35;
 #X restore 476 222 pd store-pst;
 #X obj 7 27 Sequencer;
-#X obj 76 832 writesf~;
-#X msg 111 809 start;
-#X msg 152 809 stop;
-#X msg 76 788 open ./Sounds/Sample-6.wav;
 #X text 688 106 Developed by Collectif AAIO;
 #X obj 411 275 FM_Osc 2;
 #X obj 7 477 FM_Osc 3;
 #X obj 411 477 FM_Osc 4;
 #X obj 7 275 FM_Osc 1;
-#X obj 271 811 *~;
-#X obj 286 835 dac~;
-#X floatatom 286 748 5 0 0 0 - - -, f 5;
-#X connect 1 0 17 0;
-#X connect 2 0 17 0;
-#X connect 3 0 17 0;
-#X connect 4 0 17 0;
-#X connect 9 0 8 0;
-#X connect 10 0 8 0;
-#X connect 11 0 8 0;
-#X connect 17 0 18 0;
-#X connect 17 0 18 1;
-#X connect 17 0 8 0;
-#X connect 19 0 17 1;
+#X obj 271 811 dac~;
+#X connect 1 0 13 0;
+#X connect 2 0 13 0;
+#X connect 3 0 13 0;
+#X connect 4 0 13 0;
