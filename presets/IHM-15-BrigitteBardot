@@ -190,5 +190,5 @@
 9.33333 9.26668 0 0 0 0 0;
 0 pst-Trigers 1 1 1 1 1 1 0 1 1 0 0 0 0 0 0 0;
 0 pst-random-trig 0;
-0 pst-min-trigger-time 0;
-0 pst-max-trigger-time 0;
+0 pst-min-trigger-time 4800;
+0 pst-max-trigger-time 4800;
