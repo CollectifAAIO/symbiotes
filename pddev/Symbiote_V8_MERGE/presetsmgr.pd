@@ -1,0 +1,37 @@
+#N canvas 0 94 450 300 10;
+#X obj 106 209 until;
+#X msg 147 209 rewind;
+#X obj 106 242 textfile;
+#X obj 103 48 bng 15 250 50 0 empty empty OPEN_PRESET_1 17 7 0 10 -262144
+-1 -1;
+#X obj 106 158 openpanel;
+#X msg 196 209 read \$1;
+#X obj 106 180 t b b s;
+#X obj 103 66 bng 15 250 50 0 empty empty OPEN_PRESET_2 17 7 0 10 -262144
+-1 -1;
+#X obj 106 127 t b b;
+#X obj 147 127 t b b;
+#X msg 216 160 2;
+#X msg 186 160 1;
+#X obj 105 272 outlet;
+#X obj 236 274 outlet;
+#X text 154 273 Preset;
+#X text 292 273 PresetType;
+#X connect 0 0 2 0;
+#X connect 1 0 2 0;
+#X connect 2 0 12 0;
+#X connect 2 1 0 1;
+#X connect 3 0 8 0;
+#X connect 4 0 6 0;
+#X connect 5 0 2 0;
+#X connect 6 0 0 0;
+#X connect 6 1 1 0;
+#X connect 6 2 5 0;
+#X connect 7 0 9 0;
+#X connect 8 0 4 0;
+#X connect 8 1 11 0;
+#X connect 9 0 4 0;
+#X connect 9 1 10 0;
+#X connect 10 0 13 0;
+#X connect 11 0 13 0;
+#X coords 0 -1 1 1 100 50 1 100 40;

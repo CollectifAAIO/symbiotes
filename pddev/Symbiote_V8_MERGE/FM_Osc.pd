@@ -6,9 +6,9 @@
 0 100 0 10 -262144 -1 -1 0.421053;
 #X text 224 143 Saw;
 #X obj 556 115 vsl 40 100 0 1 0 0 \$0-Vol \$0-pst-Vol VOL 10 5 0 10
--99865 -262144 -262144 5153 1;
+-99865 -262144 -262144 0 1;
 #X obj 342 144 hsl 40 15 0 2000 0 0 \$0-FM_Osc2 \$0-pst-FM_Osc2 FM_Osc2
-0 8 0 10 -260097 -1 -262144 211 1;
+0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 342 175 hsl 40 15 0 2000 0 0 \$0-FM_Osc3 \$0-pst-FM_Osc3 FM_Osc3
 0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 342 205 hsl 40 15 0 2000 0 0 \$0-FM_Osc4 \$0-pst-FM_Osc4 FM_Osc4
@@ -26,15 +26,15 @@ AM_WAVEFORM 0 100 0 10 -262144 -1 -1 0;
 #X obj 273 243 nbx 4 14 0 3000 0 0 \$0-1ADSR_Dlay \$0-pst-1ADSR_Dlay
 Dlay 0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 337 243 nbx 4 14 0 1 0 0 \$0-1ADSR_Amp \$0-pst-1ADSR_Amp Atk.Amp
-0 -6 0 10 -36344 -1 -1 1 256;
+0 -6 0 10 -36344 -1 -1 0 256;
 #X obj 404 243 nbx 4 14 0 3000 0 0 \$0-1ADSR_Atk \$0-pst-1ADSR_Atk
-A 0 -6 0 10 -27631 -1 -1 2.26316 256;
+A 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 453 243 nbx 4 14 0 3000 0 0 \$0-1ADSR_Dcay \$0-pst-1ADSR_Dcay
 D 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 502 243 nbx 4 14 0 1 0 0 \$0-1ADSR_Sus \$0-pst-1ADSR_Sus S 0
--6 0 10 -27631 -1 -1 1 256;
+-6 0 10 -27631 -1 -1 0 256;
 #X obj 551 243 nbx 4 14 0 3000 0 0 \$0-1ADSR_Rel \$0-pst-1ADSR_Rel
-R 0 -6 0 10 -27631 -1 -1 1.21053 256;
+R 0 -6 0 10 -27631 -1 -1 0 256;
 #X obj 273 271 nbx 4 14 0 3000 0 0 \$0-0ADSR_Dlay \$0-pst-0ADSR_Dlay
 empty 48 8 0 10 -56448 -1 -1 0 256;
 #X obj 338 271 nbx 4 14 0 2000 0 0 \$0-0ADSR_Amp \$0-pst-0ADSR_Amp
@@ -49,7 +49,7 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 empty 48 8 0 10 -51896 -1 -1 0 256;
 #X text 202 268 PITCH ENV;
 #X obj 342 113 hsl 40 15 0 2000 0 0 \$0-FM_Osc1 \$0-pst-FM_Osc1 FM_Osc1
-0 8 0 10 -260097 -1 -262144 326 1;
+0 8 0 10 -260097 -1 -262144 0 1;
 #X obj 123 571 *~;
 #X obj 138 98 loadbang;
 #X text 154 508 AMPLITUDE ENVELOPPE;
@@ -57,7 +57,7 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 #X obj 556 536 line;
 #X msg 556 514 \$1 100;
 #X obj 273 113 nbx 5 25 0 20000 0 0 empty empty Pitch 0 -7 0 10 -27631
--262144 -1 1567.98 256;
+-262144 -1 0 256;
 #X obj 123 297 line;
 #X obj 276 182 hsl 40 15 0 2000 0 0 \$0-glide \$0-pst-glide Glide 5
 8 0 10 -4032 -1 -1 0 1;
@@ -638,7 +638,7 @@ empty 48 8 0 10 -51896 -1 -1 0 256;
 #X connect 9 10 3 0;
 #X restore 1009 189 pd presets;
 #X obj 1009 159 f \$1;
-#N canvas 262 200 1658 827 pst-routing 1;
+#N canvas 252 192 1658 827 pst-routing 0;
 #X obj 10 41 route 1 2;
 #X obj 126 397 scale 0 1 0 1;
 #X obj 252 397 scale 0 1 0 1;
@@ -1038,7 +1038,7 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 #X obj 260 549 Randomize;
 #X obj 332 549 Randomize;
 #X obj 253 113 tgl 14 0 \$0-ListenSeq \$0-pst-ListenSeq Seq 0 -7 0
-10 -27631 -1 -1 1 1;
+10 -27631 -1 -1 0 1;
 #X obj 730 268 spigot;
 #X obj 730 242 expr ($f1+$i2)*pow(2 \, $i3);
 #X obj 787 219 t b f;
@@ -1047,7 +1047,7 @@ Rand 10 5 0 8 -128992 -262144 -262144 0 1;
 30 7 0 10 -20480 -1 -1 0 256;
 #X obj 787 187 r \$0-Transpose;
 #X obj 273 166 nbx 2 14 0 10 0 0 \$0-Octave \$0-pst-Octave Oct 30 7
-0 10 -20480 -1 -1 6.21053 256;
+0 10 -20480 -1 -1 0 256;
 #X obj 891 187 r \$0-Octave;
 #X text 682 142 Trig enveloppes & randomize;
 #X text 683 157 Send Note to Osc;
