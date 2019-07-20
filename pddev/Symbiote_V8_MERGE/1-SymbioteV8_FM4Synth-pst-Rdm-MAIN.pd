@@ -1,4 +1,4 @@
-#N canvas 563 88 1357 992 10;
+#N canvas 563 94 1357 986 10;
 #X obj 1130 306 vsl 40 397 0 1 0 0 \$0-MACRO empty MACRO 2 7 1 10 -99865
 -20480 -262144 0 1;
 #N canvas 420 289 356 174 init 0;
@@ -26,7 +26,7 @@
 #X msg 43 187 write \$1;
 #X msg 82 145 clear;
 #X obj 215 55 hsl 115 15 0 1 0 0 empty \$0-MACRO MORPH 0 8 0 10 -262144
--1 -1 4200 1;
+-1 -1 9000 1;
 #X obj 190 180 until;
 #X msg 231 180 rewind;
 #X obj 190 213 textfile;
